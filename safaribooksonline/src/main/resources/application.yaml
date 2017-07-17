@@ -1,0 +1,5 @@
+application:
+  output:
+    path: /dev/shm/book
+    text-file: index.html
+    executable-file: h.sh
