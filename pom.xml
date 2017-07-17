@@ -12,6 +12,7 @@
     <modules>
         <module>safaribooksonline</module>
         <module>stock</module>
+        <module>robinhood</module>
     </modules>
 
     <parent>
