@@ -1,5 +1,6 @@
 package home;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,13 +17,15 @@ public class AccountService {
     private final AuthenticationService authenticationService;
     private final ObjectMapper objectMapper;
 
+    private String accountUrl;
+
     public AccountService(AuthenticationService authenticationService, ObjectMapper objectMapper) {
         this.authenticationService = authenticationService;
         this.objectMapper = objectMapper;
     }
 
     // returns null if there's nothing else we can do
-    public String accountUrl() {
+    private String accountUrl() {
         RestTemplate restTemplate = new RestTemplate();
         try {
             RequestEntity<Void> request = RequestEntity
@@ -31,11 +34,27 @@ public class AccountService {
                     .header("Authorization", "Token " + authenticationService.getToken())
                     .build();
             ResponseEntity<String> response = restTemplate.exchange(request, String.class);
-            logger.debug("Logout: response status: {}", response.getStatusCode());
+            logger.debug("accountUrl reponse: status: {} body: {}", response.getStatusCode(), response.getBody());
+            JsonNode jsonNode = objectMapper.readTree(response.getBody());
+            if (jsonNode.has("results")) {
+                jsonNode = jsonNode.get("results");
+                if (jsonNode.isArray()) {
+                    String accountUrl = jsonNode.get(0).get("url").asText();
+                    logger.debug("accountUrl: {}", accountUrl);
+                    return accountUrl;
+                }
+            }
         }
         catch (Exception ex) {
             throw new RuntimeException("Fix me.", ex);
         }
         return null;
+    }
+
+    public String getAccountUrl() {
+        if (accountUrl == null) {
+            accountUrl = accountUrl();
+        }
+        return accountUrl;
     }
 }

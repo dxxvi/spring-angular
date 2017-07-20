@@ -25,7 +25,7 @@ public class AuthenticationService {
     private final ObjectMapper objectMapper;
 
     private String token;
-    private long tokenAge;             //
+    private long tokenAge;             // currentMilliseconds / 1000
 
     public AuthenticationService(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
@@ -51,15 +51,12 @@ public class AuthenticationService {
                 JsonNode jsonNode = objectMapper.readTree(response.getBody());
                 if (jsonNode.has("token")) {
                     token = jsonNode.get("token").asText();
+                    tokenAge = System.currentTimeMillis() / 1000;
+                    logger.debug("Login successfully");
                     return token;
                 }
-                else {
-                    logger.error("Unable to login: {}", response.getBody());
-                }
             }
-            else {
-                logger.error("Unable to login: status: {}, body: {}", response.getStatusCode(), response.getBody());
-            }
+            logger.error("Unable to login: status: {}, body: {}", response.getStatusCode(), response.getBody());
         }
         catch (Exception ex) {
             throw new RuntimeException("Fix me.", ex);
@@ -84,6 +81,10 @@ public class AuthenticationService {
     }
 
     public String getToken() {
-        return token;
+        if (System.currentTimeMillis() / 1000 - tokenAge < 120) {  // 2 mins
+            return token;
+        }
+
+        return login();
     }
 }
