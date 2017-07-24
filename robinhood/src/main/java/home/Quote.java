@@ -3,13 +3,14 @@ package home;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import static java.time.format.DateTimeFormatter.*;
 
-public class Quote implements Serializable {
+public class Quote {
     @JsonProperty(value = "symbol") private String symbol;
-    @JsonProperty(value = "last_trade_price") private float price;
+    @JsonProperty(value = "last_trade_price") private BigDecimal price;
     @JsonProperty(value = "updated_at") private LocalDateTime updatedAt;
     private String instrument;         // I think this instrument url is mapped 1:1 to the symbol
 
@@ -33,11 +34,11 @@ public class Quote implements Serializable {
         this.symbol = symbol;
     }
 
-    public float getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
-    public void setPrice(float price) {
+    public void setPrice(BigDecimal price) {
         this.price = price;
     }
 
@@ -64,5 +65,41 @@ public class Quote implements Serializable {
     public Quote setFrom(LocalTime from) {
         this.from = from;
         return this;
+    }
+
+    @Override public String toString() {
+        return String.format("{\"symbol\":\"%s\",\"price\":%-6.2f,\"updatedAt\":\"%s\",\"from\":\"%s\",\"to\":\"%s\"}",
+                symbol, price, updatedAt.format(ISO_LOCAL_DATE_TIME),
+                from.format(ISO_LOCAL_TIME), to.format(ISO_LOCAL_TIME));
+    }
+}
+
+class QuoteMini {
+    private BigDecimal price;
+    private LocalTime from;
+    private LocalTime to;
+
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public void setPrice(BigDecimal price) {
+        this.price = price;
+    }
+
+    public LocalTime getFrom() {
+        return from;
+    }
+
+    public void setFrom(LocalTime from) {
+        this.from = from;
+    }
+
+    public LocalTime getTo() {
+        return to;
+    }
+
+    public void setTo(LocalTime to) {
+        this.to = to;
     }
 }

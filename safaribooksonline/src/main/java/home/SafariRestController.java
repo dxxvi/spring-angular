@@ -93,7 +93,7 @@ public class SafariRestController {
             books.clear();
             return ResponseEntity.ok("");
         }
-        return ResponseEntity.status(HttpStatus.FOUND).contentType(MediaType.APPLICATION_JSON)
+        return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON)
                 .body(objectMapper.writeValueAsString(books));
     }
 }

@@ -1,7 +1,7 @@
 package home;
 
 public class Book {
-    private String cover;
+    private String cover;              // cover image url
     private String title;
     private String url;
     private String author;

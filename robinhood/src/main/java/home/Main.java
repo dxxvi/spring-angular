@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.web.socket.server.standard.ServerEndpointExporter;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -21,17 +22,7 @@ public class Main {
             System.exit(-1);
         }
 
-        ApplicationContext ac = SpringApplication.run(Main.class, args);
-/*
-        AuthenticationService as = ac.getBean(AuthenticationService.class);
-        as.login();
-        AccountService accountService = ac.getBean(AccountService.class);
-        accountService.accountUrl();
-        as.logout();
-*/
-        QuoteService quoteService = ac.getBean(QuoteService.class);
-        Collection<Quote> quotes = quoteService.quotes(Arrays.asList("UMTB", "ON"));
-        quotes.clear();
+        SpringApplication.run(Main.class, args);
     }
 
     @Bean public AuthenticationService authenticationService(ObjectMapper objectMapper) {
@@ -44,5 +35,14 @@ public class Main {
 
     @Bean public QuoteService quoteService(ObjectMapper objectMapper) {
         return new QuoteService(objectMapper);
+    }
+
+    @Bean public OrderService orderService(AuthenticationService authenticationService, AccountService accountService,
+                                     ObjectMapper objectMapper) {
+        return new OrderService(authenticationService, accountService, objectMapper);
+    }
+
+    @Bean public ServerEndpointExporter serverEndpointExporter() {
+        return new ServerEndpointExporter();
     }
 }
