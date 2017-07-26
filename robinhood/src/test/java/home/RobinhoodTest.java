@@ -2,11 +2,52 @@ package home;
 
 import org.junit.Test;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.Random;
 
 public class RobinhoodTest {
-    @Test public void test() {
-        BigDecimal f = new BigDecimal("37.40000");
-        System.out.printf("%-6.2f\n", f);
+    @Test public void test() throws IOException {
+        List<String> debloats =
+                Files.readAllLines(Paths.get("/home/ly/IdeaProjects/spring-angular/robinhood/src/test/resources/debloat.txt"));
+
+        Files.lines(Paths.get("/home/ly/IdeaProjects/spring-angular/robinhood/src/test/resources/origin.txt"))
+                .filter(l -> l.endsWith(".apk"))
+                .forEach(l -> {
+                    int i = l.lastIndexOf("/");
+                    if (i > 0) {
+                        String apk = l.substring(i + 1);
+                        if (debloats.stream().noneMatch(debloatLine -> debloatLine.contains(apk))) {
+                            System.out.println(l.substring(0, i));
+                        }
+                    }
+                });
+    }
+
+    @Test public void bufferedImage() throws IOException {
+        Random random = new Random();
+
+        BufferedImage bi = new BufferedImage(450, 100, BufferedImage.TYPE_BYTE_GRAY);
+        Graphics2D g2d = bi.createGraphics();
+
+        g2d.setColor(new Color(232, 232, 232));
+        g2d.fillRect(0, 0, 450, 100);
+
+        g2d.setColor(new Color(194, 194, 194));
+        for (int i = 0; i < 449; i++) {
+            int height = random.nextInt(98) + 1;
+            g2d.fillRect(i, 100 - height, 1, height);
+        }
+
+        g2d.dispose();
+
+        ImageIO.write(bi, "png", new File("/dev/shm/test.png"));
     }
 }
