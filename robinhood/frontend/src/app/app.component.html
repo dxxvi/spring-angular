@@ -1,5 +1,7 @@
 <div class="notification"><notification></notification></div>
-<div *ngFor="let stock of stocks">
-  <stock [stock]="stock"></stock>
+
+<div *ngFor="let quote of quoteMinis">
+  <stock [quote]="quote"></stock>
 </div>
 
+<button (click)="sendMessageToServer()">Send a message</button>

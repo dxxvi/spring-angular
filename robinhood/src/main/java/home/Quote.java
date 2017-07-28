@@ -2,6 +2,7 @@ package home;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import home.web.socket.QuoteMini;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -72,34 +73,9 @@ public class Quote {
                 symbol, price, updatedAt.format(ISO_LOCAL_DATE_TIME),
                 from.format(ISO_LOCAL_TIME), to.format(ISO_LOCAL_TIME));
     }
-}
 
-class QuoteMini {
-    private BigDecimal price;
-    private LocalTime from;
-    private LocalTime to;
-
-    public BigDecimal getPrice() {
-        return price;
-    }
-
-    public void setPrice(BigDecimal price) {
-        this.price = price;
-    }
-
-    public LocalTime getFrom() {
-        return from;
-    }
-
-    public void setFrom(LocalTime from) {
-        this.from = from;
-    }
-
-    public LocalTime getTo() {
-        return to;
-    }
-
-    public void setTo(LocalTime to) {
-        this.to = to;
+    public QuoteMini minified() {
+        return new QuoteMini(symbol, price, from.withSecond(0), to.withSecond(0));
     }
 }
+

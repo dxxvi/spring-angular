@@ -3,6 +3,8 @@ package home;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import home.web.socket.QuoteMini;
+import home.web.socket.handler.QuoteWebSocketHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,13 +19,15 @@ import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.PrintWriter;
 import java.net.URI;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+
 import static java.util.stream.Collectors.*;
 
 public class QuoteService {
@@ -31,26 +35,27 @@ public class QuoteService {
     private final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm:ss");
     private final LocalTime OPEN = LocalTime.of(9, 30, 1);
     private final ObjectMapper objectMapper;
-    private final Map<String, LinkedList<Quote>> db = new ConcurrentHashMap<>(100);
+    private final QuoteWebSocketHandler qwsHandler;
 
     @Value("${wanted-symbols}") private String wantedSymbols;
     @Value("${path-to-file}") private String path;
 
-    public QuoteService(ObjectMapper objectMapper) {
+    public QuoteService(ObjectMapper objectMapper, QuoteWebSocketHandler qwsHandler) {
         this.objectMapper = objectMapper;
+        this.qwsHandler = qwsHandler;
     }
 
     @PostConstruct public void postConstruct() {
         for (String symbol : wantedSymbols.split(",")) {
-            db.computeIfAbsent(symbol, k -> new LinkedList<>());
+            Main.db.computeIfAbsent(symbol, k -> new LinkedList<>());
         }
     }
 
     public void writeDbToFile() {
-        if (!db.isEmpty()) {
+        if (!Main.db.isEmpty()) {
             try {
                 PrintWriter printWriter = new PrintWriter(new File(path));
-                db.values().stream().flatMap(Collection::stream).forEach(printWriter::println);
+                Main.db.values().stream().flatMap(Collection::stream).forEach(printWriter::println);
                 printWriter.close();
             }
             catch (Exception ex) {
@@ -68,7 +73,7 @@ public class QuoteService {
         }
 */
 
-        String symbolString = db.keySet().stream().collect(joining(","));
+        String symbolString = Main.db.keySet().stream().collect(joining(","));
         RestTemplate restTemplate = new RestTemplate();
         try {
             RequestEntity<Void> request = RequestEntity
@@ -88,7 +93,7 @@ public class QuoteService {
                     logger.debug("Got response for {}.", symbolString);
                     quotes.forEach(q -> {
                         q.setFrom(fetchedAt).setTo(fetchedAt.plusMinutes(1));
-                        LinkedList<Quote> symbolQuotes = db.get(q.getSymbol());
+                        LinkedList<Quote> symbolQuotes = Main.db.get(q.getSymbol());
                         if (symbolQuotes.isEmpty()) {
                             symbolQuotes.add(q);
                         }
@@ -102,6 +107,12 @@ public class QuoteService {
                             }
                         }
                     });
+
+                    List<QuoteMini> m = Main.db.entrySet().stream()
+                            .filter(e -> !e.getValue().isEmpty())
+                            .map(e -> e.getValue().getLast().minified())
+                            .collect(Collectors.toList());
+                    qwsHandler.send(objectMapper.writeValueAsString(m));
                 }
                 else {
                     logger.warn("The response format has changed: {}", response.getBody());

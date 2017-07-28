@@ -1,8 +1,9 @@
-package home;
+package home.web;
 
 import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.MediaType.*;
 
+import home.QuoteService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
