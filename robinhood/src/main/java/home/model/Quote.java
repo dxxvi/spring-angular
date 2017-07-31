@@ -1,8 +1,7 @@
-package home;
+package home.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import home.web.socket.QuoteMini;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -74,8 +73,8 @@ public class Quote {
                 from.format(ISO_LOCAL_TIME), to.format(ISO_LOCAL_TIME));
     }
 
-    public QuoteMini minified() {
-        return new QuoteMini(symbol, price, from.withSecond(0), to.withSecond(0));
+    public QuoteDO minified() {
+        return new QuoteDO(symbol, price, from.withSecond(0), to.withSecond(0));
     }
 }
 
