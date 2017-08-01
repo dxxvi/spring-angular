@@ -8,7 +8,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.socket.server.standard.ServerEndpointExporter;
@@ -24,7 +26,10 @@ import java.util.stream.Stream;
 public class Main {
     private final Logger logger = LoggerFactory.getLogger(Main.class);
 
-    public static final LocalTime OPEN = LocalTime.of(9, 30, 0);
+    public static final LocalTime OPEN  = LocalTime.of(9, 31, 0);
+    public static final LocalTime CLOSE = LocalTime.of(15, 59, 30);
+    public static final int graphWidth = 450;
+    public static final int graphHeight = 100;
 
     public static void main(String[] args) {
         if (Stream.of(args).noneMatch(a -> a.startsWith("--username="))
@@ -33,7 +38,12 @@ public class Main {
             System.exit(-1);
         }
 
-        SpringApplication.run(Main.class, args);
+        ConfigurableApplicationContext ac = SpringApplication.run(Main.class, args);
+
+        DB db = ac.getBean(DB.class);
+        ObjectMapper objectMapper = ac.getBean(ObjectMapper.class);
+        QuoteWebSocketHandler qwsh = ac.getBean(QuoteWebSocketHandler.class);
+        new QuotesReadyThread(db, graphWidth, graphHeight, qwsh, objectMapper).start();
     }
 
     @Bean public AuthenticationService authenticationService(ObjectMapper objectMapper) {
@@ -44,8 +54,8 @@ public class Main {
         return new AccountService(as, objectMapper);
     }
 
-    @Bean public QuoteService quoteService(ObjectMapper objectMapper, DB db) {
-        return new QuoteService(objectMapper, db);
+    @Bean public QuoteService quoteService(HttpService httpService, DB db) {
+        return new QuoteService(httpService, db);
     }
 
     @Bean public OrderService orderService(AuthenticationService authenticationService, AccountService accountService,
@@ -63,5 +73,17 @@ public class Main {
 
     @Bean public DB db(Environment env) {
         return new DB(env);
+    }
+
+    @Bean
+    @Profile("!local")
+    public HttpService httpServiceRobinhood(ObjectMapper objectMapper) {
+        return new HttpServiceRobinhood(objectMapper);
+    }
+
+    @Bean
+    @Profile("local")
+    public HttpService httpServiceLocal() {
+        return new HttpServiceLocal();
     }
 }

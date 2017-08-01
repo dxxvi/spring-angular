@@ -11,14 +11,15 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
 import java.math.MathContext;
-import java.math.RoundingMode;
 import java.time.LocalTime;
 import java.util.LinkedList;
+import java.util.Random;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
 
 public abstract class Utils {
     private static final Logger logger = LoggerFactory.getLogger(Utils.class);
+    private static final Random random = new Random();
 
     static byte[] drawGraph(int width, int height, LocalTime open, LocalTime close, LinkedList<Quote> quotes) {
         final BigDecimal D = new BigDecimal(0.01);
@@ -85,5 +86,9 @@ public abstract class Utils {
             factor = 2;
         }
         return factor;
+    }
+
+    static BigDecimal randomQuotePrice() {
+        return new BigDecimal(random.nextInt(30) + 10 + "." + random.nextInt(100));
     }
 }

@@ -1,9 +1,7 @@
 package home.web.socket.handler;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -15,7 +13,7 @@ public class QuoteWebSocketHandler extends TextWebSocketHandler {
     private WebSocketSession session;
 
     @Override public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        logger.debug("Connection established");
+        logger.debug("Quote websocket connection established.");
         this.session = session;
     }
 

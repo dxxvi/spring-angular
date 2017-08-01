@@ -72,9 +72,5 @@ public class Quote {
                 symbol, price, updatedAt.format(ISO_LOCAL_DATE_TIME),
                 from.format(ISO_LOCAL_TIME), to.format(ISO_LOCAL_TIME));
     }
-
-    public QuoteDO minified() {
-        return new QuoteDO(symbol, price, from.withSecond(0), to.withSecond(0));
-    }
 }
 

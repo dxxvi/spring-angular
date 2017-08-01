@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { QuoteMini } from './model';
+import { StockDO } from './model';
 
 @Component({
   selector: 'stock',
@@ -7,5 +7,5 @@ import { QuoteMini } from './model';
   styleUrls: ['./stock.component.scss']
 })
 export class StockComponent {
-  @Input() quote: QuoteMini;
+  @Input() stock: StockDO;
 }

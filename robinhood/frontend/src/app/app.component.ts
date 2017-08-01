@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { QuoteMini } from "./model";
+import { StockDO } from "./model";
 import { WebsocketService } from "./websocket.service";
 
 @Component({
@@ -8,12 +8,17 @@ import { WebsocketService } from "./websocket.service";
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  quoteMinis: Array<QuoteMini> = [];
+  stocks: Array<StockDO> = [];
 
   constructor(private wsService: WebsocketService) {
     this.wsService.createObservableSocket('ws://localhost:8080/websocket/quotes').subscribe(
       data => {
-        this.quoteMinis = JSON.parse(data);
+        if (data.indexOf('QUOTES: ') === 0) {
+          this.stocks = JSON.parse(data.replace('QUOTES: ', ''));
+        }
+        else if (data.indexOf('GRAPHS: ')) {
+          // TODO graphs are ready, change the image urls
+        }
       },
       error => console.log(error),
       () => console.log('The observable stream is complete.')

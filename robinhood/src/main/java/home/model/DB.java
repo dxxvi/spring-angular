@@ -2,19 +2,23 @@ package home.model;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.TreeSet;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.stream.Stream;
 
 public class DB {
     private final Logger logger = LoggerFactory.getLogger(DB.class);
-    private final BlockingQueue<Boolean> graphsReady = new LinkedBlockingQueue<>();
     private final BlockingQueue<Boolean> quotesReady = new LinkedBlockingQueue<>();
+    private final Map<String, byte[]> graphs         = new ConcurrentHashMap<>();
 
     private final Environment env;
     private final TreeSet<Stock> stocks;
@@ -24,32 +28,24 @@ public class DB {
         this.stocks = new TreeSet<>(Comparator.comparing(Stock::getSymbol));
     }
 
-    public TreeSet<Stock> getStocks() {
-        return new TreeSet<Stock>(stocks) {
-            @Override public boolean add(Stock stock) {
-                throw new UnsupportedOperationException();
-            }
-
-            @Override public boolean remove(Object o) {
-                throw new UnsupportedOperationException();
-            }
-
-            @Override public void clear() {
-                throw new UnsupportedOperationException();
-            }
-
-            @Override public boolean addAll(Collection<? extends Stock> c) {
-                throw new UnsupportedOperationException();
-            }
-        };
-    }
-
-    public void graphsReady() {
-        graphsReady.add(Boolean.TRUE);
+    public Stream<Stock> getStocksStream() {
+        return stocks.stream();
     }
 
     public void quotesReady() {
         quotesReady.add(Boolean.TRUE);
+    }
+
+    public void waitTillQuotesReady() {
+        try {
+            do {
+                quotesReady.take();
+                if (quotesReady.isEmpty()) {
+                    break;
+                }
+            } while (true);
+        }
+        catch (InterruptedException iex) { /* who cares */ }
     }
 
     // add if not exists and return the newly added. Or return the existing.
@@ -68,5 +64,13 @@ public class DB {
             return stock;
         }
         return ceiling;
+    }
+
+    public Stream<Tuple2<String, LinkedList<Quote>>> getStocksToDrawGraphs() {
+        return stocks.stream().map(stock -> new Tuple2<>(stock.getSymbol(), stock.getQuotes()));
+    }
+
+    public void addGraph(String symbol, byte[] graph) {
+        graphs.put(symbol, graph);
     }
 }

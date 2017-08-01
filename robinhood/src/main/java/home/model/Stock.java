@@ -3,37 +3,12 @@ package home.model;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.LinkedList;
-import java.util.List;
 
-public class Stock {
-    private String symbol;
-    private BigDecimal price;
-    private BigDecimal dayMin;
-    private BigDecimal dayMax;
-    private BigDecimal day5Min;
-    private BigDecimal day5Max;
+public class Stock extends StockDO {
     private LinkedList<Quote> quotes;
-    private List<Order> orders;
 
     public Stock(String symbol) {
-        this.symbol = symbol;
-    }
-
-    public String getSymbol() {
-        return symbol;
-    }
-
-    @Override public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        Stock stock = (Stock) o;
-
-        return symbol.equals(stock.symbol);
-    }
-
-    @Override public int hashCode() {
-        return symbol.hashCode();
+        super(symbol);
     }
 
     public BigDecimal getPrice() {
@@ -51,28 +26,19 @@ public class Stock {
             quotes.add(q);
         }
 
-        Tuple2<BigDecimal, BigDecimal> minMax = quotes.stream().reduce(
-                new Tuple2<>(BigDecimal.valueOf(999), BigDecimal.valueOf(-1)),
-                (t, qu) -> new Tuple2<>(t._1().min(q.getPrice()), t._2().max(qu.getPrice())),
-                (t1, t2) -> new Tuple2<>(t1._1().min(t2._1()), t1._2().max(t2._2()))
-        );
-        dayMin = minMax._1;
-        dayMax = minMax._2;
+        if (dayMax.compareTo(q.getPrice()) < 0) {
+            dayMax = q.getPrice();
+        }
+        if (dayMin.compareTo(q.getPrice()) > 0) {
+            dayMin = q.getPrice();
+        }
     }
 
-    public BigDecimal getDayMin() {
-        return dayMin;
+    public LinkedList<Quote> getQuotes() {
+        return quotes;
     }
 
-    public BigDecimal getDayMax() {
-        return dayMax;
-    }
-
-    public BigDecimal getDay5Min() {
-        return day5Min;
-    }
-
-    public BigDecimal getDay5Max() {
-        return day5Max;
+    public StockDO minified() {
+        return new StockDO(symbol, getPrice(), dayMin, dayMax, day5Min, day5Max, orders);
     }
 }
