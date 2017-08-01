@@ -1,6 +1,7 @@
 package home;
 
 import home.model.Quote;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.FileOutputStream;
@@ -10,6 +11,7 @@ import java.time.LocalTime;
 import java.util.LinkedList;
 
 public class UtilsTest {
+    @Ignore
     @Test public void drawGraph() throws IOException {
         LocalTime open = LocalTime.of(9, 30, 0);
         LocalTime close = LocalTime.of(16, 0, 0);

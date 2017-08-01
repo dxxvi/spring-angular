@@ -1,7 +1,9 @@
 <div class="notification"><notification></notification></div>
 
-<div *ngFor="let stock of stocks">
-  <stock [stock]="stock"></stock>
-</div>
+<table class="table stock">
+  <tbody>
+    <tr *ngFor="let stock of stocks"><stock [stock]="stock"></stock></tr>
+  </tbody>
+</table>
 
 <button (click)="sendMessageToServer()">Send a message</button>

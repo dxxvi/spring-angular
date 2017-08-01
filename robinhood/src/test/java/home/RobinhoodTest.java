@@ -1,5 +1,6 @@
 package home;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.imageio.ImageIO;
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.Random;
 
 public class RobinhoodTest {
+    @Ignore
     @Test public void test() throws IOException {
         List<String> debloats =
                 Files.readAllLines(Paths.get("/home/ly/IdeaProjects/spring-angular/robinhood/src/test/resources/debloat.txt"));
@@ -31,6 +33,7 @@ public class RobinhoodTest {
                 });
     }
 
+    @Ignore
     @Test public void bufferedImage() throws IOException {
         Random random = new Random();
 

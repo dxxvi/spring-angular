@@ -1,0 +1,15 @@
+div.notification {
+  margin: .1em .1em 1em .1em;
+  background: #f4f4f4;
+  border-radius: .5em;
+  padding: .5em .8em;
+}
+
+table.stock > tbody > tr:not(:last-child) {
+  border-bottom: 1px solid #ccc;
+}
+
+table.stock > tbody > tr td.symbol {
+  border-right: 1px solid #ccc;
+  padding-right: .5em;
+}

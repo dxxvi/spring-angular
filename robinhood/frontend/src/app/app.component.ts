@@ -5,7 +5,7 @@ import { WebsocketService } from "./websocket.service";
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+  styleUrls: ['./app.component.css']
 })
 export class AppComponent {
   stocks: Array<StockDO> = [];
@@ -18,6 +18,7 @@ export class AppComponent {
         }
         else if (data.indexOf('GRAPHS: ')) {
           // TODO graphs are ready, change the image urls
+          console.log('graphs are ready');
         }
       },
       error => console.log(error),

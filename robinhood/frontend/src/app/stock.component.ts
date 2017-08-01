@@ -4,7 +4,7 @@ import { StockDO } from './model';
 @Component({
   selector: 'stock',
   templateUrl: './stock.component.html',
-  styleUrls: ['./stock.component.scss']
+  styleUrls: ['./stock.component.css']
 })
 export class StockComponent {
   @Input() stock: StockDO;

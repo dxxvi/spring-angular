@@ -33,7 +33,8 @@ public class QuotesReadyThread extends Thread {
 
             try {
                 // send the quotes to browser
-                objectMapper.writeValueAsString("QUOTES: " + db.getStocksStream().map(Stock::minified).collect(toList()));
+                String s = objectMapper.writeValueAsString(db.getStocksStream().map(Stock::minified).collect(toList()));
+                qwsh.send("QUOTES: " + s);
             }
             catch (JsonProcessingException jpex) {
                 logger.error("Fix me.", jpex);

@@ -23,14 +23,13 @@ public class QuoteService {
     private final HttpService httpService;
 
     @Value("${wanted-symbols}") private String wantedSymbols;
-    @Value("${path-to-file}") private String path;
 
     public QuoteService(HttpService httpService, DB db) {
         this.httpService = httpService;
         this.db = db;
     }
 
-    @Scheduled(cron = "1/30 0/1 7-15 ? * Mon-Sat")
+    @Scheduled(cron = "1/30 0/1 9-16 ? * Mon-Sat")
     public void quotes() {
         LocalTime _fetchedAt = LocalTime.now();
         if (_fetchedAt.isBefore(OPEN)) {

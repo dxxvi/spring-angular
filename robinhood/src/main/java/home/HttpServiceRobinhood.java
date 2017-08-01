@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
@@ -50,6 +51,9 @@ public class HttpServiceRobinhood implements HttpService {
                     throw new RuntimeException("The response format has changed: " + response.getBody());
                 }
             }
+        }
+        catch (HttpServerErrorException hseex) {
+            logger.error("Perhaps there's nothing we can do.", hseex);
         }
         catch (Exception ex) {
             throw new RuntimeException("Fix me.", ex);
