@@ -1,7 +1,5 @@
-<div class="notification"><notification></notification></div>
-
 <div class="container-fluid">
-    <div class="row" *ngFor="let stock of stocks"><stock [stock]="stock"></stock></div>
+    <div *ngFor="let stock of stocks"><stock [stock]="stock" [graphHeight]="graphHeight"></stock></div>
 </div>
 
 <button (click)="askServerToFetchQuotes()">Ask server to fetch quotes</button>

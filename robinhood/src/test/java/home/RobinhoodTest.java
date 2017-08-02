@@ -1,5 +1,7 @@
 package home;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import home.model.RobinhoodOrdersResult;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -8,6 +10,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -52,5 +55,13 @@ public class RobinhoodTest {
         g2d.dispose();
 
         ImageIO.write(bi, "png", new File("/dev/shm/test.png"));
+    }
+
+    @Test public void testReadingOrdersResult() throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        try (InputStream is = HttpServiceLocal.class.getResourceAsStream("/orders.json")) {
+            RobinhoodOrdersResult o = objectMapper.readValue(is, RobinhoodOrdersResult.class);
+            o = null;
+        }
     }
 }

@@ -8,4 +8,5 @@ import { StockDO } from './model';
 })
 export class StockComponent {
   @Input() stock: StockDO;
+  @Input() graphHeight: string;
 }

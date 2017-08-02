@@ -1,6 +1,7 @@
 package home;
 
 import home.model.Quote;
+import home.model.RobinhoodOrdersResult;
 
 import java.util.Collection;
 
@@ -16,4 +17,6 @@ public interface HttpService {
     String login(String username, String password);
 
     String accountUrl(String loginToken);
+
+    RobinhoodOrdersResult orders(String loginToken);
 }

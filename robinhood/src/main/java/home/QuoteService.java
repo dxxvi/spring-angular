@@ -11,6 +11,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoField;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.Collection;
 
 import static home.Main.OPEN;
@@ -29,14 +31,12 @@ public class QuoteService {
         this.db = db;
     }
 
-    @Scheduled(cron = "1/30 0/1 9-16 ? * Mon-Sat")
+    @Scheduled(cron = "1/30 0/1 8-15 ? * Mon-Fri")
     public void quotes() {
         LocalTime _fetchedAt = LocalTime.now();
-/*
-        if (_fetchedAt.isBefore(OPEN)) {
+        if (_fetchedAt.until(OPEN, ChronoUnit.MINUTES) > 10) {
             return;
         }
-*/
         _fetchedAt = _fetchedAt.withSecond(_fetchedAt.get(ChronoField.SECOND_OF_MINUTE) < 30 ? 0 : 30);
         final LocalTime fetchedAt = _fetchedAt;
 

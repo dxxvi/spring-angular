@@ -28,10 +28,10 @@ import java.util.stream.Stream;
 public class Main {
     private final Logger logger = LoggerFactory.getLogger(Main.class);
 
-    public static final LocalTime OPEN  = LocalTime.of(0, 31, 0);
-    public static final LocalTime CLOSE = LocalTime.of(6, 59, 30);
+    public static final LocalTime OPEN  = LocalTime.of(9, 30, 40);
+    public static final LocalTime CLOSE = LocalTime.of(15, 59, 35);
     public static final int graphWidth = 450;
-    public static final int graphHeight = 100;
+    public static final int graphHeight = 75;
 
     public static void main(String[] args) {
         if (Stream.of(args).noneMatch(a -> a.startsWith("--username="))
@@ -81,7 +81,7 @@ public class Main {
 
     @Bean
     @Profile("local")
-    public HttpService httpServiceLocal() {
-        return new HttpServiceLocal();
+    public HttpService httpServiceLocal(ObjectMapper objectMapper) {
+        return new HttpServiceLocal(objectMapper);
     }
 }

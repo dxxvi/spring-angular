@@ -1,7 +1,14 @@
 package home;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import home.model.Quote;
+import home.model.RobinhoodOrdersResult;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.time.LocalTime;
 import java.util.Collection;
 import java.util.List;
@@ -11,7 +18,12 @@ import static home.Utils.*;
 import static java.util.stream.Collectors.*;
 
 public class HttpServiceLocal implements HttpService {
+    private final ObjectMapper objectMapper;
     private LocalTime now = LocalTime.of(9, 30, 0);
+
+    public HttpServiceLocal(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
 
     @Override public Collection<Quote> quotes(String wantedSymbols) {
         List<Quote> quotes = Stream.of(wantedSymbols.split(","))
@@ -35,5 +47,14 @@ public class HttpServiceLocal implements HttpService {
 
     @Override public String accountUrl(String loginToken) {
         return "Fake_account_url";
+    }
+
+    @Override public RobinhoodOrdersResult orders(String loginToken) {
+        try (InputStream is = HttpServiceLocal.class.getResourceAsStream("/orders.json")) {
+            return objectMapper.readValue(is, RobinhoodOrdersResult.class);
+        }
+        catch (IOException ioex) {
+            throw new RuntimeException(ioex);
+        }
     }
 }

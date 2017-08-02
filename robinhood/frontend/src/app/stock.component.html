@@ -1,9 +1,23 @@
-<table class="table">
+<table>
   <tbody>
     <tr>
-      <td class="symbol">{{ stock.symbol }}<br/>{{ stock.price }}</td>
-      <td class="min-max">{{ stock.dayMax}}<br/>{{ stock.dayMin }}</td>
-      <td class="graph"><img [src]="stock.graphUrl"/></td>
+      <td class="symbol">
+        <div [style.height]="graphHeight" style="position: relative;">
+          <div class="top-left">{{ stock.symbol }}</div>
+        </div>
+      </td>
+      <td class="min-max">
+        <div [style.height]="graphHeight" style="position: relative;">
+          <div class="top-right small">{{ stock.dayMax }}</div>
+          <div class="bottom-right small">{{ stock.dayMin }}</div>
+        </div>
+      </td>
+      <td class="graph">
+        <div style="position: relative;">
+          <img [src]="stock.graphUrl"/>
+          <div class="top-right">{{ stock.price }}&nbsp;</div>
+        </div>
+      </td>
     </tr>
   </tbody>
 </table>

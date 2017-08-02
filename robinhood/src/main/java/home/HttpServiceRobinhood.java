@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import home.model.Quote;
+import home.model.RobinhoodOrdersResult;
 import home.model.Stock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
@@ -55,8 +57,8 @@ public class HttpServiceRobinhood implements HttpService {
                 }
             }
         }
-        catch (HttpServerErrorException hseex) {
-            logger.error("Perhaps there's nothing we can do.", hseex);
+        catch (HttpServerErrorException | ResourceAccessException ex) {
+            logger.error("Perhaps there's nothing we can do.", ex);
         }
         catch (Exception ex) {
             throw new RuntimeException("Fix me.", ex);
@@ -120,5 +122,9 @@ public class HttpServiceRobinhood implements HttpService {
         }
         throw new RuntimeException(errorMessage);
 */
+    }
+
+    @Override public RobinhoodOrdersResult orders(String loginToken) {
+        return null;
     }
 }
