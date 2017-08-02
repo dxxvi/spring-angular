@@ -23,7 +23,13 @@ public class Stock extends StockDO {
             quotes = new LinkedList<>(Collections.singleton(q));
         }
         else {
-            quotes.add(q);
+            Quote lastQ = quotes.getLast();
+            if (lastQ.getPrice().equals(q.getPrice()) && lastQ.getTo().equals(q.getFrom())) {
+                lastQ.setTo(q.getTo());
+            }
+            else {
+                quotes.add(q);
+            }
         }
 
         if (dayMax.compareTo(q.getPrice()) < 0) {

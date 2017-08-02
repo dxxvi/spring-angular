@@ -1,9 +1,7 @@
 <div class="notification"><notification></notification></div>
 
-<table class="table stock">
-  <tbody>
-    <tr *ngFor="let stock of stocks"><stock [stock]="stock"></stock></tr>
-  </tbody>
-</table>
+<div class="container-fluid">
+    <div class="row" *ngFor="let stock of stocks"><stock [stock]="stock"></stock></div>
+</div>
 
-<button (click)="sendMessageToServer()">Send a message</button>
+<button (click)="askServerToFetchQuotes()">Ask server to fetch quotes</button>

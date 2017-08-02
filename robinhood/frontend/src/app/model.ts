@@ -14,4 +14,5 @@ export interface StockDO {
   day5Min: number;
   day5Max: number;
   orders: Array<Order>;
+  graphUrl: string;
 }

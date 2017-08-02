@@ -1,2 +1,9 @@
-<td class="symbol">{{ stock.symbol }}<br/>{{ stock.price }}</td>
-<td class="min-max">{{ stock.dayMin}} {{ stock.dayMax }}</td>
+<table class="table">
+  <tbody>
+    <tr>
+      <td class="symbol">{{ stock.symbol }}<br/>{{ stock.price }}</td>
+      <td class="min-max">{{ stock.dayMax}}<br/>{{ stock.dayMin }}</td>
+      <td class="graph"><img [src]="stock.graphUrl"/></td>
+    </tr>
+  </tbody>
+</table>

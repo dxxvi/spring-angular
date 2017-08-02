@@ -22,9 +22,18 @@ public class HttpServiceLocal implements HttpService {
                     q.setFrom(now);
                     q.setTo(now.plusSeconds(30));
                     return q;
-                }).collect(toList());
+                })
+                .collect(toList());
 
         now = now.plusSeconds(30);
         return quotes;
+    }
+
+    @Override public String login(String username, String password) {
+        return "Fake_token";
+    }
+
+    @Override public String accountUrl(String loginToken) {
+        return "Fake_account_url";
     }
 }

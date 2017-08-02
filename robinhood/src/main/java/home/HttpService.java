@@ -11,4 +11,9 @@ public interface HttpService {
      * Might throw a runtime exception
      */
     Collection<Quote> quotes(String wantedSymbols);
+
+    // returns a login token
+    String login(String username, String password);
+
+    String accountUrl(String loginToken);
 }

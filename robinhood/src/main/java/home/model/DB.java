@@ -73,4 +73,12 @@ public class DB {
     public void addGraph(String symbol, byte[] graph) {
         graphs.put(symbol, graph);
     }
+
+    public byte[] getGraph(String symbol) {
+        byte[] result = graphs.get(symbol);
+        if (result == null) {
+            return new byte[] {};
+        }
+        return result;
+    }
 }

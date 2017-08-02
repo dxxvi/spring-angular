@@ -16,9 +16,9 @@ export class AppComponent {
         if (data.indexOf('QUOTES: ') === 0) {
           this.stocks = JSON.parse(data.replace('QUOTES: ', ''));
         }
-        else if (data.indexOf('GRAPHS: ')) {
-          // TODO graphs are ready, change the image urls
-          console.log('graphs are ready');
+        else if (data.indexOf('GRAPHS: ') === 0) {
+          this.stocks.forEach(stock =>
+            stock.graphUrl = 'http://localhost:8080/graph/' + stock.symbol + '?' + new Date().getTime());
         }
       },
       error => console.log(error),
@@ -26,7 +26,7 @@ export class AppComponent {
     );
   }
 
-  sendMessageToServer() {
-    this.wsService.sendMessage('Go to server ' + new Date());
+  askServerToFetchQuotes() {
+    this.wsService.sendMessage('QUOTES:');
   }
 }

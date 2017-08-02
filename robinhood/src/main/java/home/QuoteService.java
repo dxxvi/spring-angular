@@ -32,9 +32,11 @@ public class QuoteService {
     @Scheduled(cron = "1/30 0/1 9-16 ? * Mon-Sat")
     public void quotes() {
         LocalTime _fetchedAt = LocalTime.now();
+/*
         if (_fetchedAt.isBefore(OPEN)) {
             return;
         }
+*/
         _fetchedAt = _fetchedAt.withSecond(_fetchedAt.get(ChronoField.SECOND_OF_MINUTE) < 30 ? 0 : 30);
         final LocalTime fetchedAt = _fetchedAt;
 

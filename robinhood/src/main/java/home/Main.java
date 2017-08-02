@@ -3,6 +3,7 @@ package home;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import home.model.DB;
 import home.model.Quote;
+import home.web.GraphController;
 import home.web.socket.handler.QuoteWebSocketHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +14,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.socket.server.standard.ServerEndpointExporter;
 
 import java.time.LocalTime;
@@ -26,8 +28,8 @@ import java.util.stream.Stream;
 public class Main {
     private final Logger logger = LoggerFactory.getLogger(Main.class);
 
-    public static final LocalTime OPEN  = LocalTime.of(9, 31, 0);
-    public static final LocalTime CLOSE = LocalTime.of(15, 59, 30);
+    public static final LocalTime OPEN  = LocalTime.of(0, 31, 0);
+    public static final LocalTime CLOSE = LocalTime.of(6, 59, 30);
     public static final int graphWidth = 450;
     public static final int graphHeight = 100;
 
@@ -50,25 +52,21 @@ public class Main {
         return new AuthenticationService(objectMapper);
     }
 
-    @Bean public AccountService accountService(AuthenticationService as, ObjectMapper objectMapper) {
-        return new AccountService(as, objectMapper);
-    }
-
     @Bean public QuoteService quoteService(HttpService httpService, DB db) {
         return new QuoteService(httpService, db);
     }
 
-    @Bean public OrderService orderService(AuthenticationService authenticationService, AccountService accountService,
+    @Bean public OrderService orderService(AuthenticationService authenticationService,
                                      ObjectMapper objectMapper) {
-        return new OrderService(authenticationService, accountService, objectMapper);
+        return new OrderService(authenticationService, objectMapper);
     }
 
     @Bean public ServerEndpointExporter serverEndpointExporter() {
         return new ServerEndpointExporter();
     }
 
-    @Bean public QuoteWebSocketHandler robinhoodWebSocketHandler() {
-        return new QuoteWebSocketHandler();
+    @Bean public QuoteWebSocketHandler robinhoodWebSocketHandler(QuoteService quoteService) {
+        return new QuoteWebSocketHandler(quoteService);
     }
 
     @Bean public DB db(Environment env) {
