@@ -2,9 +2,7 @@ package home;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import home.model.DB;
-import home.model.Quote;
-import home.web.GraphController;
-import home.web.socket.handler.QuoteWebSocketHandler;
+import home.web.socket.handler.WebSocketHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
@@ -14,13 +12,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.socket.server.standard.ServerEndpointExporter;
 
 import java.time.LocalTime;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
 @SpringBootApplication
@@ -44,7 +38,7 @@ public class Main {
 
         DB db = ac.getBean(DB.class);
         ObjectMapper objectMapper = ac.getBean(ObjectMapper.class);
-        QuoteWebSocketHandler qwsh = ac.getBean(QuoteWebSocketHandler.class);
+        WebSocketHandler qwsh = ac.getBean(WebSocketHandler.class);
         new QuotesReadyThread(db, graphWidth, graphHeight, qwsh, objectMapper).start();
     }
 
@@ -56,21 +50,20 @@ public class Main {
         return new QuoteService(httpService, db);
     }
 
-    @Bean public OrderService orderService(AuthenticationService authenticationService,
-                                     ObjectMapper objectMapper) {
-        return new OrderService(authenticationService, objectMapper);
+    @Bean public OrderService orderService(DB db, HttpService httpService) {
+        return new OrderService(db, httpService);
     }
 
     @Bean public ServerEndpointExporter serverEndpointExporter() {
         return new ServerEndpointExporter();
     }
 
-    @Bean public QuoteWebSocketHandler robinhoodWebSocketHandler(QuoteService quoteService) {
-        return new QuoteWebSocketHandler(quoteService);
+    @Bean public WebSocketHandler robinhoodWebSocketHandler(OrderService orderService, QuoteService quoteService) {
+        return new WebSocketHandler(orderService, quoteService);
     }
 
-    @Bean public DB db(Environment env) {
-        return new DB(env);
+    @Bean public DB db(Environment env, HttpService httpService) {
+        return new DB(env, httpService);
     }
 
     @Bean

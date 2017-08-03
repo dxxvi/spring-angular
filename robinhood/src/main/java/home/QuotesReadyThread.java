@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import home.model.DB;
 import home.model.Stock;
-import home.web.socket.handler.QuoteWebSocketHandler;
+import home.web.socket.handler.WebSocketHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,10 +16,10 @@ public class QuotesReadyThread extends Thread {
     private final DB db;
     private final int width;
     private final int height;
-    private final QuoteWebSocketHandler qwsh;
+    private final WebSocketHandler qwsh;
     private final ObjectMapper objectMapper;
 
-    public QuotesReadyThread(DB db, int width, int height, QuoteWebSocketHandler qwsh, ObjectMapper objectMapper) {
+    public QuotesReadyThread(DB db, int width, int height, WebSocketHandler qwsh, ObjectMapper objectMapper) {
         this.db = db;
         this.width = width;
         this.height = height;

@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { StockDO } from './model';
+import {Order, StockDO} from './model';
 
 @Component({
   selector: 'stock',
@@ -9,4 +9,19 @@ import { StockDO } from './model';
 export class StockComponent {
   @Input() stock: StockDO;
   @Input() graphHeight: string;
+
+  buildOrderClass(order: Order): string {
+    let styleClasses = order.side;
+    if (order.state === 'confirmed') {
+      styleClasses += ' confirmed';
+    }
+    else if (order.state === 'filled') {
+      styleClasses += ' filled';
+    }
+    else {
+      styleClasses += ' not-confirmed';
+    }
+
+    return styleClasses;
+  }
 }

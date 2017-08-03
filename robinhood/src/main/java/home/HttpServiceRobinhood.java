@@ -28,6 +28,9 @@ public class HttpServiceRobinhood implements HttpService {
     private final Logger logger = LoggerFactory.getLogger(HttpServiceRobinhood.class);
     private final ObjectMapper objectMapper;
 
+    private String loginToken;
+    private long loginTokenAge;
+
     public HttpServiceRobinhood(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
@@ -66,7 +69,12 @@ public class HttpServiceRobinhood implements HttpService {
         return Collections.emptyList();
     }
 
+    // returns loginToken
     @Override public String login(String username, String password) {
+        if (loginToken != null && System.currentTimeMillis() - loginTokenAge < 60_001) {
+            return loginToken;
+        }
+
         String errorMessage;
         RestTemplate restTemplate = new RestTemplate();
         try {
@@ -83,16 +91,17 @@ public class HttpServiceRobinhood implements HttpService {
             if (response.getStatusCode() == HttpStatus.OK) {
                 JsonNode jsonNode = objectMapper.readTree(response.getBody());
                 if (jsonNode.has("token")) {
-                    return jsonNode.get("token").asText();
+                    loginToken = jsonNode.get("token").asText();
+                    loginTokenAge = System.currentTimeMillis();
+                    return loginToken;
                 }
             }
-            errorMessage = String.format("Unable to login: status: %s, body: %s",
-                    response.getStatusCode(), response.getBody());
+            logger.warn("Unable to login: status: {}, body: {}", response.getStatusCode(), response.getBody());
         }
         catch (Exception ex) {
             throw new RuntimeException("Fix me.", ex);
         }
-        throw new RuntimeException(errorMessage);
+        return null;
     }
 
     @Override public String accountUrl(String loginToken) {
@@ -125,6 +134,39 @@ public class HttpServiceRobinhood implements HttpService {
     }
 
     @Override public RobinhoodOrdersResult orders(String loginToken) {
+        RestTemplate restTemplate = new RestTemplate();
+        try {
+            RequestEntity<Void> request = RequestEntity
+                    .get(new URI("https://api.robinhood.com/orders/"))
+                    .accept(MediaType.APPLICATION_JSON)
+                    .header("Authorization", "Token " + loginToken)
+                    .build();
+            ResponseEntity<String> response = restTemplate.exchange(request, String.class);
+            return objectMapper.readValue(response.getBody(), RobinhoodOrdersResult.class);
+        }
+        catch (Exception ex) {
+            throw new RuntimeException("Unable to get orders", ex);
+        }
+    }
+
+    @Override public String getSymbolFromInstrument(String instrument) {
+        RestTemplate restTemplate = new RestTemplate();
+        try {
+            RequestEntity<Void> request = RequestEntity
+                    .get(new URI("https://api.robinhood.com/accounts/"))
+                    .accept(MediaType.APPLICATION_JSON)
+                    .build();
+            ResponseEntity<String> response = restTemplate.exchange(request, String.class);
+            JsonNode jsonNode = objectMapper.readTree(response.getBody());
+            if (jsonNode.has("symbol")) {
+                return jsonNode.get("symbol").asText();
+            }
+            logger.warn(":getSymbolFromInstrument Unable to find symbol: status: {}, body: {}",
+                    response.getStatusCode().name(), response.getBody());
+        }
+        catch (Exception ex) {
+            logger.warn("Unable to get symbol from instrument url.", ex);
+        }
         return null;
     }
 }

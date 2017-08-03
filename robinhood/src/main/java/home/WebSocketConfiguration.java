@@ -1,6 +1,6 @@
 package home;
 
-import home.web.socket.handler.QuoteWebSocketHandler;
+import home.web.socket.handler.WebSocketHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
@@ -12,14 +12,14 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 @EnableWebSocket
 public class WebSocketConfiguration implements WebSocketConfigurer {
     private final Logger logger = LoggerFactory.getLogger(WebSocketConfiguration.class);
-    private final QuoteWebSocketHandler quoteWebSocketHandler;
+    private final WebSocketHandler webSocketHandler;
 
-    public WebSocketConfiguration(QuoteWebSocketHandler quoteWebSocketHandler) {
-        this.quoteWebSocketHandler = quoteWebSocketHandler;
+    public WebSocketConfiguration(WebSocketHandler webSocketHandler) {
+        this.webSocketHandler = webSocketHandler;
     }
 
     @Override public void registerWebSocketHandlers(WebSocketHandlerRegistry webSocketHandlerRegistry) {
-        logger.debug("Register quoteWebSocketHandler.");
-        webSocketHandlerRegistry.addHandler(quoteWebSocketHandler, "/websocket/quotes");
+        logger.debug("Register webSocketHandler.");
+        webSocketHandlerRegistry.addHandler(webSocketHandler, "/websocket/quotes");
     }
 }

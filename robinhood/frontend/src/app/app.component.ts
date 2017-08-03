@@ -31,6 +31,12 @@ export class AppComponent {
         else if (data.indexOf('GRAPH HEIGHT: ') === 0) {
           this.graphHeight = data.replace('GRAPH HEIGHT: ', '') + 'px';
         }
+        else if (data.indexOf('ORDERS: ') === 0) {
+          const symbolOrdersMap = JSON.parse(data.replace('ORDERS: ', ''));
+          this.stocks.forEach(stock => {
+            stock.orders = symbolOrdersMap[stock.symbol];
+          });
+        }
       },
       error => console.log(error),
       () => console.log('The observable stream is complete.')

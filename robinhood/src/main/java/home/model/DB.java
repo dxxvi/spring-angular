@@ -1,5 +1,6 @@
 package home.model;
 
+import home.HttpService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
@@ -17,14 +18,18 @@ import java.util.stream.Stream;
 
 public class DB {
     private final Logger logger = LoggerFactory.getLogger(DB.class);
+    private final HttpService httpService;
     private final BlockingQueue<Boolean> quotesReady = new LinkedBlockingQueue<>();
     private final Map<String, byte[]> graphs         = new ConcurrentHashMap<>();
+    // a translation from instrument url to symbol
+    private final Map<String, String> instrumentSymbolMap = new ConcurrentHashMap<>();
 
     private final Environment env;
     private final TreeSet<Stock> stocks;
 
-    public DB(Environment env) {
+    public DB(Environment env, HttpService httpService) {
         this.env = env;
+        this.httpService = httpService;
         this.stocks = new TreeSet<>(Comparator.comparing(Stock::getSymbol));
     }
 
@@ -80,5 +85,19 @@ public class DB {
             return new byte[] {};
         }
         return result;
+    }
+
+    public void updateInstrumentSymbol(String instrument, String symbol) {
+        instrumentSymbolMap.put(instrument, symbol);
+    }
+
+    public String getSymbolFromInstrument(String instrument) {
+        String symbol = instrumentSymbolMap.get(instrument);
+        if (symbol != null) {
+            return symbol;
+        }
+        symbol = httpService.getSymbolFromInstrument(instrument);
+        updateInstrumentSymbol(instrument, symbol);
+        return symbol;
     }
 }

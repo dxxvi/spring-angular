@@ -19,4 +19,6 @@ public interface HttpService {
     String accountUrl(String loginToken);
 
     RobinhoodOrdersResult orders(String loginToken);
+
+    String getSymbolFromInstrument(String instrument);
 }

@@ -2,6 +2,7 @@ package home;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import home.model.Order;
 import home.model.RobinhoodOrdersResult;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -15,6 +16,7 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Random;
 import java.util.function.Consumer;
@@ -61,9 +63,20 @@ public class RobinhoodTest {
 
     @Test public void testReadingOrdersResult() throws IOException {
         ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
+/*
         try (InputStream is = HttpServiceLocal.class.getResourceAsStream("/orders.json")) {
             RobinhoodOrdersResult o = objectMapper.readValue(is, RobinhoodOrdersResult.class);
             o = null;
         }
+*/
+        Order order = new Order();
+        order.setCreatedAt(LocalDateTime.now());
+        order.setId("123-ABC");
+        order.setQuantity(5);
+        order.setPrice(new BigDecimal("13.51"));
+        order.setSymbol("ON");
+        order.setState("filled");
+        order.setSide("buy");
+        System.out.println(objectMapper.writeValueAsString(order));
     }
 }

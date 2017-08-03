@@ -4,6 +4,7 @@ export interface Order {
   price: number;
   state: string;
   side: string;
+  createdAt: string
 }
 
 export interface StockDO {

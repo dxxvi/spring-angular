@@ -1,6 +1,7 @@
 package home.web.socket.handler;
 
 import home.Main;
+import home.OrderService;
 import home.QuoteService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,13 +10,15 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
-public class QuoteWebSocketHandler extends TextWebSocketHandler {
-    private final Logger logger = LoggerFactory.getLogger(QuoteWebSocketHandler.class);
+public class WebSocketHandler extends TextWebSocketHandler {
+    private final Logger logger = LoggerFactory.getLogger(WebSocketHandler.class);
 
-    private QuoteService quoteService;
+    private final QuoteService quoteService;
+    private final OrderService orderService;
     private WebSocketSession session;
 
-    public QuoteWebSocketHandler(QuoteService quoteService) {
+    public WebSocketHandler(OrderService orderService, QuoteService quoteService) {
+        this.orderService = orderService;
         this.quoteService = quoteService;
     }
 

@@ -1,19 +1,32 @@
 package home.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import home.RobinhoodDateTimeSerializer;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public class Order implements Serializable {
     private String id;
     private int quantity;
-    private float price;
-    private String instrument;         // I think this is mapped 1:1 to the symbol
-    private String state;              // filled, cancelled
+    private BigDecimal price;
+    private String symbol;
+    private String state;              // filled, confirmed
     private String side;               // sell, buy
-    @JsonProperty(value = "created_at") private LocalDateTime createdAt;
-    @JsonProperty(value = "updated_at") private LocalDateTime updatedAt;
+    @JsonSerialize(using = RobinhoodDateTimeSerializer.class) private LocalDateTime createdAt;
+
+    public Order() {
+    }
+
+    public Order(String id, int quantity, BigDecimal price, String state, String side, LocalDateTime createdAt) {
+        this.id = id;
+        this.quantity = quantity;
+        this.price = price;
+        this.state = state;
+        this.side = side;
+        this.createdAt = createdAt;
+    }
 
     public String getId() {
         return id;
@@ -31,20 +44,20 @@ public class Order implements Serializable {
         this.quantity = quantity;
     }
 
-    public float getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
-    public void setPrice(float price) {
+    public void setPrice(BigDecimal price) {
         this.price = price;
     }
 
-    public String getInstrument() {
-        return instrument;
+    public String getSymbol() {
+        return symbol;
     }
 
-    public void setInstrument(String instrument) {
-        this.instrument = instrument;
+    public void setSymbol(String symbol) {
+        this.symbol = symbol;
     }
 
     public String getState() {
@@ -69,13 +82,5 @@ public class Order implements Serializable {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
     }
 }

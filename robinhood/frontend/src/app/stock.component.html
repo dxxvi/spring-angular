@@ -1,4 +1,4 @@
-<table>
+<table class="stock">
   <tbody>
     <tr>
       <td class="symbol">
@@ -17,6 +17,10 @@
           <img [src]="stock.graphUrl"/>
           <div class="top-right">{{ stock.price }}&nbsp;</div>
         </div>
+      </td>
+      <td class="orders">
+        <span class="order" [class]="buildOrderClass(order)" *ngFor="let order of stock.orders">
+          {{ order.createdAt }}<br/>{{ order.quantity }} @ {{ order.price }}</span>
       </td>
     </tr>
   </tbody>

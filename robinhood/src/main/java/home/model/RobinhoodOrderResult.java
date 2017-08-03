@@ -2,7 +2,6 @@ package home.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -18,12 +17,13 @@ public class RobinhoodOrderResult {
     private String id;
     @JsonProperty("cumulative_quantity") private BigDecimal cumQuantity;
     private String instrument;         // mapped 1:1 to symbol, this is a GET rest endpoint
-    private String state;              // filled, cancelled
+    private String state;              // filled, cancelled, confirmed
     private BigDecimal price;
     private List<RobinhoodOrderExecution> executions;
     private String account;
     private String url;
     @JsonProperty("created_at") private LocalDateTime createdAt;
+    private String side;               // sell, buy
     private String position;
     @JsonProperty("average_price") private BigDecimal averagePrice;
     private BigDecimal quantity;
@@ -124,6 +124,14 @@ public class RobinhoodOrderResult {
         this.createdAt = createdAt;
     }
 
+    public String getSide() {
+        return side;
+    }
+
+    public void setSide(String side) {
+        this.side = side;
+    }
+
     public String getPosition() {
         return position;
     }
@@ -146,5 +154,9 @@ public class RobinhoodOrderResult {
 
     public void setQuantity(BigDecimal quantity) {
         this.quantity = quantity;
+    }
+
+    public Order toOrder() {
+        return new Order(id, quantity.intValue(), price, state, side, createdAt);
     }
 }

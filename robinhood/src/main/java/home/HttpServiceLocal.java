@@ -57,4 +57,8 @@ public class HttpServiceLocal implements HttpService {
             throw new RuntimeException(ioex);
         }
     }
+
+    @Override public String getSymbolFromInstrument(String instrument) {
+        return null;
+    }
 }
