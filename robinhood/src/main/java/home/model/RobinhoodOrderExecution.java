@@ -3,14 +3,15 @@ package home.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class RobinhoodOrderExecution {
     private LocalDateTime timestamp;
     private BigDecimal price;
-    @JsonProperty("settlement_date") private LocalDateTime settlementDate;
+    @JsonProperty("settlement_date") private LocalDate settlementDate;
     private String id;
-    private int quantity;
+    private BigDecimal quantity;
 
     public LocalDateTime getTimestamp() {
         return timestamp;
@@ -28,11 +29,11 @@ public class RobinhoodOrderExecution {
         this.price = price;
     }
 
-    public LocalDateTime getSettlementDate() {
+    public LocalDate getSettlementDate() {
         return settlementDate;
     }
 
-    public void setSettlementDate(LocalDateTime settlementDate) {
+    public void setSettlementDate(LocalDate settlementDate) {
         this.settlementDate = settlementDate;
     }
 
@@ -44,11 +45,11 @@ public class RobinhoodOrderExecution {
         this.id = id;
     }
 
-    public int getQuantity() {
+    public BigDecimal getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(int quantity) {
+    public void setQuantity(BigDecimal quantity) {
         this.quantity = quantity;
     }
 }

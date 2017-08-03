@@ -1,6 +1,7 @@
 package home;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import home.model.RobinhoodOrdersResult;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -16,6 +17,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Random;
+import java.util.function.Consumer;
 
 public class RobinhoodTest {
     @Ignore
@@ -58,7 +60,7 @@ public class RobinhoodTest {
     }
 
     @Test public void testReadingOrdersResult() throws IOException {
-        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
         try (InputStream is = HttpServiceLocal.class.getResourceAsStream("/orders.json")) {
             RobinhoodOrdersResult o = objectMapper.readValue(is, RobinhoodOrdersResult.class);
             o = null;

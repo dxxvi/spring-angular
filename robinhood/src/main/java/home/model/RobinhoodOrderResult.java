@@ -1,17 +1,22 @@
 package home.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class RobinhoodOrderResult {
-    @JsonProperty("updated_at") private LocalDateTime updatedAt;
+    @JsonProperty("updated_at")
+    private LocalDateTime updatedAt;
+
     @JsonProperty("time_in_force") private String timeInForce;
     private String cancel;
     private String id;
-    @JsonProperty("cumulative_quantity") private int cumQuantity;
+    @JsonProperty("cumulative_quantity") private BigDecimal cumQuantity;
     private String instrument;         // mapped 1:1 to symbol, this is a GET rest endpoint
     private String state;              // filled, cancelled
     private BigDecimal price;
@@ -21,7 +26,7 @@ public class RobinhoodOrderResult {
     @JsonProperty("created_at") private LocalDateTime createdAt;
     private String position;
     @JsonProperty("average_price") private BigDecimal averagePrice;
-    private int quantity;
+    private BigDecimal quantity;
 
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
@@ -55,11 +60,11 @@ public class RobinhoodOrderResult {
         this.id = id;
     }
 
-    public int getCumQuantity() {
+    public BigDecimal getCumQuantity() {
         return cumQuantity;
     }
 
-    public void setCumQuantity(int cumQuantity) {
+    public void setCumQuantity(BigDecimal cumQuantity) {
         this.cumQuantity = cumQuantity;
     }
 
@@ -135,11 +140,11 @@ public class RobinhoodOrderResult {
         this.averagePrice = averagePrice;
     }
 
-    public int getQuantity() {
+    public BigDecimal getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(int quantity) {
+    public void setQuantity(BigDecimal quantity) {
         this.quantity = quantity;
     }
 }
