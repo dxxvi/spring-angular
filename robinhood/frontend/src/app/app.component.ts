@@ -37,6 +37,17 @@ export class AppComponent {
             stock.orders = symbolOrdersMap[stock.symbol];
           });
         }
+        else if (data.indexOf('POSITIONS: ') === 0) {
+          const symbolPositionMap = JSON.parse(data.replace('POSITIONS: ', ''));
+          this.stocks.forEach(stock => {
+            const position = symbolPositionMap[stock.symbol];
+            if (position) {
+              stock.quantity = position.quantity;
+              stock.averageBuyPrice = position.averageBuyPrice;
+              stock.heldForSells = position.heldForSells;
+            }
+          });
+        }
       },
       error => console.log(error),
       () => console.log('The observable stream is complete.')

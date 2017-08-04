@@ -7,7 +7,7 @@
             {{ stock.symbol }}
             <div class="small" *ngIf="stock.quantity">
               {{ stock.quantity }} @ {{ stock.averageBuyPrice }}<br/>
-              {{ stock.heldForSells }}
+              held: {{ stock.heldForSells }}
             </div>
           </div>
         </div>
@@ -22,6 +22,18 @@
         <div style="position: relative;">
           <img [src]="stock.graphUrl"/>
           <div class="top-right">{{ stock.price }}&nbsp;</div>
+          <div class="top-left buysell">
+            <div><span class="glyphicon glyphicon-plus"></span><span class="glyphicon glyphicon-minus"></span></div>
+            <form class="form-inline">
+              <button class="btn btn-warning">Buy</button>
+              <div class="form-group"><input class="form-control"/></div>
+              <div class="form-group">
+                <label>@ $</label>
+                <input class="form-control"/>
+              </div>
+              <button class="btn btn-primary">Sell</button>
+            </form>
+          </div>
         </div>
       </td>
       <td class="orders">

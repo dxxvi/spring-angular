@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.math.BigDecimal;
 
-public class RobinhoodPosition {
+public class RobinhoodPositionResult {
     private String instrument;
     @JsonProperty("shares_held_for_sells") private BigDecimal heldForSells;
     private BigDecimal quantity;

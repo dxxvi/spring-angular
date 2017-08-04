@@ -3,13 +3,10 @@ package home;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import home.model.Quote;
 import home.model.RobinhoodOrdersResult;
-import home.model.RobinhoodPosition;
+import home.model.RobinhoodPositionResult;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.time.LocalTime;
 import java.util.Collection;
 import java.util.Collections;
@@ -64,7 +61,7 @@ public class HttpServiceLocal implements HttpService {
         return null;
     }
 
-    @Override public List<RobinhoodPosition> positions(String loginToken) {
+    @Override public List<RobinhoodPositionResult> positions(String loginToken) {
         return Collections.emptyList();
     }
 }

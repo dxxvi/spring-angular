@@ -15,3 +15,5 @@ div.bottom-left { position: absolute; bottom: 0; left: 0; }
 .order.sell.not-confirmed { background: linear-gradient(to right, #DDF, #DDF 33%, #FFF 34%); border: 1px solid #DDF; }
 .order.sell.confirmed { background: linear-gradient(to right, #DDF, #DDF 66%, #FFF 67%); border: 1px solid #DDF; }
 .order.sell.filled { background-color: #DDF; }
+
+

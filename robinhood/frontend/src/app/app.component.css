@@ -13,3 +13,5 @@ table.stock > tbody > tr td.symbol {
   border-right: 1px solid #ccc;
   padding-right: .5em;
 }
+
+div.container-fluid { padding-left: 5px; }

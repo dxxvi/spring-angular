@@ -22,8 +22,8 @@ import java.util.stream.Stream;
 public class Main {
     private final Logger logger = LoggerFactory.getLogger(Main.class);
 
-    public static final LocalTime OPEN  = LocalTime.of(6, 0, 40);
-    public static final LocalTime CLOSE = LocalTime.of(7, 59, 35);
+    public static final LocalTime OPEN  = LocalTime.of(11, 20, 0);
+    public static final LocalTime CLOSE = LocalTime.of(15, 59, 35);
     public static final int graphWidth = 450;
     public static final int graphHeight = 75;
 
@@ -77,5 +77,10 @@ public class Main {
     @Profile("local")
     public HttpService httpServiceLocal(ObjectMapper objectMapper) {
         return new HttpServiceLocal(objectMapper);
+    }
+
+    @Bean public PositionService positionService(DB db, HttpService httpService, WebSocketHandler wsh,
+                                                 ObjectMapper objectMapper) {
+        return new PositionService(db, httpService, wsh, objectMapper);
     }
 }

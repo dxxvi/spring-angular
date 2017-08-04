@@ -5,8 +5,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import home.model.Quote;
 import home.model.RobinhoodOrdersResult;
-import home.model.RobinhoodPosition;
-import home.model.Stock;
+import home.model.RobinhoodPositionResult;
+import home.model.RobinhoodPositionsResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -171,17 +171,20 @@ public class HttpServiceRobinhood implements HttpService {
         return null;
     }
 
-    @Override public List<RobinhoodPosition> positions(String loginToken) {
+    @Override public List<RobinhoodPositionResult> positions(String loginToken) {
         RestTemplate restTemplate = new RestTemplate();
         try {
             RequestEntity<Void> request = RequestEntity
                     .get(new URI("https://api.robinhood.com/positions/"))
                     .accept(MediaType.APPLICATION_JSON)
+                    .header("Authorization", "Token " + loginToken)
                     .build();
             ResponseEntity<String> response = restTemplate.exchange(request, String.class);
+            return objectMapper.readValue(response.getBody(), RobinhoodPositionsResult.class).getResults();
         }
         catch (Exception ex) {
             logger.warn("Unable to get positions", ex);
         }
+        return Collections.emptyList();
     }
 }

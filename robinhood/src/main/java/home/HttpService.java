@@ -2,7 +2,7 @@ package home;
 
 import home.model.Quote;
 import home.model.RobinhoodOrdersResult;
-import home.model.RobinhoodPosition;
+import home.model.RobinhoodPositionResult;
 
 import java.util.Collection;
 import java.util.List;
@@ -24,5 +24,5 @@ public interface HttpService {
 
     String getSymbolFromInstrument(String instrument);
 
-    List<RobinhoodPosition> positions(String loginToken);
+    List<RobinhoodPositionResult> positions(String loginToken);
 }
