@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import home.model.Quote;
 import home.model.RobinhoodOrdersResult;
+import home.model.RobinhoodPosition;
 import home.model.Stock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -153,7 +154,7 @@ public class HttpServiceRobinhood implements HttpService {
         RestTemplate restTemplate = new RestTemplate();
         try {
             RequestEntity<Void> request = RequestEntity
-                    .get(new URI("https://api.robinhood.com/accounts/"))
+                    .get(new URI(instrument))
                     .accept(MediaType.APPLICATION_JSON)
                     .build();
             ResponseEntity<String> response = restTemplate.exchange(request, String.class);
@@ -168,5 +169,19 @@ public class HttpServiceRobinhood implements HttpService {
             logger.warn("Unable to get symbol from instrument url.", ex);
         }
         return null;
+    }
+
+    @Override public List<RobinhoodPosition> positions(String loginToken) {
+        RestTemplate restTemplate = new RestTemplate();
+        try {
+            RequestEntity<Void> request = RequestEntity
+                    .get(new URI("https://api.robinhood.com/positions/"))
+                    .accept(MediaType.APPLICATION_JSON)
+                    .build();
+            ResponseEntity<String> response = restTemplate.exchange(request, String.class);
+        }
+        catch (Exception ex) {
+            logger.warn("Unable to get positions", ex);
+        }
     }
 }

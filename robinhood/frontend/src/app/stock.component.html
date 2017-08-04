@@ -3,7 +3,13 @@
     <tr>
       <td class="symbol">
         <div [style.height]="graphHeight" style="position: relative;">
-          <div class="top-left">{{ stock.symbol }}</div>
+          <div class="top-left">
+            {{ stock.symbol }}
+            <div class="small" *ngIf="stock.quantity">
+              {{ stock.quantity }} @ {{ stock.averageBuyPrice }}<br/>
+              {{ stock.heldForSells }}
+            </div>
+          </div>
         </div>
       </td>
       <td class="min-max">
@@ -19,7 +25,7 @@
         </div>
       </td>
       <td class="orders">
-        <span class="order" [class]="buildOrderClass(order)" *ngFor="let order of stock.orders">
+        <span [class]="buildOrderClass(order)" *ngFor="let order of stock.orders">
           {{ order.createdAt }}<br/>{{ order.quantity }} @ {{ order.price }}</span>
       </td>
     </tr>

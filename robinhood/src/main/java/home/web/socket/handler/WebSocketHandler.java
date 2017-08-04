@@ -13,14 +13,7 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 public class WebSocketHandler extends TextWebSocketHandler {
     private final Logger logger = LoggerFactory.getLogger(WebSocketHandler.class);
 
-    private final QuoteService quoteService;
-    private final OrderService orderService;
     private WebSocketSession session;
-
-    public WebSocketHandler(OrderService orderService, QuoteService quoteService) {
-        this.orderService = orderService;
-        this.quoteService = quoteService;
-    }
 
     @Override public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         logger.debug("Quote websocket connection established, send it the graph height.");
@@ -34,9 +27,6 @@ public class WebSocketHandler extends TextWebSocketHandler {
 
     @Override protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         logger.debug("Receive: {}", message.getPayload());
-        if (message.getPayload().startsWith("QUOTES:")) {
-            quoteService.quotes();
-        }
     }
 
     public void send(String message) {

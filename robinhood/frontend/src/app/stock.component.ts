@@ -11,7 +11,7 @@ export class StockComponent {
   @Input() graphHeight: string;
 
   buildOrderClass(order: Order): string {
-    let styleClasses = order.side;
+    let styleClasses = 'small order ' + order.side;
     if (order.state === 'confirmed') {
       styleClasses += ' confirmed';
     }

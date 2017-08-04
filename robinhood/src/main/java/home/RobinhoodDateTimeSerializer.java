@@ -10,10 +10,17 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class RobinhoodDateTimeSerializer extends JsonSerializer<LocalDateTime> {
-    private final DateTimeFormatter DTF = DateTimeFormatter.ofPattern("MM-dd HH:mm:ss");
+    private final DateTimeFormatter DTF1 = DateTimeFormatter.ofPattern("M/d HH:mm:ss");
+    private final DateTimeFormatter DTF2 = DateTimeFormatter.ofPattern("HH:mm:ss");
 
-    @Override public void serialize(LocalDateTime localDateTime, JsonGenerator jg,
+    @Override public void serialize(LocalDateTime x, JsonGenerator jg,
                                     SerializerProvider serializerProvider) throws IOException, JsonProcessingException {
-        jg.writeString(localDateTime.format(DTF));
+        DateTimeFormatter dtf = DTF1;
+        LocalDateTime now = LocalDateTime.now();
+        if (now.getDayOfMonth() == x.getDayOfMonth() && now.getMonthValue() == x.getMonthValue() && now.getYear() == x.getYear()) {
+            dtf = DTF2;
+        }
+
+        jg.writeString(x.format(dtf));
     }
 }

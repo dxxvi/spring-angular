@@ -9,6 +9,9 @@ export interface Order {
 
 export interface StockDO {
   symbol: string;
+  quantity: number;
+  averageBuyPrice: number;
+  heldForSells: number;
   price: number;
   dayMin: number;
   dayMax: number;

@@ -8,10 +8,10 @@ div.bottom-right { position: absolute; bottom: 0; right: 0; }
 div.top-left { position: absolute; top: 0; left: 0; }
 div.bottom-left { position: absolute; bottom: 0; left: 0; }
 
-.order { border: 2px solid #fff; border-radius: 4px; padding: 0 4px;}
-.order.buy.not-confirmed { background: linear-gradient(to right, #FEE, #F77, #FEE 33%, #FFF 40%); }
-.order.buy.confirmed { background: linear-gradient(to right, #FEE, #F77, #FEE 66%, #FFF 70%); }
-.order.buy.filled { background: linear-gradient(to right, #FEE, #F77, #FEE); }
-.order.sell.not-confirmed { background: linear-gradient(to right, #EEF, #77F, #EEF 33%, #FFF 40%); }
-.order.sell.confirmed { background: linear-gradient(to right, #EEF, #77F, #EEF 66%, #FFF 70%); }
-.order.sell.filled { background: linear-gradient(to right, #EEF, #77F, #EEF); }
+.order { border: 2px solid #fff; border-radius: 6px; padding: 0 4px; display: inline-block; }
+.order.buy.not-confirmed { background: linear-gradient(to right, #FDD, #FDD 33%, #FFF 34%); border: 1px solid #FDD; }
+.order.buy.confirmed { background: linear-gradient(to right, #FDD, #FDD 66%, #FFF 67%); border: 1px solid #FDD; }
+.order.buy.filled { background-color: #FDD; }
+.order.sell.not-confirmed { background: linear-gradient(to right, #DDF, #DDF 33%, #FFF 34%); border: 1px solid #DDF; }
+.order.sell.confirmed { background: linear-gradient(to right, #DDF, #DDF 66%, #FFF 67%); border: 1px solid #DDF; }
+.order.sell.filled { background-color: #DDF; }

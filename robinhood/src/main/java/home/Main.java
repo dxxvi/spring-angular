@@ -22,8 +22,8 @@ import java.util.stream.Stream;
 public class Main {
     private final Logger logger = LoggerFactory.getLogger(Main.class);
 
-    public static final LocalTime OPEN  = LocalTime.of(9, 30, 40);
-    public static final LocalTime CLOSE = LocalTime.of(15, 59, 35);
+    public static final LocalTime OPEN  = LocalTime.of(6, 0, 40);
+    public static final LocalTime CLOSE = LocalTime.of(7, 59, 35);
     public static final int graphWidth = 450;
     public static final int graphHeight = 75;
 
@@ -50,16 +50,17 @@ public class Main {
         return new QuoteService(httpService, db);
     }
 
-    @Bean public OrderService orderService(DB db, HttpService httpService) {
-        return new OrderService(db, httpService);
+    @Bean public OrderService orderService(DB db, HttpService httpService, WebSocketHandler wsh,
+                                           ObjectMapper objectMapper) {
+        return new OrderService(db, httpService, wsh, objectMapper);
     }
 
     @Bean public ServerEndpointExporter serverEndpointExporter() {
         return new ServerEndpointExporter();
     }
 
-    @Bean public WebSocketHandler robinhoodWebSocketHandler(OrderService orderService, QuoteService quoteService) {
-        return new WebSocketHandler(orderService, quoteService);
+    @Bean public WebSocketHandler robinhoodWebSocketHandler() {
+        return new WebSocketHandler();
     }
 
     @Bean public DB db(Environment env, HttpService httpService) {
