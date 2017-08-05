@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { StockDO } from "./model";
+import { LogLevel, Message } from "./model2";
 import { WebsocketService } from "./websocket.service";
+import {ToastData, ToastOptions, ToastyConfig, ToastyService} from "ng2-toasty";
 
 @Component({
   selector: 'app-root',
@@ -11,7 +13,8 @@ export class AppComponent {
   stocks: Array<StockDO> = [];
   graphHeight = '20px';
 
-  constructor(private wsService: WebsocketService) {
+  constructor(private wsService: WebsocketService,
+              private toastyService: ToastyService, private toastyConfig: ToastyConfig) {
     this.wsService.createObservableSocket('ws://localhost:8080/websocket/quotes').subscribe(
       data => {
         if (data.indexOf('QUOTES: ') === 0) {
@@ -52,10 +55,11 @@ export class AppComponent {
       error => console.log(error),
       () => console.log('The observable stream is complete.')
     );
-  }
 
-  askServerToFetchQuotes() {
-    this.wsService.sendMessage('QUOTES:');
+    this.toastyConfig.theme = 'bootstrap';
+    this.toastyConfig.position = 'top-right';
+    this.toastyConfig.timeout = 4019;
+    this.toastyConfig.showClose = true;
   }
 
   private update(stocks: Array<StockDO>, newStocks: Array<StockDO>) {
@@ -67,5 +71,37 @@ export class AppComponent {
         oldStock.price  = stock.price;
       }
     });
+  }
+
+  addToast() {
+    // Just add default Toast with title only
+    this.toastyService.default('Hi there');
+    // Or create the instance of ToastOptions
+    const toastOptions:ToastOptions = {
+      title: "My title",
+      msg: "The message",
+      showClose: true,
+      timeout: 5000,
+      onAdd: (toast:ToastData) => {
+        console.log('Toast ' + toast.id + ' has been added!');
+      },
+      onRemove: function(toast:ToastData) {
+        console.log('Toast ' + toast.id + ' has been removed!');
+      }
+    };
+    // Add see all possible types in one shot
+    this.toastyService.info(toastOptions);
+    this.toastyService.success(toastOptions);
+    this.toastyService.wait(toastOptions);
+    this.toastyService.error(toastOptions);
+    this.toastyService.warning(toastOptions);
+  }
+
+  messageHandler(message: Message) {
+    const toastOptions: ToastOptions = {
+      title: message.title,
+      msg: message.detail
+    };
+    this.toastyService[LogLevel[message.logLevel]](toastOptions);
   }
 }

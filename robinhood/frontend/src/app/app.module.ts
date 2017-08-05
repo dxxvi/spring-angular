@@ -5,6 +5,8 @@ import { AppComponent } from './app.component';
 import { NotificationComponent } from './notification.component';
 import { StockComponent } from './stock.component';
 import { WebsocketService } from './websocket.service';
+import { ToastyModule } from 'ng2-toasty';
+import { FormsModule } from "@angular/forms";
 
 @NgModule({
   declarations: [
@@ -13,7 +15,9 @@ import { WebsocketService } from './websocket.service';
     StockComponent
   ],
   imports: [
-    BrowserModule
+    BrowserModule,
+    FormsModule,
+    ToastyModule.forRoot()
   ],
   providers: [WebsocketService],
   bootstrap: [AppComponent]

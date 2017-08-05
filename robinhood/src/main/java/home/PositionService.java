@@ -35,7 +35,7 @@ public class PositionService {
         this.objectMapper = objectMapper;
     }
 
-    @Scheduled(cron = "5/20 0/1 1-23 ? * Mon-Fri")
+    @Scheduled(cron = "5/20 0/1 * * * *")
     public void positions() {
         LocalTime now = LocalTime.now();
         if (now.until(Main.OPEN, ChronoUnit.MINUTES) > 5 || now.until(Main.CLOSE, ChronoUnit.MINUTES) < 0) {

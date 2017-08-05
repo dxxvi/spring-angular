@@ -32,7 +32,7 @@ public class QuoteService {
         this.db = db;
     }
 
-    @Scheduled(cron = "1/30 0/1 1-23 ? * Mon-Fri")
+    @Scheduled(cron = "1/30 0/1 * * * *")
     public void quotes() {
         LocalTime _fetchedAt = LocalTime.now();
         if (_fetchedAt.until(Main.OPEN, MINUTES) > 5 || _fetchedAt.until(Main.CLOSE, MINUTES) < 0) {

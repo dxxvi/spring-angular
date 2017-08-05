@@ -1,12 +1,3 @@
-export interface Order {
-  id: string;
-  quantity: number;
-  price: number;
-  state: string;
-  side: string;
-  createdAt: string
-}
-
 export interface StockDO {
   symbol: string;
   quantity: number;
@@ -19,4 +10,13 @@ export interface StockDO {
   day5Max: number;
   orders: Array<Order>;
   graphUrl: string;
+}
+
+export interface Order {
+  id: string;
+  quantity: number;
+  price: number;
+  state: string;
+  side: string;
+  createdAt: string
 }

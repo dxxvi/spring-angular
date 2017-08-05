@@ -1,5 +1,8 @@
 <div class="container-fluid">
-    <div *ngFor="let stock of stocks"><stock [stock]="stock" [graphHeight]="graphHeight"></stock></div>
+    <div *ngFor="let stock of stocks">
+      <stock [stock]="stock" [graphHeight]="graphHeight" (message)="messageHandler($event)"></stock>
+    </div>
 </div>
 
-<button (click)="askServerToFetchQuotes()">Ask server to fetch quotes</button>
+<button (click)="addToast()">Add toast</button>
+<ng2-toasty></ng2-toasty>
