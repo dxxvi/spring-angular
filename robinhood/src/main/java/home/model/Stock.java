@@ -7,8 +7,8 @@ import java.util.LinkedList;
 public class Stock extends StockDO {
     private LinkedList<Quote> quotes;
 
-    public Stock(String symbol) {
-        super(symbol);
+    public Stock(String symbol, String instrument) {
+        super(symbol, instrument);
     }
 
     public BigDecimal getPrice() {
@@ -45,6 +45,6 @@ public class Stock extends StockDO {
     }
 
     public StockDO minified() {
-        return new StockDO(symbol, getPrice(), dayMin, dayMax, day5Min, day5Max, orders);
+        return new StockDO(symbol, instrument, getPrice(), dayMin, dayMax, day5Min, day5Max, orders);
     }
 }

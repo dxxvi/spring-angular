@@ -76,7 +76,6 @@ public class HttpServiceRobinhood implements HttpService {
             return loginToken;
         }
 
-        String errorMessage;
         RestTemplate restTemplate = new RestTemplate();
         try {
             Map<String, String> form = new HashMap<>(2);
@@ -106,8 +105,7 @@ public class HttpServiceRobinhood implements HttpService {
     }
 
     @Override public String accountUrl(String loginToken) {
-        return "https://api.robinhood.com/accounts/5RY82436/";
-/*
+//        return "https://api.robinhood.com/accounts/5RY82436/";
         String errorMessage;
         RestTemplate restTemplate = new RestTemplate();
         try {
@@ -131,7 +129,6 @@ public class HttpServiceRobinhood implements HttpService {
             throw new RuntimeException("Fix me.", ex);
         }
         throw new RuntimeException(errorMessage);
-*/
     }
 
     @Override public RobinhoodOrdersResult orders(String loginToken) {
@@ -186,5 +183,26 @@ public class HttpServiceRobinhood implements HttpService {
             logger.warn("Unable to get positions", ex);
         }
         return Collections.emptyList();
+    }
+
+    @Override public void cancelOrder(String orderId, String loginToken) {
+        RestTemplate restTemplate = new RestTemplate();
+        try {
+            RequestEntity<String> request = RequestEntity
+                    .post(new URI("https://api.robinhood.com/orders/" + orderId + "/cancel/"))
+                    .accept(MediaType.APPLICATION_JSON)
+                    .header("Authorization", "Token " + loginToken)
+                    .body("");
+            ResponseEntity<String> response = restTemplate.exchange(request, String.class);
+            if (response.getStatusCode() == HttpStatus.OK) {
+                logger.debug("Successfully cancel order {}", orderId);
+                return;
+            }
+            logger.warn("Unable to cancel order: status: {}, body: {}", response.getStatusCode().name(),
+                    response.getBody());
+        }
+        catch (Exception ex) {
+            logger.warn("Fix me", ex);
+        }
     }
 }

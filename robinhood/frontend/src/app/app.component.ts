@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { StockDO } from "./model";
-import { LogLevel, Message } from "./model2";
-import { WebsocketService } from "./websocket.service";
-import {ToastData, ToastOptions, ToastyConfig, ToastyService} from "ng2-toasty";
+import { LogLevel, Message } from './model2';
+import { WebsocketService } from './websocket.service';
+import { ToastOptions, ToastyConfig, ToastyService } from 'ng2-toasty';
 
 @Component({
   selector: 'app-root',
@@ -38,6 +38,12 @@ export class AppComponent {
           const symbolOrdersMap = JSON.parse(data.replace('ORDERS: ', ''));
           this.stocks.forEach(stock => {
             stock.orders = symbolOrdersMap[stock.symbol];
+            if (stock.orders) {
+              stock.orders.forEach(order => {
+                order.justRemoved = false;
+                order.justCancelled = false;
+              });
+            }
           });
         }
         else if (data.indexOf('POSITIONS: ') === 0) {
@@ -71,30 +77,6 @@ export class AppComponent {
         oldStock.price  = stock.price;
       }
     });
-  }
-
-  addToast() {
-    // Just add default Toast with title only
-    this.toastyService.default('Hi there');
-    // Or create the instance of ToastOptions
-    const toastOptions:ToastOptions = {
-      title: "My title",
-      msg: "The message",
-      showClose: true,
-      timeout: 5000,
-      onAdd: (toast:ToastData) => {
-        console.log('Toast ' + toast.id + ' has been added!');
-      },
-      onRemove: function(toast:ToastData) {
-        console.log('Toast ' + toast.id + ' has been removed!');
-      }
-    };
-    // Add see all possible types in one shot
-    this.toastyService.info(toastOptions);
-    this.toastyService.success(toastOptions);
-    this.toastyService.wait(toastOptions);
-    this.toastyService.error(toastOptions);
-    this.toastyService.warning(toastOptions);
   }
 
   messageHandler(message: Message) {

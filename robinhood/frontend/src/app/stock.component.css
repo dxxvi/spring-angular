@@ -8,7 +8,7 @@ div.bottom-right { position: absolute; bottom: 0; right: 0; }
 div.top-left { position: absolute; top: 0; left: 0; }
 div.bottom-left { position: absolute; bottom: 0; left: 0; }
 
-.order { border: 2px solid #fff; border-radius: 6px; padding: 0 4px; display: inline-block; }
+.order { border: 2px solid #fff; border-radius: 6px; padding: 0 4px; display: inline-block; position: relative; }
 .order.buy.not-confirmed { background: linear-gradient(to right, #FCC, #FCC 33%, #FFF 34%); border: 1px solid #FCC; }
 .order.buy.confirmed { background: linear-gradient(to right, #FCC, #FCC 66%, #FFF 67%); border: 1px solid #FCC; }
 .order.buy.filled { background-color: #FCC; }
@@ -21,6 +21,13 @@ td.min-max .plus-minus { color: rgba(33,33,33,.19); cursor: pointer; }
 
 span.aligner { height: 100%; width: 2px; display: inline-block; vertical-align: middle; }
 span.plus-minus { vertical-align: middle; }
+
+td.orders .order .glyphicon-remove.remove {
+  position: absolute; top: 4px; left:  4px; color: rgba(0,194,10,.35); font-size: 2.4em; cursor: pointer;
+}
+td.orders .order .glyphicon-remove.cancel {
+  position: absolute; top: 4px; right: 4px; color: rgba(255,82,0,.41); font-size: 2.4em; cursor: pointer;
+}
 
 
 

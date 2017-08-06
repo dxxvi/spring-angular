@@ -10,9 +10,11 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.Stream;
 
@@ -23,6 +25,8 @@ public class DB {
     private final Map<String, byte[]> graphs         = new ConcurrentHashMap<>();
     // a translation from instrument url to symbol
     private final Map<String, String> instrumentSymbolMap = new ConcurrentHashMap<>();
+    private final Set<String> hiddenOrderIds = new ConcurrentSkipListSet<>();
+    private final BlockingQueue<String> cancelledOrders = new LinkedBlockingQueue<>();
 
     private final Environment env;
     private final TreeSet<Stock> stocks;
@@ -99,5 +103,25 @@ public class DB {
         symbol = httpService.getSymbolFromInstrument(instrument);
         updateInstrumentSymbol(instrument, symbol);
         return symbol;
+    }
+
+    public void addHiddenOrderId(String orderId) {
+        hiddenOrderIds.add(orderId);
+    }
+
+    public void addCancelledOrderId(String orderId) {
+        cancelledOrders.add(orderId);
+    }
+
+    public String waitForCancelledOrder() {
+        try {
+            return cancelledOrders.take();
+        }
+        catch (InterruptedException iex) { /* who cares */ }
+        return "not-existing-order-because-of-interrupted-exception";
+    }
+
+    public boolean shouldBeHidden(String orderId) {
+        return hiddenOrderIds.contains(orderId);
     }
 }

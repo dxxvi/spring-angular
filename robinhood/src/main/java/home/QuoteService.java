@@ -21,7 +21,6 @@ import static java.util.stream.Collectors.*;
 
 public class QuoteService {
     private final Logger logger = LoggerFactory.getLogger(QuoteService.class);
-    private final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm:ss");
     private final DB db;
     private final HttpService httpService;
 
@@ -45,7 +44,7 @@ public class QuoteService {
         Collection<Quote> quotes = httpService.quotes(wantedSymbols);
         quotes.forEach(q -> {
             q.setFrom(fetchedAt).setTo(fetchedAt.plusSeconds(30));
-            Stock stock = db.addStock(new Stock(q.getSymbol()));
+            Stock stock = db.addStock(new Stock(q.getSymbol(), q.getInstrument()));
             stock.addQuote(q);
         });
 

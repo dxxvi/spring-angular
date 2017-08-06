@@ -22,8 +22,8 @@ import java.util.stream.Stream;
 public class Main {
     private final Logger logger = LoggerFactory.getLogger(Main.class);
 
-    public static final LocalTime OPEN  = LocalTime.of(3, 0, 0);
-    public static final LocalTime CLOSE = LocalTime.of(5, 59, 35);
+    public static final LocalTime OPEN  = LocalTime.of(7, 43, 0);
+    public static final LocalTime CLOSE = LocalTime.of(11, 59, 35);
     public static final int graphWidth = 450;
     public static final int graphHeight = 75;
 
@@ -38,8 +38,14 @@ public class Main {
 
         DB db = ac.getBean(DB.class);
         ObjectMapper objectMapper = ac.getBean(ObjectMapper.class);
-        WebSocketHandler qwsh = ac.getBean(WebSocketHandler.class);
-        new QuotesReadyThread(db, graphWidth, graphHeight, qwsh, objectMapper).start();
+        WebSocketHandler wsh = ac.getBean(WebSocketHandler.class);
+
+        new QuotesReadyThread(db, graphWidth, graphHeight, wsh, objectMapper).start();
+
+        HttpService httpService = ac.getBean(HttpService.class);
+        Environment environment = ac.getEnvironment();
+        new OrderCancellingThread(db, httpService,
+                environment.getProperty("username"), environment.getProperty("password"), wsh).start();
     }
 
     @Bean public AuthenticationService authenticationService(ObjectMapper objectMapper) {
@@ -59,8 +65,8 @@ public class Main {
         return new ServerEndpointExporter();
     }
 
-    @Bean public WebSocketHandler robinhoodWebSocketHandler() {
-        return new WebSocketHandler();
+    @Bean public WebSocketHandler robinhoodWebSocketHandler(DB db) {
+        return new WebSocketHandler(db);
     }
 
     @Bean public DB db(Environment env, HttpService httpService) {

@@ -59,6 +59,7 @@ public class OrderService {
         robinhoodOrdersResult.getResults().stream()
                 .filter(ror -> !"cancelled".equals(ror.getState()))
                 .filter(ror -> ror.getCreatedAt().until(now2, ChronoUnit.HOURS) < 36)
+                .filter(ror -> !db.shouldBeHidden(ror.getId()))
                 .map(ror -> {
                     Order order = ror.toOrder();
                     order.setSymbol(db.getSymbolFromInstrument(ror.getInstrument()));

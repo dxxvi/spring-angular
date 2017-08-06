@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Order, StockDO } from './model';
 import { LogLevel, Message } from './model2';
+import { WebsocketService } from './websocket.service';
 
 @Component({
   selector: 'stock',
@@ -16,6 +17,9 @@ export class StockComponent {
   buySellOpen = false;
   numberOfSharesToTrade: number;
   priceToTrade: number;
+
+  constructor(private wsService: WebsocketService) {
+  }
 
   toggleBuySellOpen() {
     this.buySellOpen = !this.buySellOpen;
@@ -40,6 +44,7 @@ export class StockComponent {
     const u = this.checkBeforeBuy();
     if (u !== null) {
       this.message.emit(u);
+      return;
     }
   }
 
@@ -47,7 +52,18 @@ export class StockComponent {
     const u = this.checkBeforeSell();
     if (u !== null) {
       this.message.emit(u);
+      return;
     }
+  }
+
+  hide(order: Order) {
+    order.justRemoved = true;
+    this.wsService.sendMessage('HIDE ORDER: ' + order.id);
+  }
+
+  cancel(order: Order) {
+    order.justCancelled = true;
+    this.wsService.sendMessage('CANCEL ORDER: ' + order.id);
   }
 
   private check(): Message {

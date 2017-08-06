@@ -64,4 +64,7 @@ public class HttpServiceLocal implements HttpService {
     @Override public List<RobinhoodPositionResult> positions(String loginToken) {
         return Collections.emptyList();
     }
+
+    @Override public void cancelOrder(String orderId, String loginToken) {
+    }
 }

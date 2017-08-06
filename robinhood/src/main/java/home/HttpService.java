@@ -25,4 +25,6 @@ public interface HttpService {
     String getSymbolFromInstrument(String instrument);
 
     List<RobinhoodPositionResult> positions(String loginToken);
+
+    void cancelOrder(String orderId, String loginToken);
 }

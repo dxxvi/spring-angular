@@ -46,7 +46,14 @@
       </td>
       <td class="orders">
         <span [class]="buildOrderClass(order)" *ngFor="let order of stock.orders">
-          {{ order.createdAt }}<br/>{{ order.quantity }} @ {{ order.price }}</span>
+          {{ order.createdAt }}<br/>{{ order.quantity }} @ {{ order.price }}
+          <span class="glyphicon glyphicon-remove remove" (click)="hide(order)"
+                [style.display]="!order.justRemoved && (order.state === 'filled') ? 'inline-block' : 'none'">
+          </span>
+          <span class="glyphicon glyphicon-remove cancel" (click)="cancel(order)"
+                [style.display]="!order.justCancelled && (order.state !== 'filled') ? 'inline-block' : 'none'">
+          </span>
+        </span>
       </td>
     </tr>
   </tbody>

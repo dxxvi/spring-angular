@@ -1,5 +1,6 @@
 export interface StockDO {
   symbol: string;
+  instrument: string;
   quantity: number;
   averageBuyPrice: number;
   heldForSells: number;
@@ -18,5 +19,7 @@ export interface Order {
   price: number;
   state: string;
   side: string;
-  createdAt: string
+  createdAt: string;
+  justRemoved: boolean;
+  justCancelled: boolean;
 }

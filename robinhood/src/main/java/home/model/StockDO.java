@@ -5,6 +5,7 @@ import java.util.List;
 
 public class StockDO {
     String symbol;
+    String instrument;
     BigDecimal price;
     BigDecimal dayMin = new BigDecimal(2000);
     BigDecimal dayMax = new BigDecimal(-1);
@@ -12,13 +13,15 @@ public class StockDO {
     BigDecimal day5Max;
     List<Order> orders;
 
-    public StockDO(String symbol) {
+    public StockDO(String symbol, String instrument) {
         this.symbol = symbol;
+        this.instrument = instrument;
     }
 
-    public StockDO(String symbol, BigDecimal price, BigDecimal dayMin, BigDecimal dayMax,
+    public StockDO(String symbol, String instrument, BigDecimal price, BigDecimal dayMin, BigDecimal dayMax,
                    BigDecimal day5Min, BigDecimal day5Max, List<Order> orders) {
         this.symbol = symbol;
+        this.instrument = instrument;
         this.price = price;
         this.dayMin = dayMin;
         this.dayMax = dayMax;
@@ -42,6 +45,10 @@ public class StockDO {
 
     public String getSymbol() {
         return symbol;
+    }
+
+    public String getInstrument() {
+        return instrument;
     }
 
     public BigDecimal getPrice() {

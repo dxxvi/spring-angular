@@ -13,11 +13,12 @@ public class RobinhoodOrderResult {
     private LocalDateTime updatedAt;
 
     @JsonProperty("time_in_force") private String timeInForce;
-    private String cancel;
+    private String cancel;             // this is the cancel url
     private String id;
     @JsonProperty("cumulative_quantity") private BigDecimal cumQuantity;
     private String instrument;         // mapped 1:1 to symbol, this is a GET rest endpoint
-    private String state;              // filled, cancelled, confirmed
+    // queued, unconfirmed, confirmed, partially_filled, filled, rejected, canceled, or failed
+    private String state;
     private BigDecimal price;
     private List<RobinhoodOrderExecution> executions;
     private String account;
