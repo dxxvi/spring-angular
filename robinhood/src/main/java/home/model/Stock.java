@@ -44,7 +44,14 @@ public class Stock extends StockDO {
         return quotes;
     }
 
+    @Override public int getDayPercentage() {
+        BigDecimal price = getPrice();
+        long n = quotes.stream().filter(q -> price.compareTo(q.getPrice()) < 0).count();
+        return Math.round((float)n / (float)(quotes.size()) * 100f);
+    }
+
     public StockDO minified() {
-        return new StockDO(symbol, instrument, getPrice(), dayMin, dayMax, day5Min, day5Max, orders);
+        return new StockDO(symbol, instrument, getPrice(), dayMin, dayMax, day5Min, day5Max, orders,
+                getDayPercentage());
     }
 }

@@ -5,8 +5,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -16,17 +18,19 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.stream.DoubleStream;
 import java.util.stream.Stream;
 
 public class DB {
     private final Logger logger = LoggerFactory.getLogger(DB.class);
     private final HttpService httpService;
     private final BlockingQueue<Boolean> quotesReady = new LinkedBlockingQueue<>();
-    private final Map<String, byte[]> graphs         = new ConcurrentHashMap<>();
+    private final Map<String, byte[]> graphs         = new ConcurrentHashMap<>(32);
     // a translation from instrument url to symbol
     private final Map<String, String> instrumentSymbolMap = new ConcurrentHashMap<>();
     private final Set<String> hiddenOrderIds = new ConcurrentSkipListSet<>();
     private final BlockingQueue<String> cancelledOrders = new LinkedBlockingQueue<>();
+    private final Map<String, double[]> symbolHistoricalQuoteMap = new ConcurrentHashMap<>(32);
 
     private final Environment env;
     private final TreeSet<Stock> stocks;
@@ -123,5 +127,22 @@ public class DB {
 
     public boolean shouldBeHidden(String orderId) {
         return hiddenOrderIds.contains(orderId);
+    }
+
+    public void addHistoricalQuotes(String symbol, double[] quotes) {
+        symbolHistoricalQuoteMap.put(symbol, quotes);
+    }
+
+    public boolean hasHistoricalQuotes() {
+        return !symbolHistoricalQuoteMap.isEmpty();
+    }
+
+    public int getWeekPercentage(String symbol, double price) {
+        if (!symbolHistoricalQuoteMap.containsKey(symbol) || symbolHistoricalQuoteMap.get(symbol).length == 0) {
+            return -1;
+        }
+        double[] array = symbolHistoricalQuoteMap.get(symbol);
+        long n = DoubleStream.of(array).filter(a -> a > price).count();
+        return Math.round((float)n / (float)(array.length) * 100f);
     }
 }

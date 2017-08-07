@@ -1,7 +1,19 @@
 td.symbol { width: 3.8em; border-bottom: 1px solid #ccc; }
-td.min-max { width: 3.8em; }
+td.symbol .position { color: #666; font-size: 82%; }
+
+td.min-max { width: 7em; }
+td.min-max .plus-minus { color: rgba(33,33,33,.19); cursor: pointer; }
+
 td.graph { width: 1px; border-bottom: 1px solid #FFF; }
+td.graph input { opacity: .5; padding-left: 4px; padding-right: 4px; }
+
 td.orders::after { display: block; content: ''; clear: both; }
+td.orders .order .glyphicon-remove.remove {
+  position: absolute; top: 4px; left:  4px; color: rgba(0,194,10,.35); font-size: 2.4em; cursor: pointer;
+}
+td.orders .order .glyphicon-remove.cancel {
+  position: absolute; top: 4px; right: 4px; color: rgba(255,82,0,.41); font-size: 2.4em; cursor: pointer;
+}
 
 div.top-right { position: absolute; top: 0; right: 0; }
 div.bottom-right { position: absolute; bottom: 0; right: 0; }
@@ -16,19 +28,8 @@ div.bottom-left { position: absolute; bottom: 0; left: 0; }
 .order.sell.confirmed { background: linear-gradient(to right, #CCF, #CCF 66%, #FFF 67%); border: 1px solid #CCF; }
 .order.sell.filled { background-color: #CCF; }
 
-td.graph input { opacity: .5; padding-left: 4px; padding-right: 4px; }
-td.min-max .plus-minus { color: rgba(33,33,33,.19); cursor: pointer; }
-
 span.aligner { height: 100%; width: 2px; display: inline-block; vertical-align: middle; }
 span.plus-minus { vertical-align: middle; }
-
-td.orders .order .glyphicon-remove.remove {
-  position: absolute; top: 4px; left:  4px; color: rgba(0,194,10,.35); font-size: 2.4em; cursor: pointer;
-}
-td.orders .order .glyphicon-remove.cancel {
-  position: absolute; top: 4px; right: 4px; color: rgba(255,82,0,.41); font-size: 2.4em; cursor: pointer;
-}
-
-
+span.price-percentage { display: inline-block; vertical-align: middle; color: #666; font-size: 82%; }
 
 

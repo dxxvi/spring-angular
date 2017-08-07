@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import home.model.DB;
 import home.model.Stock;
+import home.model.StockDO;
 import home.web.socket.handler.WebSocketHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +34,16 @@ public class QuotesReadyThread extends Thread {
 
             try {
                 // send the quotes to browser
-                String s = objectMapper.writeValueAsString(db.getStocksStream().map(Stock::minified).collect(toList()));
+                String s = objectMapper.writeValueAsString(
+                        db.getStocksStream()
+                                .map(stock -> {
+                                    StockDO stockDO = stock.minified();
+                                    stockDO.setWeekPercentage(db.getWeekPercentage(
+                                            stock.getSymbol(), stockDO.getPrice().doubleValue()));
+                                    return stockDO;
+                                })
+                                .collect(toList())
+                );
                 qwsh.send("QUOTES: " + s);
             }
             catch (JsonProcessingException jpex) {

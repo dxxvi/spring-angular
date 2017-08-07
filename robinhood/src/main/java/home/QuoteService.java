@@ -8,12 +8,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 
+import java.math.BigDecimal;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
 import java.util.Collection;
+import java.util.stream.Stream;
 
 import static home.Main.OPEN;
 import static java.time.temporal.ChronoUnit.MINUTES;
@@ -33,6 +35,19 @@ public class QuoteService {
 
     @Scheduled(cron = "1/30 0/1 * * * *")
     public void quotes() {
+        if (!db.hasHistoricalQuotes()) {
+            httpService.getHistoricalQuotes(wantedSymbols)
+                    .forEach(rhqr -> {
+                        db.addHistoricalQuotes(
+                                rhqr.getSymbol(),
+                                rhqr.getHistoricals().stream()
+                                        .flatMap(h -> Stream.of(h.getLowPrice(), h.getHighPrice()))
+                                        .mapToDouble(BigDecimal::doubleValue)
+                                        .toArray()
+                        );
+                    });
+        }
+
         LocalTime _fetchedAt = LocalTime.now();
         if (_fetchedAt.until(Main.OPEN, MINUTES) > 5 || _fetchedAt.until(Main.CLOSE, MINUTES) < 0) {
             return;

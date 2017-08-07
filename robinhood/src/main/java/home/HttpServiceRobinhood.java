@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import home.model.Quote;
+import home.model.RobinhoodHistoricalQuoteResult;
 import home.model.RobinhoodOrdersResult;
 import home.model.RobinhoodPositionResult;
 import home.model.RobinhoodPositionsResult;
@@ -204,5 +205,37 @@ public class HttpServiceRobinhood implements HttpService {
         catch (Exception ex) {
             logger.warn("Fix me", ex);
         }
+    }
+
+    @Override public List<RobinhoodHistoricalQuoteResult> getHistoricalQuotes(String wantedSymbols) {
+        RestTemplate restTemplate = new RestTemplate();
+        try {
+            RequestEntity<Void> request = RequestEntity
+                    .get(new URI("https://api.robinhood.com/quotes/historicals/?interval=5minute&span=week&symbols=" +
+                            wantedSymbols))
+                    .accept(MediaType.APPLICATION_JSON)
+                    .build();
+            ResponseEntity<String> response = restTemplate.exchange(request, String.class);
+            if (response.getStatusCode() == HttpStatus.OK) {
+                JsonNode jsonNode = objectMapper.readTree(response.getBody());
+                if (jsonNode.has("results")) {
+                    List<RobinhoodHistoricalQuoteResult> result = objectMapper.readValue(
+                            jsonNode.get("results").toString(),
+                            new TypeReference<List<RobinhoodHistoricalQuoteResult>>() {}
+                    );
+                    logger.debug("Got historical quotes.");
+                    return result;
+                }
+                else {
+                    throw new RuntimeException("The response format has changed: " + response.getBody());
+                }
+            }
+            logger.warn("Unable to get historical quotes: status: {}, body: {}", response.getStatusCode().name(),
+                    response.getBody());
+        }
+        catch (Exception ex) {
+            throw new RuntimeException("Fix me", ex);
+        }
+        return Collections.emptyList();
     }
 }

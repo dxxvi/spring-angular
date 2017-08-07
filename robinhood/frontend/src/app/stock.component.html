@@ -5,7 +5,7 @@
         <div [style.height]="graphHeight" style="position: relative;">
           <div class="top-left">
             {{ stock.symbol }}
-            <div class="small" *ngIf="stock.quantity">
+            <div class="position" *ngIf="stock.quantity">
               {{ stock.quantity }} @ {{ stock.averageBuyPrice }}<br/>
               held: {{ stock.heldForSells }}
             </div>
@@ -17,6 +17,10 @@
           <div class="top-right small">{{ stock.dayMax }}</div>
           <div class="bottom-right small">{{ stock.dayMin }}</div>
           <span class="aligner"></span>
+          <span class="price-percentage">
+            5days &lt; {{ stock.weekPercentage }}%<br/>
+            today &lt; {{ stock.dayPercentage }}%
+          </span>
           <span class="glyphicon glyphicon-plus plus-minus"
                 [style.display]="buySellOpen ? 'none' : 'inline-block'" (click)="toggleBuySellOpen()"></span>
           <span class="glyphicon glyphicon-minus plus-minus"

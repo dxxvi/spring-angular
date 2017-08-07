@@ -1,6 +1,7 @@
 package home;
 
 import home.model.Quote;
+import home.model.RobinhoodHistoricalQuoteResult;
 import home.model.RobinhoodOrdersResult;
 import home.model.RobinhoodPositionResult;
 
@@ -27,4 +28,6 @@ public interface HttpService {
     List<RobinhoodPositionResult> positions(String loginToken);
 
     void cancelOrder(String orderId, String loginToken);
+
+    List<RobinhoodHistoricalQuoteResult> getHistoricalQuotes(String wantedSymbols);
 }

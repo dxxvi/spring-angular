@@ -11,6 +11,8 @@ export interface StockDO {
   day5Max: number;
   orders: Array<Order>;
   graphUrl: string;
+  weekPercentage: number;
+  dayPercentage: number;
 }
 
 export interface Order {
