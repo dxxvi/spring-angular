@@ -31,6 +31,7 @@ public class DB {
     private final Set<String> hiddenOrderIds = new ConcurrentSkipListSet<>();
     private final BlockingQueue<String> cancelledOrders = new LinkedBlockingQueue<>();
     private final Map<String, double[]> symbolHistoricalQuoteMap = new ConcurrentHashMap<>(32);
+    private final BlockingQueue<BuySellOrder> buySellOrders = new LinkedBlockingQueue<>();
 
     private final Environment env;
     private final TreeSet<Stock> stocks;
@@ -144,5 +145,9 @@ public class DB {
         double[] array = symbolHistoricalQuoteMap.get(symbol);
         long n = DoubleStream.of(array).filter(a -> a > price).count();
         return Math.round((float)n / (float)(array.length) * 100f);
+    }
+
+    public void addBuySellOrder(BuySellOrder buySellOrder) {
+        buySellOrders.add(buySellOrder);
     }
 }

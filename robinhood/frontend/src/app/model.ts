@@ -25,3 +25,11 @@ export interface Order {
   justRemoved: boolean;
   justCancelled: boolean;
 }
+
+export interface BuySellOrder {
+  symbol: string;
+  instrument: string;
+  price: number;
+  quantity: number;
+  side: string;
+}

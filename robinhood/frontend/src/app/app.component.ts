@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
-import { StockDO } from "./model";
+import { BuySellOrder, StockDO } from './model';
 import { LogLevel, Message } from './model2';
 import { WebsocketService } from './websocket.service';
-import { ToastOptions, ToastyConfig, ToastyService } from 'ng2-toasty';
+import { ToastData, ToastOptions, ToastyConfig, ToastyService } from 'ng2-toasty';
 
 @Component({
   selector: 'app-root',
@@ -12,6 +12,8 @@ import { ToastOptions, ToastyConfig, ToastyService } from 'ng2-toasty';
 export class AppComponent {
   stocks: Array<StockDO> = [];
   graphHeight = '20px';
+  // the same value is sent to all stock components which will if this value is the same as the symbol in that component
+  closeBuySellBoxFor: string;
 
   constructor(private wsService: WebsocketService,
               private toastyService: ToastyService, private toastyConfig: ToastyConfig) {
@@ -85,5 +87,20 @@ export class AppComponent {
       msg: message.detail
     };
     this.toastyService[LogLevel[message.logLevel]](toastOptions);
+  }
+
+  buySellOrderHandler(buySellOrder: BuySellOrder) {
+    const that = this;
+    const toastOptions: ToastOptions = {
+      title: buySellOrder.side === 'buy' ? 'Buy' : 'Sell',
+      msg: buySellOrder.quantity + ' ' + buySellOrder.symbol + ' shares @ $' + buySellOrder.price + ' each. Total: $' +
+           buySellOrder.quantity * buySellOrder.price + '.',
+      onRemove: function(toast: ToastData) {
+        that.closeBuySellBoxFor = buySellOrder.symbol;
+      }
+    };
+    this.toastyService.info(toastOptions);
+
+    this.wsService.sendMessage('BUY SELL: ' + JSON.stringify(buySellOrder));
   }
 }
