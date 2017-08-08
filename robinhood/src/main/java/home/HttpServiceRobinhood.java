@@ -3,11 +3,13 @@ package home;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import home.model.BuySellOrder;
 import home.model.Quote;
 import home.model.RobinhoodHistoricalQuoteResult;
 import home.model.RobinhoodOrdersResult;
 import home.model.RobinhoodPositionResult;
 import home.model.RobinhoodPositionsResult;
+import home.web.socket.handler.WebSocketHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -29,12 +31,15 @@ import java.util.Map;
 public class HttpServiceRobinhood implements HttpService {
     private final Logger logger = LoggerFactory.getLogger(HttpServiceRobinhood.class);
     private final ObjectMapper objectMapper;
+    private final WebSocketHandler wsh;
 
     private String loginToken;
     private long loginTokenAge;
+    private String accountUrl;
 
-    public HttpServiceRobinhood(ObjectMapper objectMapper) {
+    public HttpServiceRobinhood(ObjectMapper objectMapper, WebSocketHandler wsh) {
         this.objectMapper = objectMapper;
+        this.wsh = wsh;
     }
 
     @Override public Collection<Quote> quotes(String wantedSymbols) {
@@ -107,6 +112,9 @@ public class HttpServiceRobinhood implements HttpService {
 
     @Override public String accountUrl(String loginToken) {
 //        return "https://api.robinhood.com/accounts/5RY82436/";
+        if (accountUrl != null) {
+            return accountUrl;
+        }
         String errorMessage;
         RestTemplate restTemplate = new RestTemplate();
         try {
@@ -120,7 +128,8 @@ public class HttpServiceRobinhood implements HttpService {
             if (jsonNode.has("results")) {
                 jsonNode = jsonNode.get("results");
                 if (jsonNode.isArray()) {
-                    return jsonNode.get(0).get("url").asText();
+                    accountUrl = jsonNode.get(0).get("url").asText();
+                    return accountUrl;
                 }
             }
             errorMessage = String.format("Unable to get accountUrl: status: %s, body: %s",
@@ -237,5 +246,39 @@ public class HttpServiceRobinhood implements HttpService {
             throw new RuntimeException("Fix me", ex);
         }
         return Collections.emptyList();
+    }
+
+    @Override public void buySell(BuySellOrder buySellOrder, String loginToken) {
+        RestTemplate restTemplate = new RestTemplate();
+        try {
+            Map<String, Object> bodyData = new HashMap<>();
+            bodyData.put("account", accountUrl(loginToken));
+            bodyData.put("instrument", buySellOrder.getInstrument());
+            bodyData.put("symbol", buySellOrder.getSymbol());
+            bodyData.put("type", "limit");
+            bodyData.put("time_in_force", "gfd");
+            bodyData.put("trigger", "immediate");
+            bodyData.put("price", buySellOrder.getPrice());
+            bodyData.put("quantity", buySellOrder.getQuantity());
+            bodyData.put("side", buySellOrder.getSide());
+
+            RequestEntity<String> request = RequestEntity
+                    .post(new URI("https://api.robinhood.com/orders/"))
+                    .accept(MediaType.APPLICATION_JSON)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .header("Authorization", "Token " + loginToken)
+                    .body(objectMapper.writeValueAsString(bodyData));
+            ResponseEntity<String> response = restTemplate.exchange(request, String.class);
+            if (response.getStatusCode() == HttpStatus.CREATED) {
+                wsh.send("BUY SELL: " + objectMapper.writeValueAsString(buySellOrder));
+            }
+            else {
+                logger.error("Unable to place an order: status: {}, body: {}", response.getStatusCode().name(),
+                        response.getBody());
+            }
+        }
+        catch (Exception ex) {
+            logger.warn("Fix me", ex);
+        }
     }
 }

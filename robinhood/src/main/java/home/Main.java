@@ -22,8 +22,8 @@ import java.util.stream.Stream;
 public class Main {
     private final Logger logger = LoggerFactory.getLogger(Main.class);
 
-    public static final LocalTime OPEN  = LocalTime.of(9, 30, 59);
-    public static final LocalTime CLOSE = LocalTime.of(15, 59, 35);
+    public static final LocalTime OPEN  = LocalTime.of(21, 50, 59);
+    public static final LocalTime CLOSE = LocalTime.of(23, 59, 35);
     public static final int graphWidth = 450;
     public static final int graphHeight = 75;
 
@@ -46,6 +46,9 @@ public class Main {
         Environment environment = ac.getEnvironment();
         new OrderCancellingThread(db, httpService,
                 environment.getProperty("username"), environment.getProperty("password"), wsh).start();
+
+        OrderService orderService = ac.getBean(OrderService.class);
+        new BuySellOrderReadyThread(db, orderService).start();
     }
 
     @Bean public AuthenticationService authenticationService(ObjectMapper objectMapper) {
@@ -69,14 +72,14 @@ public class Main {
         return new WebSocketHandler(db, objectMapper);
     }
 
-    @Bean public DB db(Environment env, HttpService httpService) {
-        return new DB(env, httpService);
+    @Bean public DB db(Environment env) {
+        return new DB(env);
     }
 
     @Bean
     @Profile("!local")
-    public HttpService httpServiceRobinhood(ObjectMapper objectMapper) {
-        return new HttpServiceRobinhood(objectMapper);
+    public HttpService httpServiceRobinhood(ObjectMapper objectMapper, WebSocketHandler wsh) {
+        return new HttpServiceRobinhood(objectMapper, wsh);
     }
 
     @Bean

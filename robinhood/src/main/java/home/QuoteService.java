@@ -59,6 +59,7 @@ public class QuoteService {
         Collection<Quote> quotes = httpService.quotes(wantedSymbols);
         quotes.forEach(q -> {
             q.setFrom(fetchedAt).setTo(fetchedAt.plusSeconds(30));
+            db.updateInstrumentSymbol(q.getInstrument(), q.getSymbol());
             Stock stock = db.addStock(new Stock(q.getSymbol(), q.getInstrument()));
             stock.addQuote(q);
         });

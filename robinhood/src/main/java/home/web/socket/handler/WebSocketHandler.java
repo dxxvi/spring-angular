@@ -46,7 +46,9 @@ public class WebSocketHandler extends TextWebSocketHandler {
         }
         else if (message.startsWith("BUY SELL: ")) {
             try {
-                BuySellOrder buySellOrder = objectMapper.readValue(message.replace("BUY SELL: ", ""), BuySellOrder.class);
+                BuySellOrder buySellOrder = objectMapper.readValue(
+                            message.replace("BUY SELL: ", ""), BuySellOrder.class);
+                db.addBuySellOrder(buySellOrder);
             }
             catch (Exception ex) {
                 throw new RuntimeException("Fix me: " + message, ex);

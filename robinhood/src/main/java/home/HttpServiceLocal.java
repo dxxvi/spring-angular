@@ -1,6 +1,7 @@
 package home;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import home.model.BuySellOrder;
 import home.model.Quote;
 import home.model.RobinhoodHistoricalQuoteResult;
 import home.model.RobinhoodOrdersResult;
@@ -71,5 +72,8 @@ public class HttpServiceLocal implements HttpService {
 
     @Override public List<RobinhoodHistoricalQuoteResult> getHistoricalQuotes(String wantedSymbols) {
         return Collections.emptyList();
+    }
+
+    @Override public void buySell(BuySellOrder buySellOrder, String loginToken) {
     }
 }

@@ -49,7 +49,12 @@ public class PositionService {
         Map<String, Position> positionMap = httpService.positions(loginToken).stream()
                 .map(rpr -> {
                     Position position = rpr.toPosition();
-                    position.setSymbol(db.getSymbolFromInstrument(rpr.getInstrument()));
+                    String symbol = db.getSymbolFromInstrument(rpr.getInstrument());
+                    if (symbol == null) {
+                        symbol = httpService.getSymbolFromInstrument(rpr.getInstrument());
+                        db.updateInstrumentSymbol(rpr.getInstrument(), symbol);
+                    }
+                    position.setSymbol(symbol);
                     return position;
                 })
                 .collect(toMap(Position::getSymbol, Function.identity()));

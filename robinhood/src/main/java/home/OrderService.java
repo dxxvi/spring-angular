@@ -2,6 +2,7 @@ package home;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import home.model.BuySellOrder;
 import home.model.DB;
 import home.model.Order;
 import home.model.RobinhoodOrdersResult;
@@ -62,7 +63,12 @@ public class OrderService {
                 .filter(ror -> !db.shouldBeHidden(ror.getId()))
                 .map(ror -> {
                     Order order = ror.toOrder();
-                    order.setSymbol(db.getSymbolFromInstrument(ror.getInstrument()));
+                    String symbol = db.getSymbolFromInstrument(ror.getInstrument());
+                    if (symbol == null) {
+                        symbol = httpService.getSymbolFromInstrument(ror.getInstrument());
+                        db.updateInstrumentSymbol(ror.getInstrument(), symbol);
+                    }
+                    order.setSymbol(symbol);
                     return order;
                 })
                 .collect(groupingBy(Order::getSymbol))  // returns Map<symbol, List<orders for that symbol>>
@@ -78,5 +84,10 @@ public class OrderService {
         catch (JsonProcessingException jpex) {
             logger.error("Fix me.", jpex);
         }
+    }
+
+    public void buySell(BuySellOrder buySellOrder) {
+        String loginToken = httpService.login(username, password);
+        httpService.buySell(buySellOrder, loginToken);
     }
 }

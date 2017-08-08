@@ -59,6 +59,15 @@ export class AppComponent {
             }
           });
         }
+        else if (data.indexOf('BUY SELL: ') === 0) {
+          const buySellOrder: BuySellOrder = JSON.parse(data.replace('BUY SELL: ', ''));
+          const toastOptions: ToastOptions = {
+            title: 'Successfully sent an order to Robinhood',
+            msg: buySellOrder.side + ' ' + buySellOrder.quantity + ' ' + buySellOrder.symbol + ' shares @ $' +
+                 buySellOrder.price + ' each.'
+          };
+          this.toastyService.success(toastOptions);
+        }
       },
       error => console.log(error),
       () => console.log('The observable stream is complete.')
@@ -96,6 +105,7 @@ export class AppComponent {
       msg: buySellOrder.quantity + ' ' + buySellOrder.symbol + ' shares @ $' + buySellOrder.price + ' each. Total: $' +
            buySellOrder.quantity * buySellOrder.price + '.',
       onRemove: function(toast: ToastData) {
+        that.closeBuySellBoxFor = '';
         that.closeBuySellBoxFor = buySellOrder.symbol;
       }
     };

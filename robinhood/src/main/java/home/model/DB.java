@@ -23,7 +23,6 @@ import java.util.stream.Stream;
 
 public class DB {
     private final Logger logger = LoggerFactory.getLogger(DB.class);
-    private final HttpService httpService;
     private final BlockingQueue<Boolean> quotesReady = new LinkedBlockingQueue<>();
     private final Map<String, byte[]> graphs         = new ConcurrentHashMap<>(32);
     // a translation from instrument url to symbol
@@ -36,9 +35,8 @@ public class DB {
     private final Environment env;
     private final TreeSet<Stock> stocks;
 
-    public DB(Environment env, HttpService httpService) {
+    public DB(Environment env) {
         this.env = env;
-        this.httpService = httpService;
         this.stocks = new TreeSet<>(Comparator.comparing(Stock::getSymbol));
     }
 
@@ -101,13 +99,7 @@ public class DB {
     }
 
     public String getSymbolFromInstrument(String instrument) {
-        String symbol = instrumentSymbolMap.get(instrument);
-        if (symbol != null) {
-            return symbol;
-        }
-        symbol = httpService.getSymbolFromInstrument(instrument);
-        updateInstrumentSymbol(instrument, symbol);
-        return symbol;
+        return instrumentSymbolMap.get(instrument);
     }
 
     public void addHiddenOrderId(String orderId) {
@@ -149,5 +141,14 @@ public class DB {
 
     public void addBuySellOrder(BuySellOrder buySellOrder) {
         buySellOrders.add(buySellOrder);
+    }
+
+    public BuySellOrder waitForBuySellOrder() {
+        try {
+            return buySellOrders.take();
+        }
+        catch (InterruptedException iex) {
+            throw new RuntimeException("Fix me", iex);
+        }
     }
 }

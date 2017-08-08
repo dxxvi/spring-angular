@@ -3,7 +3,6 @@ package home;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import home.model.DB;
-import home.model.Stock;
 import home.model.StockDO;
 import home.web.socket.handler.WebSocketHandler;
 import org.slf4j.Logger;
@@ -17,14 +16,14 @@ public class QuotesReadyThread extends Thread {
     private final DB db;
     private final int width;
     private final int height;
-    private final WebSocketHandler qwsh;
+    private final WebSocketHandler wsh;
     private final ObjectMapper objectMapper;
 
-    public QuotesReadyThread(DB db, int width, int height, WebSocketHandler qwsh, ObjectMapper objectMapper) {
+    public QuotesReadyThread(DB db, int width, int height, WebSocketHandler wsh, ObjectMapper objectMapper) {
         this.db = db;
         this.width = width;
         this.height = height;
-        this.qwsh = qwsh;
+        this.wsh = wsh;
         this.objectMapper = objectMapper;
     }
 
@@ -44,7 +43,7 @@ public class QuotesReadyThread extends Thread {
                                 })
                                 .collect(toList())
                 );
-                qwsh.send("QUOTES: " + s);
+                wsh.send("QUOTES: " + s);
             }
             catch (JsonProcessingException jpex) {
                 logger.error("Fix me.", jpex);
@@ -54,7 +53,7 @@ public class QuotesReadyThread extends Thread {
             db.getStocksToDrawGraphs().forEach(t -> {
                 db.addGraph(t._1(), Utils.drawGraph(width, height, Main.OPEN, Main.CLOSE, t._2()));
             });
-            qwsh.send("GRAPHS: ");
+            wsh.send("GRAPHS: ");
         }
     }
 }
