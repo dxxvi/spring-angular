@@ -40,6 +40,13 @@ public class Stock extends StockDO {
         }
     }
 
+    public Quote getFirstQuoteOfDay() {
+        if (quotes == null) {
+            return null;
+        }
+        return quotes.peekFirst();
+    }
+
     public LinkedList<Quote> getQuotes() {
         return quotes;
     }
