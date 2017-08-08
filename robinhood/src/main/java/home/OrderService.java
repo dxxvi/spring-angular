@@ -59,7 +59,7 @@ public class OrderService {
         Map<String, Set<Order>> symbolOrdersMap = new HashMap<>();
         robinhoodOrdersResult.getResults().stream()
                 .filter(ror -> !"cancelled".equals(ror.getState()))
-                .filter(ror -> ror.getCreatedAt().until(now2, ChronoUnit.HOURS) < 136)
+                .filter(ror -> ror.getCreatedAt().until(now2, ChronoUnit.HOURS) < 50)
                 .filter(ror -> !db.shouldBeHidden(ror.getId()))
                 .map(ror -> {
                     Order order = ror.toOrder();

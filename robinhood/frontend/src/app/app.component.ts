@@ -105,8 +105,8 @@ export class AppComponent {
       msg: buySellOrder.quantity + ' ' + buySellOrder.symbol + ' shares @ $' + buySellOrder.price + ' each. Total: $' +
            buySellOrder.quantity * buySellOrder.price + '.',
       onRemove: function(toast: ToastData) {
-        that.closeBuySellBoxFor = '';
-        that.closeBuySellBoxFor = buySellOrder.symbol;
+        // if this string doesn't change every time, the stock component cannot be notified
+        that.closeBuySellBoxFor = buySellOrder.symbol + ' ' + new Date().getTime();
       }
     };
     this.toastyService.info(toastOptions);

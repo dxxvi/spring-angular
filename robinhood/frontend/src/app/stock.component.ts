@@ -27,9 +27,9 @@ export class StockComponent {
   constructor(private wsService: WebsocketService) {
   }
 
-  @Input()
-  set closeBuySellBoxFor(symbol: string) {
-    if (symbol === this.stock.symbol) {
+  @Input() set closeBuySellBoxFor(_symbol: string) {
+    const a: Array<string> = _symbol.split(' ');
+    if (a.length > 0 && a[0] === this.stock.symbol) {
       this.buySellOpen = false;
     }
   }
