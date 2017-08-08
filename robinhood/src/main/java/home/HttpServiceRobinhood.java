@@ -217,11 +217,19 @@ public class HttpServiceRobinhood implements HttpService {
     }
 
     @Override public List<RobinhoodHistoricalQuoteResult> getHistoricalQuotes(String wantedSymbols) {
+        return historicalQuotes(wantedSymbols, "week");
+    }
+
+    @Override public List<RobinhoodHistoricalQuoteResult> getTodayHistoricalQuotes(String wantedSymbols) {
+        return historicalQuotes(wantedSymbols, "day");
+    }
+
+    private List<RobinhoodHistoricalQuoteResult> historicalQuotes(String wantedSymbols, String span) {
         RestTemplate restTemplate = new RestTemplate();
         try {
             RequestEntity<Void> request = RequestEntity
-                    .get(new URI("https://api.robinhood.com/quotes/historicals/?interval=5minute&span=week&symbols=" +
-                            wantedSymbols))
+                    .get(new URI("https://api.robinhood.com/quotes/historicals/?interval=5minute&span=" + span +
+                            "&symbols=" + wantedSymbols))
                     .accept(MediaType.APPLICATION_JSON)
                     .build();
             ResponseEntity<String> response = restTemplate.exchange(request, String.class);

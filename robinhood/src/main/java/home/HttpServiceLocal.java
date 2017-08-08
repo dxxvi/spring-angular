@@ -74,6 +74,10 @@ public class HttpServiceLocal implements HttpService {
         return Collections.emptyList();
     }
 
+    @Override public List<RobinhoodHistoricalQuoteResult> getTodayHistoricalQuotes(String wantedSymbols) {
+        return Collections.emptyList();
+    }
+
     @Override public void buySell(BuySellOrder buySellOrder, String loginToken) {
     }
 }

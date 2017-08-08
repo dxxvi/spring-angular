@@ -30,7 +30,11 @@ public interface HttpService {
 
     void cancelOrder(String orderId, String loginToken);
 
+    // get historical quotes for a week
     List<RobinhoodHistoricalQuoteResult> getHistoricalQuotes(String wantedSymbols);
+
+    // get historical quotes for today
+    List<RobinhoodHistoricalQuoteResult> getTodayHistoricalQuotes(String wantedSymbols);
 
     void buySell(BuySellOrder buySellOrder, String loginToken);
 }

@@ -12,8 +12,10 @@ import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.time.LocalTime;
+import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.Random;
+import java.util.TimeZone;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
 
@@ -90,5 +92,11 @@ public abstract class Utils {
 
     static BigDecimal randomQuotePrice() {
         return new BigDecimal(random.nextInt(30) + 10 + "." + random.nextInt(100));
+    }
+
+    // add the returned number (of hours) to Robinhood time to get my time
+    static int robinhoodAndMyTimeDifference() {
+        TimeZone timeZone = Calendar.getInstance().getTimeZone();
+        return (timeZone.getRawOffset() + timeZone.getDSTSavings()) / 3600 / 1000;
     }
 }

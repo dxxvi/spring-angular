@@ -89,4 +89,8 @@ public class StockDO {
     public int getDayPercentage() {
         return dayPercentage;
     }
+
+    public void setDayPercentage(int dayPercentage) {
+        this.dayPercentage = dayPercentage;
+    }
 }
