@@ -39,7 +39,6 @@ public class QuotesReadyThread extends Thread {
                                     StockDO stockDO = stock.minified();
                                     stockDO.setWeekPercentage(db.getWeekPercentage(
                                             stock.getSymbol(), stockDO.getPrice().doubleValue()));
-                                    stockDO.setDayPercentage(stock.getDayPercentage());
                                     return stockDO;
                                 })
                                 .collect(toList())

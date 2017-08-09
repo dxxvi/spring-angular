@@ -240,7 +240,7 @@ public class HttpServiceRobinhood implements HttpService {
                             jsonNode.get("results").toString(),
                             new TypeReference<List<RobinhoodHistoricalQuoteResult>>() {}
                     );
-                    logger.debug("Got historical quotes.");
+                    logger.debug("Got historical quotes with span of {}.", span);
                     return result;
                 }
                 else {
