@@ -32,6 +32,27 @@ public class Stock extends StockDO {
             }
         }
 
+        recalculateDayMinMax(q);
+    }
+
+    public void prependQuote(Quote q) {
+        if (quotes == null) {
+            quotes = new LinkedList<>(Collections.singleton(q));
+        }
+        else {
+            Quote firstQ = quotes.getFirst();
+            if (firstQ.getPrice().equals(q.getPrice()) && q.getTo().equals(firstQ.getFrom())) {
+                firstQ.setFrom(q.getFrom());
+            }
+            else {
+                quotes.addFirst(q);
+            }
+        }
+
+        recalculateDayMinMax(q);
+    }
+
+    private void recalculateDayMinMax(Quote q) {
         if (dayMax.compareTo(q.getPrice()) < 0) {
             dayMax = q.getPrice();
         }

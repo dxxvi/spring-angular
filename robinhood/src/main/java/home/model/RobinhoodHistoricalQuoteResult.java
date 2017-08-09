@@ -1,10 +1,10 @@
 package home.model;
 
-import java.util.List;
+import java.util.LinkedList;
 
 public class RobinhoodHistoricalQuoteResult {
     private String symbol;
-    private List<RobinhoodHistoricalQuote> historicals;
+    private LinkedList<RobinhoodHistoricalQuote> historicals;
 
     public String getSymbol() {
         return symbol;
@@ -14,11 +14,11 @@ public class RobinhoodHistoricalQuoteResult {
         this.symbol = symbol;
     }
 
-    public List<RobinhoodHistoricalQuote> getHistoricals() {
+    public LinkedList<RobinhoodHistoricalQuote> getHistoricals() {
         return historicals;
     }
 
-    public void setHistoricals(List<RobinhoodHistoricalQuote> historicals) {
+    public void setHistoricals(LinkedList<RobinhoodHistoricalQuote> historicals) {
         this.historicals = historicals;
     }
 }

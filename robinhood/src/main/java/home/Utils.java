@@ -22,6 +22,7 @@ import static java.time.temporal.ChronoUnit.SECONDS;
 public abstract class Utils {
     private static final Logger logger = LoggerFactory.getLogger(Utils.class);
     private static final Random random = new Random();
+    private static int robinhoodAndMyTimeDifference = Integer.MIN_VALUE;
 
     static byte[] drawGraph(int width, int height, LocalTime open, LocalTime close, LinkedList<Quote> quotes) {
         final BigDecimal D = new BigDecimal(0.01);
@@ -96,7 +97,10 @@ public abstract class Utils {
 
     // add the returned number (of hours) to Robinhood time to get my time
     static int robinhoodAndMyTimeDifference() {
-        TimeZone timeZone = Calendar.getInstance().getTimeZone();
-        return (timeZone.getRawOffset() + timeZone.getDSTSavings()) / 3600 / 1000;
+        if (robinhoodAndMyTimeDifference == Integer.MIN_VALUE) {
+            TimeZone timeZone = Calendar.getInstance().getTimeZone();
+            robinhoodAndMyTimeDifference = (timeZone.getRawOffset() + timeZone.getDSTSavings()) / 3600 / 1000;
+        }
+        return robinhoodAndMyTimeDifference;
     }
 }

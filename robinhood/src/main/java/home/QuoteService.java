@@ -2,6 +2,7 @@ package home;
 
 import home.model.DB;
 import home.model.Quote;
+import home.model.RobinhoodHistoricalQuote;
 import home.model.RobinhoodHistoricalQuoteResult;
 import home.model.Stock;
 import org.slf4j.Logger;
@@ -16,7 +17,9 @@ import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
@@ -69,7 +72,9 @@ public class QuoteService {
             stock.addQuote(q);
 
             Quote firstQuote = stock.getFirstQuoteOfDay();
-            if (firstQuote != null && firstQuote.getFrom().isAfter(LocalTime.of(10, 0, 0))) {
+            if (firstQuote != null
+                    && firstQuote.getFrom().isAfter(LocalTime.of(10, 0, 0))
+                    && firstQuote.getTo().isBefore(LocalTime.of(15, 59, 0))) {
                 missingQuotesToday.set(true);
             }
         });
@@ -77,9 +82,25 @@ public class QuoteService {
         db.quotesReady();
 
         if (missingQuotesToday.get()) {  // fill up the missing quotes for today
-            List<RobinhoodHistoricalQuoteResult> results = httpService.getTodayHistoricalQuotes(wantedSymbols);
+            Map<String, LinkedList<RobinhoodHistoricalQuote>> symbolDayQuotesMap =
+                    httpService.getTodayHistoricalQuotes(wantedSymbols).stream()
+                            .collect(toMap(
+                                    RobinhoodHistoricalQuoteResult::getSymbol,
+                                    RobinhoodHistoricalQuoteResult::getHistoricals
+                            ));
             
-            db.getStocksStream();
+            db.getStocksStream().forEach(stock -> {
+                LinkedList<RobinhoodHistoricalQuote> dayQuotes = symbolDayQuotesMap.get(stock.getSymbol());
+                Quote firstQuoteOfDay = stock.getFirstQuoteOfDay();
+                if (dayQuotes != null && firstQuoteOfDay != null) {
+                    RobinhoodHistoricalQuote lastDayQuote = dayQuotes.pollLast();
+                    LocalTime lastDayQuoteLocalTime = lastDayQuote.getBeginsAt().toLocalTime()
+                            .plusHours(Utils.robinhoodAndMyTimeDifference());
+                    if (lastDayQuoteLocalTime.plusMinutes(4).plusSeconds(59).isBefore(firstQuoteOfDay.getFrom())) {
+
+                    }
+                }
+            });
         }
     }
 }
