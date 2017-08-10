@@ -39,7 +39,7 @@ public class QuoteService {
         this.db = db;
     }
 
-    @Scheduled(cron = "1/30 0/1 * * * *")
+    @Scheduled(cron = "0/15 0/1 * * * *")
     public void quotes() {
         if (!db.hasHistoricalQuotes()) {
             httpService.getHistoricalQuotes(wantedSymbols)
@@ -59,7 +59,19 @@ public class QuoteService {
             return;
         }
 
-        _fetchedAt = _fetchedAt.withSecond(_fetchedAt.get(ChronoField.SECOND_OF_MINUTE) < 30 ? 0 : 30);
+        int secondOfMinute = _fetchedAt.get(ChronoField.SECOND_OF_MINUTE);
+        if (secondOfMinute < 15) {
+            _fetchedAt = _fetchedAt.withSecond(0);
+        }
+        else if (secondOfMinute < 30) {
+            _fetchedAt = _fetchedAt.withSecond(15);
+        }
+        else if (secondOfMinute < 45) {
+            _fetchedAt = _fetchedAt.withSecond(30);
+        }
+        else {
+            _fetchedAt = _fetchedAt.withSecond(45);
+        }
         final LocalTime fetchedAt = _fetchedAt;
 
         AtomicBoolean missingQuotesToday = new AtomicBoolean(false);
@@ -93,11 +105,23 @@ public class QuoteService {
                 LinkedList<RobinhoodHistoricalQuote> dayQuotes = symbolDayQuotesMap.get(stock.getSymbol());
                 Quote firstQuoteOfDay = stock.getFirstQuoteOfDay();
                 if (dayQuotes != null && firstQuoteOfDay != null) {
-                    RobinhoodHistoricalQuote lastDayQuote = dayQuotes.pollLast();
-                    LocalTime lastDayQuoteLocalTime = lastDayQuote.getBeginsAt().toLocalTime()
-                            .plusHours(Utils.robinhoodAndMyTimeDifference());
-                    if (lastDayQuoteLocalTime.plusMinutes(4).plusSeconds(59).isBefore(firstQuoteOfDay.getFrom())) {
-
+                    while (true) {
+                        try {
+                            RobinhoodHistoricalQuote lastDayQuote = dayQuotes.pollLast();
+                            LocalTime lastDayQuoteLocalTime = lastDayQuote.getBeginsAt().toLocalTime()
+                                    .plusHours(Utils.robinhoodAndMyTimeDifference());
+                            if (lastDayQuoteLocalTime.plusMinutes(4).plusSeconds(59).isBefore(firstQuoteOfDay.getFrom())) {
+                                Quote q = new Quote(stock.getSymbol(), lastDayQuote.getHighPrice(), stock.getInstrument(),
+                                        lastDayQuoteLocalTime, lastDayQuoteLocalTime.plusSeconds(150));
+                                stock.prependQuote(q);
+                                q = new Quote(stock.getSymbol(), lastDayQuote.getLowPrice(), stock.getInstrument(),
+                                        lastDayQuoteLocalTime.plusSeconds(150), lastDayQuoteLocalTime.plusSeconds(300));
+                                stock.prependQuote(q);
+                            }
+                        }
+                        catch (NullPointerException npex) {
+                            break;
+                        }
                     }
                 }
             });

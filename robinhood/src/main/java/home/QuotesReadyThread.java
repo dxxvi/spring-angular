@@ -51,7 +51,7 @@ public class QuotesReadyThread extends Thread {
 
             // generate graphs TODO should we put this in another thread?
             db.getStocksToDrawGraphs().forEach(t -> {
-                db.addGraph(t._1(), Utils.drawGraph(width, height, Main.OPEN, Main.CLOSE, t._2()));
+                db.addGraph(t._1(), Utils.drawGraph(width, height, t._2()));
             });
             wsh.send("GRAPHS: ");
         }

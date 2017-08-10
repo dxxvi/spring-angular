@@ -17,6 +17,17 @@ public class Quote {
     @JsonIgnore private LocalTime from;
     @JsonIgnore private LocalTime to;
 
+    public Quote() {
+    }
+
+    public Quote(String symbol, BigDecimal price, String instrument, LocalTime from, LocalTime to) {
+        this.symbol = symbol;
+        this.price = price;
+        this.instrument = instrument;
+        this.from = from;
+        this.to = to;
+    }
+
     public LocalTime getTo() {
         return to;
     }

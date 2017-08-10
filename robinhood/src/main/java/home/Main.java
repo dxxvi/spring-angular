@@ -24,7 +24,7 @@ public class Main {
 
     public static final LocalTime OPEN  = LocalTime.of(9, 30, 30);
     public static final LocalTime CLOSE = LocalTime.of(15, 59, 35);
-    public static final int graphWidth = 388;
+    public static final int graphWidth = 360;
     public static final int graphHeight = 75;
 
     public static void main(String[] args) {

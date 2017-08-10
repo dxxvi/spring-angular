@@ -12,6 +12,7 @@ import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.Random;
@@ -24,9 +25,16 @@ public abstract class Utils {
     private static final Random random = new Random();
     private static int robinhoodAndMyTimeDifference = Integer.MIN_VALUE;
 
-    static byte[] drawGraph(int width, int height, LocalTime open, LocalTime close, LinkedList<Quote> quotes) {
+    // draw the last 90 minutes in quotes
+    static byte[] drawGraph(int width, int height, LinkedList<Quote> quotes) {
+        final LocalTime close = quotes.peekLast().getTo();
+        while (quotes.peekFirst().getFrom().until(close, ChronoUnit.MINUTES) > 90) {
+            quotes.removeFirst();
+        }
+        final LocalTime open = quotes.peekFirst().getFrom();
+
         final BigDecimal D = new BigDecimal(0.01);
-        final BigDecimal secs = new BigDecimal(open.until(close, SECONDS));
+        final BigDecimal secs = new BigDecimal(90 * 60);  // 90 minutes * 60 secs/min
 
         Tuple2<BigDecimal, BigDecimal> minMax = quotes.stream().reduce(
                 new Tuple2<>(BigDecimal.valueOf(999), BigDecimal.valueOf(-1)),
