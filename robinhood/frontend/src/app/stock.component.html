@@ -33,21 +33,26 @@
           <div class="top-right">{{ stock.price }}&nbsp;</div>
           <div class="top-left">
             <form class="form-inline" [style.display]="buySellOpen ? 'block' : 'none'">
-              <button class="btn btn-warning btn-xs" (click)="buy()">Buy</button>
-              <div class="form-group">
-                <input class="form-control input-sm" style="width: 3em; text-align: center;"
-                       [(ngModel)]="numberOfSharesToTrade" [ngModelOptions]="{standalone: true}"/>
-              </div>
-              <div class="form-group">
-                <label>@ $</label>
-                <input class="form-control input-sm" style="width: 3.9em;" [(ngModel)]="priceToTrade"
-                       [ngModelOptions]="{standalone: true}"/>
-              </div>
-              <button class="btn btn-primary btn-xs" (click)="sell()">Sell</button>
-              <div>
-                <label>Re-sell? <input type="checkbox"> + $</label>
-                <input class="form-control input-sm" style="width: 3.9em;"/>
-              </div>
+              <table>
+                <tr>
+                  <td>
+                    <button class="btn btn-warning btn-xs" (click)="buy()">Buy</button>
+                    <input class="form-control input-sm" style="width: 3em; text-align: center;"
+                           [(ngModel)]="numberOfSharesToTrade" [ngModelOptions]="{standalone: true}"/>
+                  </td>
+                  <td style="text-align: right;"><label>@ $</label></td>
+                  <td>
+                    <input class="form-control input-sm" style="width: 3.9em;" [(ngModel)]="priceToTrade"
+                           [ngModelOptions]="{standalone: true}"/>
+                  </td>
+                  <td><button class="btn btn-primary btn-xs" (click)="sell()">Sell</button></td>
+                </tr>
+                <tr>
+                  <td><label>Re-sell? <input type="checkbox"></label></td>
+                  <td style="text-align: right;"><label>+ $</label></td>
+                  <td><input class="form-control input-sm" style="width: 3.9em;"/></td>
+                </tr>
+              </table>
             </form>
           </div>
         </div>

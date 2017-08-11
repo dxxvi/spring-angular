@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 
+import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.Map;
@@ -13,6 +14,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.function.ObjDoubleConsumer;
 import java.util.stream.DoubleStream;
 import java.util.stream.Stream;
 
@@ -24,6 +26,7 @@ public class DB {
     private final Map<String, String> instrumentSymbolMap = new ConcurrentHashMap<>();
     private final Set<String> hiddenOrderIds = new ConcurrentSkipListSet<>();
     private final BlockingQueue<String> cancelledOrders = new LinkedBlockingQueue<>();
+    // keeps the historical quotes for a week
     private final Map<String, double[]> symbolHistoricalQuoteMap = new ConcurrentHashMap<>(32);
     private final BlockingQueue<BuySellOrder> buySellOrders = new LinkedBlockingQueue<>();
 
@@ -132,6 +135,24 @@ public class DB {
         double[] array = symbolHistoricalQuoteMap.get(symbol);
         long n = DoubleStream.of(array).filter(a -> a > price).count();
         return Math.round((float)n / (float)(array.length) * 100f);
+    }
+
+    public Tuple2<BigDecimal, BigDecimal> getWeekMinMax(String symbol) {
+        if (!symbolHistoricalQuoteMap.containsKey(symbol) || symbolHistoricalQuoteMap.get(symbol).length == 0) {
+            return new Tuple2<>(new BigDecimal(-1), new BigDecimal(-1));
+        }
+/*
+        DoubleStream.of(symbolHistoricalQuoteMap.get(symbol)).collect(
+                () -> new DoubleTuple2(Double.MAX_VALUE, Double.MIN_VALUE),
+                new ObjDoubleConsumer<DoubleTuple2>() {
+                    @Override
+                    public void accept(DoubleTuple2 doubleTuple2, double value) {
+//                        return new DoubleTuple2(Math.min(doubleTuple2._1, value), Math.max(doubleTuple2._2, value));
+                    }
+                }
+        )
+*/
+        return null;
     }
 
     public void addBuySellOrder(BuySellOrder buySellOrder) {

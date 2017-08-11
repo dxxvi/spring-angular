@@ -44,7 +44,7 @@ public class QuoteService {
     @Scheduled(cron = "0/15 0/1 * * * *")
     public void quotes() {
         if (!db.hasHistoricalQuotes()) {
-            httpService.getHistoricalQuotes(wantedSymbols)
+            httpService.getHistoricalQuotes(wantedSymbols)  // historical quotes for a week
                     .forEach(rhqr -> {
                         db.addHistoricalQuotes(
                                 rhqr.getSymbol(),
@@ -80,7 +80,7 @@ public class QuoteService {
 
         Collection<Quote> quotes = httpService.quotes(wantedSymbols);
 
-        if (_fetchedAt.isAfter(LocalTime.of(18, 0))) {  // fluctuate the price
+        if (_fetchedAt.isAfter(LocalTime.of(18, 0))) {  // fluctuate the price because I'm testing
             quotes.forEach(q -> {
                 String s = String.format("%s0.%02d", random.nextBoolean() ? "-" : "", random.nextInt(20));
                 BigDecimal price = q.getPrice().add(new BigDecimal(s));
@@ -96,7 +96,7 @@ public class QuoteService {
 
             Quote firstQuote = stock.getFirstQuoteOfDay();
             if (firstQuote != null
-                    && firstQuote.getFrom().isAfter(LocalTime.of(10, 0, 0))
+                    && firstQuote.getFrom().isAfter(LocalTime.of(9, 40, 0))
                     && firstQuote.getTo().isBefore(LocalTime.of(15, 59, 0))) {
                 missingQuotesToday.set(true);
             }
