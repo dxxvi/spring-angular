@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
@@ -29,6 +30,7 @@ import static java.util.stream.Collectors.*;
 
 public class QuoteService {
     private final Logger logger = LoggerFactory.getLogger(QuoteService.class);
+    private final Random random = new Random();
     private final DB db;
     private final HttpService httpService;
 
@@ -77,6 +79,15 @@ public class QuoteService {
         AtomicBoolean missingQuotesToday = new AtomicBoolean(false);
 
         Collection<Quote> quotes = httpService.quotes(wantedSymbols);
+
+        if (_fetchedAt.isAfter(LocalTime.of(18, 0))) {  // fluctuate the price
+            quotes.forEach(q -> {
+                String s = String.format("%s0.%02d", random.nextBoolean() ? "-" : "", random.nextInt(20));
+                BigDecimal price = q.getPrice().add(new BigDecimal(s));
+                q.setPrice(price);
+            });
+        }
+
         quotes.forEach(q -> {
             q.setFrom(fetchedAt).setTo(fetchedAt.plusSeconds(30));
             db.updateInstrumentSymbol(q.getInstrument(), q.getSymbol());

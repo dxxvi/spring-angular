@@ -1,7 +1,7 @@
 td.symbol { width: 3.8em; border-bottom: 1px solid #ccc; }
 td.symbol .position { color: #666; font-size: 82%; }
 
-td.min-max { width: 7em; }
+td.min-max { width: 7.2em; }
 td.min-max .plus-minus { color: rgba(33,33,33,.19); cursor: pointer; }
 
 td.graph { width: 1px; border-bottom: 1px solid #FFF; }

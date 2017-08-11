@@ -17,7 +17,7 @@ export class AppComponent {
 
   constructor(private wsService: WebsocketService,
               private toastyService: ToastyService, private toastyConfig: ToastyConfig) {
-    this.wsService.createObservableSocket('ws://localhost:9090/websocket/quotes').subscribe(
+    this.wsService.createObservableSocket('ws://localhost:8080/websocket/quotes').subscribe(
       data => {
         if (data.indexOf('QUOTES: ') === 0) {
           const newStocks = JSON.parse(data.replace('QUOTES: ', ''));
@@ -31,7 +31,7 @@ export class AppComponent {
         else if (data.indexOf('GRAPHS: ') === 0) {
           const newTime = new Date().getTime();
           this.stocks.forEach(stock =>
-            stock.graphUrl = 'http://localhost:9090/graph/' + stock.symbol + '?' + newTime);
+            stock.graphUrl = '/graph/' + stock.symbol + '?' + newTime);
         }
         else if (data.indexOf('GRAPH HEIGHT: ') === 0) {
           this.graphHeight = data.replace('GRAPH HEIGHT: ', '') + 'px';
@@ -69,7 +69,16 @@ export class AppComponent {
           this.toastyService.success(toastOptions);
         }
       },
-      error => console.log(error),
+      error => {
+        console.log('Error channel:');
+        console.log(error);
+        const toastOptions: ToastOptions = {
+          title: 'You need to reload the page',
+          msg: '',
+          timeout: 9999999
+        };
+        this.toastyService.error(toastOptions);
+      },
       () => console.log('The observable stream is complete.')
     );
 

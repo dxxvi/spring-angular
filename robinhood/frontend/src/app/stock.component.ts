@@ -28,9 +28,11 @@ export class StockComponent {
   }
 
   @Input() set closeBuySellBoxFor(_symbol: string) {
-    const a: Array<string> = _symbol.split(' ');
-    if (a.length > 0 && a[0] === this.stock.symbol) {
-      this.buySellOpen = false;
+    if (_symbol !== undefined) {
+      const a: Array<string> = _symbol.split(' ');
+      if (a.length > 0 && a[0] === this.stock.symbol) {
+        this.buySellOpen = false;
+      }
     }
   }
 
