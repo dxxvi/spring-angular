@@ -19,11 +19,13 @@ import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static home.Main.OPEN;
@@ -45,13 +47,19 @@ public class QuoteService {
 
     @Scheduled(cron = "0/15 0/1 * * * *")
     public void quotes() {
+        Map<String, Collection<BigDecimal>> stock5minsDeltasMap = new HashMap<>(32);
         if (!db.hasHistoricalQuotes()) {                    // we don't have historical quotes for last 5 days yet
             httpService.getHistoricalQuotes(wantedSymbols)  // historical quotes for a week
                     .forEach(rhqr -> {
                         db.addHistoricalQuotes(
                                 rhqr.getSymbol(),
                                 rhqr.getHistoricals().stream()
-                                        .flatMap(h -> Stream.of(h.getLowPrice(), h.getHighPrice()))
+                                        .flatMap(h -> {
+                                            Collection<BigDecimal> cbd = stock5minsDeltasMap
+                                                    .computeIfAbsent(rhqr.getSymbol(), s -> new LinkedList<>());
+                                            cbd.add(h.getHighPrice().subtract(h.getLowPrice()));
+                                            return Stream.of(h.getLowPrice(), h.getHighPrice());
+                                        })
                                         .mapToDouble(BigDecimal::doubleValue)
                                         .toArray()
                         );
@@ -102,6 +110,10 @@ public class QuoteService {
                     stock.setDay5Min(weekMinMax._1());
                     stock.setDay5Max(weekMinMax._2());
                 }
+            }
+
+            if (stock.getMax5minsDelta() == null && stock5minsDeltasMap.containsKey(q.getSymbol())) {
+                stock.addMax5minsDeltas(stock5minsDeltasMap.get(q.getSymbol()));
             }
 
             Quote firstQuote = stock.getFirstQuoteOfDay();

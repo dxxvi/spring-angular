@@ -1,10 +1,12 @@
 package home.model;
 
 import java.math.BigDecimal;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 
 public class Stock extends StockDO {
+    private BigDecimal max5minsDelta;  // the max 5 mins delta in the last 5 days
     private LinkedList<Quote> quotes;
 
     public Stock(String symbol, String instrument) {
@@ -16,6 +18,20 @@ public class Stock extends StockDO {
             return null;
         }
         return quotes.getLast().getPrice();
+    }
+
+    public BigDecimal getMax5minsDelta() {
+        return max5minsDelta;
+    }
+
+    public void setMax5minsDelta(BigDecimal max5minsDelta) {
+        if (this.max5minsDelta == null || this.max5minsDelta.compareTo(max5minsDelta) < 0) {
+            this.max5minsDelta = max5minsDelta;
+        }
+    }
+
+    public void addMax5minsDeltas(Collection<BigDecimal> max5minsDeltas) {
+        max5minsDeltas.forEach(this::setMax5minsDelta);
     }
 
     public void addQuote(Quote q) {
@@ -83,11 +99,11 @@ public class Stock extends StockDO {
                 getDayPercentage());
     }
 
-    // returns true if
+    // returns true if the last n quotes are going down
     public boolean lastQuotesDown(int n) {
         if (quotes == null || quotes.size() < n) {
             return false;
         }
-
+        return false;
     }
 }
