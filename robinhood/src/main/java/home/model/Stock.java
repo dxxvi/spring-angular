@@ -82,4 +82,12 @@ public class Stock extends StockDO {
         return new StockDO(symbol, instrument, getPrice(), dayMin, dayMax, day5Min, day5Max, orders,
                 getDayPercentage());
     }
+
+    // returns true if
+    public boolean lastQuotesDown(int n) {
+        if (quotes == null || quotes.size() < n) {
+            return false;
+        }
+
+    }
 }

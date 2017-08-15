@@ -43,6 +43,7 @@ public class QuotesReadyThread extends Thread {
                                 })
                                 .collect(toList())
                 );
+                logger.debug("Sending quotes to browser ...");
                 wsh.send("QUOTES: " + s);
             }
             catch (JsonProcessingException jpex) {

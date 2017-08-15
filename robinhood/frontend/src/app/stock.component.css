@@ -3,9 +3,10 @@ td.symbol .position { color: #666; font-size: 82%; }
 
 td.min-max { width: 7.2em; }
 td.min-max .plus-minus { color: rgba(33,33,33,.19); cursor: pointer; }
+td.min-max span.day-week-min-max { width: 3.55em; text-align: right; display: inline-block; }
 
 td.graph { width: 1px; border-bottom: 1px solid #FFF; }
-td.graph input { opacity: .5; padding-left: 4px; padding-right: 4px; }
+td.graph input { opacity: .7; padding-left: 4px; padding-right: 4px; }
 td.graph .btn-xs { opacity: .69; }
 td.graph label { opacity: .41; }
 

@@ -70,8 +70,16 @@ public class StockDO {
         return day5Min;
     }
 
+    public void setDay5Min(BigDecimal day5Min) {
+        this.day5Min = day5Min;
+    }
+
     public BigDecimal getDay5Max() {
         return day5Max;
+    }
+
+    public void setDay5Max(BigDecimal day5Max) {
+        this.day5Max = day5Max;
     }
 
     public List<Order> getOrders() {

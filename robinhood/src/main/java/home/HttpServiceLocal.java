@@ -78,6 +78,7 @@ public class HttpServiceLocal implements HttpService {
         return Collections.emptyList();
     }
 
-    @Override public void buySell(BuySellOrder buySellOrder, String loginToken) {
+    @Override public String buySell(BuySellOrder buySellOrder, String loginToken) {
+        return "0C12-5A8B-DE17";
     }
 }

@@ -15,6 +15,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -41,7 +43,7 @@ public class OrderService {
         this.objectMapper = objectMapper;
     }
 
-    @Scheduled(cron = "15/20 0/1 * * * *")
+    @Scheduled(cron = "5/15 0/1 * * * *")
     public void orders() {
         LocalTime now = LocalTime.now();
         if (now.until(Main.OPEN, ChronoUnit.MINUTES) > 5 || now.until(Main.CLOSE, ChronoUnit.MINUTES) < 0) {
@@ -56,6 +58,8 @@ public class OrderService {
         RobinhoodOrdersResult robinhoodOrdersResult = httpService.orders(loginToken);
         String nextUrl = robinhoodOrdersResult.getNext();
 
+        final Collection<BuySellOrder> filledBuyOrdersNeedResold = new ArrayList<>(32);
+
         Map<String, Set<Order>> symbolOrdersMap = new HashMap<>();
         robinhoodOrdersResult.getResults().stream()
                 .filter(ror -> !"cancelled".equals(ror.getState()))
@@ -69,6 +73,14 @@ public class OrderService {
                         db.updateInstrumentSymbol(ror.getInstrument(), symbol);
                     }
                     order.setSymbol(symbol);
+
+                    if ("filled".equals(order.getState())) {
+                        BuySellOrder bso = db.getBuyOrderNeedsResold(order.getId());
+                        if (bso != null) {
+                            filledBuyOrdersNeedResold.add(bso);
+                        }
+                    }
+
                     return order;
                 })
                 .collect(groupingBy(Order::getSymbol))  // returns Map<symbol, List<orders for that symbol>>
@@ -84,10 +96,16 @@ public class OrderService {
         catch (JsonProcessingException jpex) {
             logger.error("Fix me.", jpex);
         }
+
+        filledBuyOrdersNeedResold.forEach(bso -> {
+            if (buySell(bso.setSide("sell").setPrice(bso.getPrice().add(bso.getResellDelta()))) != null) {
+                db.removeBuyOrderNeedsResold(bso.getId());
+            }
+        });
     }
 
-    public void buySell(BuySellOrder buySellOrder) {
+    public String buySell(BuySellOrder buySellOrder) {
         String loginToken = httpService.login(username, password);
-        httpService.buySell(buySellOrder, loginToken);
+        return httpService.buySell(buySellOrder, loginToken);
     }
 }

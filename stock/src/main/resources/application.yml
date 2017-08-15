@@ -1,8 +1,0 @@
-logging:
-  level:
-    home: debug
-canvas:
-  x: 1
-  y: 4
-  width: 363
-  height: 151

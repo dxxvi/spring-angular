@@ -26,7 +26,8 @@ public abstract class Utils {
     private static int robinhoodAndMyTimeDifference = Integer.MIN_VALUE;
 
     // draw the last 90 minutes in quotes
-    static byte[] drawGraph(int width, int height, LinkedList<Quote> quotes) {
+    static byte[] drawGraph(int width, int height, LinkedList<Quote> _quotes) {
+        LinkedList<Quote> quotes = new LinkedList<>(_quotes);
         final LocalTime close = quotes.peekLast().getTo();
         while (quotes.peekFirst().getFrom().until(close, ChronoUnit.MINUTES) > 90) {
             quotes.removeFirst();

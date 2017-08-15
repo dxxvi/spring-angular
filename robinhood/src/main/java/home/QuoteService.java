@@ -5,12 +5,14 @@ import home.model.Quote;
 import home.model.RobinhoodHistoricalQuote;
 import home.model.RobinhoodHistoricalQuoteResult;
 import home.model.Stock;
+import home.model.Tuple2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoField;
@@ -43,7 +45,7 @@ public class QuoteService {
 
     @Scheduled(cron = "0/15 0/1 * * * *")
     public void quotes() {
-        if (!db.hasHistoricalQuotes()) {
+        if (!db.hasHistoricalQuotes()) {                    // we don't have historical quotes for last 5 days yet
             httpService.getHistoricalQuotes(wantedSymbols)  // historical quotes for a week
                     .forEach(rhqr -> {
                         db.addHistoricalQuotes(
@@ -80,7 +82,7 @@ public class QuoteService {
 
         Collection<Quote> quotes = httpService.quotes(wantedSymbols);
 
-        if (_fetchedAt.isAfter(LocalTime.of(18, 0))) {  // fluctuate the price because I'm testing
+        if (_fetchedAt.isAfter(LocalTime.of(16, 0))) {  // fluctuate the price because I'm testing
             quotes.forEach(q -> {
                 String s = String.format("%s0.%02d", random.nextBoolean() ? "-" : "", random.nextInt(20));
                 BigDecimal price = q.getPrice().add(new BigDecimal(s));
@@ -89,27 +91,40 @@ public class QuoteService {
         }
 
         quotes.forEach(q -> {
-            q.setFrom(fetchedAt).setTo(fetchedAt.plusSeconds(30));
+            q.setFrom(fetchedAt).setTo(fetchedAt.plusSeconds(15));
             db.updateInstrumentSymbol(q.getInstrument(), q.getSymbol());
             Stock stock = db.addStock(new Stock(q.getSymbol(), q.getInstrument()));
             stock.addQuote(q);
 
+            if (stock.getDay5Min() == null && db.hasHistoricalQuotes()) {
+                Tuple2<BigDecimal, BigDecimal> weekMinMax = db.getWeekMinMax(q.getSymbol());
+                if (weekMinMax != null) {
+                    stock.setDay5Min(weekMinMax._1());
+                    stock.setDay5Max(weekMinMax._2());
+                }
+            }
+
             Quote firstQuote = stock.getFirstQuoteOfDay();
             if (firstQuote != null
+                    && !missingQuotesToday.get()
                     && firstQuote.getFrom().isAfter(LocalTime.of(9, 40, 0))
                     && firstQuote.getTo().isBefore(LocalTime.of(15, 59, 0))) {
                 missingQuotesToday.set(true);
             }
         });
 
-        db.quotesReady();
-
         if (missingQuotesToday.get()) {  // fill up the missing quotes for today
             Map<String, LinkedList<RobinhoodHistoricalQuote>> symbolDayQuotesMap =
                     httpService.getTodayHistoricalQuotes(wantedSymbols).stream()
                             .collect(toMap(
                                     RobinhoodHistoricalQuoteResult::getSymbol,
-                                    RobinhoodHistoricalQuoteResult::getHistoricals
+                                    rhqr -> {
+                                        rhqr.getHistoricals().forEach(rhq -> {
+                                            LocalDateTime t = rhq.getBeginsAt().plusHours(Utils.robinhoodAndMyTimeDifference());
+                                            rhq.setBeginsAt(t);
+                                        });
+                                        return rhqr.getHistoricals();
+                                    }
                             ));
             
             db.getStocksStream().forEach(stock -> {
@@ -119,14 +134,13 @@ public class QuoteService {
                     while (true) {
                         try {
                             RobinhoodHistoricalQuote lastDayQuote = dayQuotes.pollLast();
-                            LocalTime lastDayQuoteLocalTime = lastDayQuote.getBeginsAt().toLocalTime()
-                                    .plusHours(Utils.robinhoodAndMyTimeDifference());
+                            LocalTime lastDayQuoteLocalTime = lastDayQuote.getBeginsAt().toLocalTime();
                             if (lastDayQuoteLocalTime.plusMinutes(4).plusSeconds(59).isBefore(firstQuoteOfDay.getFrom())) {
-                                Quote q = new Quote(stock.getSymbol(), lastDayQuote.getHighPrice(), stock.getInstrument(),
-                                        lastDayQuoteLocalTime, lastDayQuoteLocalTime.plusSeconds(150));
-                                stock.prependQuote(q);
-                                q = new Quote(stock.getSymbol(), lastDayQuote.getLowPrice(), stock.getInstrument(),
+                                Quote q = new Quote(stock.getSymbol(), lastDayQuote.getLowPrice(), stock.getInstrument(),
                                         lastDayQuoteLocalTime.plusSeconds(150), lastDayQuoteLocalTime.plusSeconds(300));
+                                stock.prependQuote(q);
+                                q = new Quote(stock.getSymbol(), lastDayQuote.getHighPrice(), stock.getInstrument(),
+                                        lastDayQuoteLocalTime, lastDayQuoteLocalTime.plusSeconds(150));
                                 stock.prependQuote(q);
                             }
                         }
@@ -137,5 +151,7 @@ public class QuoteService {
                 }
             });
         }
+
+        db.quotesReady();
     }
 }

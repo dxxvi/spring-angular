@@ -14,8 +14,14 @@
       </td>
       <td class="min-max">
         <div [style.height]="graphHeight" style="position: relative; text-align: right;">
-          <div class="top-right small">{{ stock.dayMax }}</div>
-          <div class="bottom-right small">{{ stock.dayMin }}</div>
+          <div class="top-right small">
+            <span class="day-week-min-max">{{ stock.day5Max }}</span>
+            <span class="day-week-min-max">{{ stock.dayMax }}</span>
+          </div>
+          <div class="bottom-right small">
+            <span class="day-week-min-max">{{ stock.day5Min }}</span>
+            <span class="day-week-min-max">{{ stock.dayMin }}</span>
+          </div>
           <span class="aligner"></span>
           <span class="price-percentage">
             5days &lt; {{ stock.weekPercentage }}%<br/>
@@ -48,9 +54,12 @@
                   <td><button class="btn btn-primary btn-xs" (click)="sell()">Sell</button></td>
                 </tr>
                 <tr>
-                  <td><label>Re-sell? <input type="checkbox"></label></td>
-                  <td style="text-align: right;"><label>+ $</label></td>
-                  <td><input class="form-control input-sm" style="width: 3.9em;"/></td>
+                  <td><label>Re-sell? <input type="checkbox" [(ngModel)]="resell" [ngModelOptions]="{standalone: true}"></label></td>
+                  <td style="text-align: right;"><label [style.display]="resell ? 'inline-block' : 'none'">+ $</label></td>
+                  <td colspan="2">
+                    <input class="form-control input-sm" style="width: 3.9em;"  [(ngModel)]="resellDelta"
+                           [style.display]="resell ? 'inline-block' : 'none'" [ngModelOptions]="{standalone: true}"/>
+                  </td>
                 </tr>
               </table>
             </form>

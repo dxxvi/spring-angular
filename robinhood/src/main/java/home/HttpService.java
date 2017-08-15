@@ -36,5 +36,8 @@ public interface HttpService {
     // get historical quotes for today
     List<RobinhoodHistoricalQuoteResult> getTodayHistoricalQuotes(String wantedSymbols);
 
-    void buySell(BuySellOrder buySellOrder, String loginToken);
+    /**
+     * @return the orderId of this order or null if errors
+     */
+    String buySell(BuySellOrder buySellOrder, String loginToken);
 }

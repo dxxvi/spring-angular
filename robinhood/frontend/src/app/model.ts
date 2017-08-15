@@ -32,4 +32,6 @@ export interface BuySellOrder {
   price: number;
   quantity: number;
   side: string;
+  resell: boolean;
+  resellDelta: number;
 }

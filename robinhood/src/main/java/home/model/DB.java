@@ -5,10 +5,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 
 import java.math.BigDecimal;
-import java.util.Comparator;
+import static java.util.Comparator.*;
+
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -29,13 +32,15 @@ public class DB {
     // keeps the historical quotes for a week
     private final Map<String, double[]> symbolHistoricalQuoteMap = new ConcurrentHashMap<>(32);
     private final BlockingQueue<BuySellOrder> buySellOrders = new LinkedBlockingQueue<>();
+    private final TreeSet<BuySellOrder> buyOrdersNeedResold;
 
     private final Environment env;
     private final TreeSet<Stock> stocks;
 
     public DB(Environment env) {
         this.env = env;
-        this.stocks = new TreeSet<>(Comparator.comparing(Stock::getSymbol));
+        this.stocks = new TreeSet<>(comparing(Stock::getSymbol));
+        this.buyOrdersNeedResold = new TreeSet<>(comparing(BuySellOrder::getId));
     }
 
     public Stream<Stock> getStocksStream() {
@@ -139,20 +144,15 @@ public class DB {
 
     public Tuple2<BigDecimal, BigDecimal> getWeekMinMax(String symbol) {
         if (!symbolHistoricalQuoteMap.containsKey(symbol) || symbolHistoricalQuoteMap.get(symbol).length == 0) {
-            return new Tuple2<>(new BigDecimal(-1), new BigDecimal(-1));
+            return null;
         }
-/*
-        DoubleStream.of(symbolHistoricalQuoteMap.get(symbol)).collect(
-                () -> new DoubleTuple2(Double.MAX_VALUE, Double.MIN_VALUE),
-                new ObjDoubleConsumer<DoubleTuple2>() {
-                    @Override
-                    public void accept(DoubleTuple2 doubleTuple2, double value) {
-//                        return new DoubleTuple2(Math.min(doubleTuple2._1, value), Math.max(doubleTuple2._2, value));
-                    }
-                }
-        )
-*/
-        return null;
+        MinMaxDoubleTuple2 mmdt2 = DoubleStream.of(symbolHistoricalQuoteMap.get(symbol))
+                .collect(
+                        () -> new MinMaxDoubleTuple2(Double.MAX_VALUE, Double.MIN_VALUE),
+                        MinMaxDoubleTuple2::consume,
+                        MinMaxDoubleTuple2::combine
+                );
+        return new Tuple2<>(new BigDecimal(mmdt2._1), new BigDecimal(mmdt2._2));
     }
 
     public void addBuySellOrder(BuySellOrder buySellOrder) {
@@ -165,6 +165,40 @@ public class DB {
         }
         catch (InterruptedException iex) {
             throw new RuntimeException("Fix me", iex);
+        }
+    }
+
+    public void addBuyOrderNeedResold(BuySellOrder bso) {
+        if (bso.getId() == null) {
+            throw new RuntimeException("buySellOrder id is null: " + bso);
+        }
+        if (!"buy".equals(bso.getSide())) {
+            throw new RuntimeException("a sell order doesn't need to be resold: " + bso);
+        }
+        synchronized (buyOrdersNeedResold) {
+            buyOrdersNeedResold.add(bso);
+        }
+    }
+
+    /**
+     * @return null if this orderId is not of a buy order that needs to be resold
+     */
+    public BuySellOrder getBuyOrderNeedsResold(String id) {
+        synchronized (buyOrdersNeedResold) {
+            BuySellOrder bso = buyOrdersNeedResold.ceiling(new BuySellOrder(id));
+            if (bso != null && bso.getId().equals(id)) {
+                return bso;
+            }
+        }
+        return null;
+    }
+
+    public void removeBuyOrderNeedsResold(String id) {
+        synchronized (buyOrdersNeedResold) {
+            BuySellOrder bso = buyOrdersNeedResold.ceiling(new BuySellOrder(id));
+            if (bso != null && bso.getId().equals(id)) {
+                buyOrdersNeedResold.remove(bso);
+            }
         }
     }
 }

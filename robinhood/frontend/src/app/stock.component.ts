@@ -23,6 +23,8 @@ export class StockComponent {
   buySellOpen = false;
   numberOfSharesToTrade: number;
   priceToTrade: number;
+  resell = false;
+  resellDelta: number;
 
   constructor(private wsService: WebsocketService) {
   }
@@ -62,12 +64,26 @@ export class StockComponent {
       return;
     }
 
+    if (this.resell) {
+      this.resellDelta = parseFloat('' + this.resellDelta);
+      if (isNaN(this.resellDelta) || this.resellDelta <= 0) {
+        this.message.emit({
+          logLevel: LogLevel.error,
+          title: 'Invalid Arguments',
+          detail: 'resellDelta is not a number or <= 0'
+        });
+        return;
+      }
+    }
+
     this.buySellOrder.emit({
       symbol: this.stock.symbol,
       instrument: this.stock.instrument,
       price: this.priceToTrade,
       quantity: this.numberOfSharesToTrade,
-      side: 'buy'
+      side: 'buy',
+      resell: this.resell,
+      resellDelta: this.resellDelta
     });
   }
 
@@ -83,7 +99,9 @@ export class StockComponent {
       instrument: this.stock.instrument,
       price: this.priceToTrade,
       quantity: this.numberOfSharesToTrade,
-      side: 'sell'
+      side: 'sell',
+      resell: false,
+      resellDelta: 0
     });
   }
 

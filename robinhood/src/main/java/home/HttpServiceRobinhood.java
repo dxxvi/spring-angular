@@ -256,7 +256,7 @@ public class HttpServiceRobinhood implements HttpService {
         return Collections.emptyList();
     }
 
-    @Override public void buySell(BuySellOrder buySellOrder, String loginToken) {
+    @Override public String buySell(BuySellOrder buySellOrder, String loginToken) {
         RestTemplate restTemplate = new RestTemplate();
         try {
             Map<String, Object> bodyData = new HashMap<>();
@@ -269,16 +269,22 @@ public class HttpServiceRobinhood implements HttpService {
             bodyData.put("price", buySellOrder.getPrice());
             bodyData.put("quantity", buySellOrder.getQuantity());
             bodyData.put("side", buySellOrder.getSide());
+            String bodyDataString = objectMapper.writeValueAsString(bodyData);
 
             RequestEntity<String> request = RequestEntity
                     .post(new URI("https://api.robinhood.com/orders/"))
                     .accept(MediaType.APPLICATION_JSON)
                     .contentType(MediaType.APPLICATION_JSON)
                     .header("Authorization", "Token " + loginToken)
-                    .body(objectMapper.writeValueAsString(bodyData));
+                    .body(bodyDataString);
             ResponseEntity<String> response = restTemplate.exchange(request, String.class);
             if (response.getStatusCode() == HttpStatus.CREATED) {
                 wsh.send("BUY SELL: " + objectMapper.writeValueAsString(buySellOrder));
+                JsonNode jsonNode = objectMapper.readTree(response.getBody());
+                if (jsonNode.has("id")) {
+                    return jsonNode.get("id").asText();
+                }
+                logger.error("The response format changed: {}", response.getBody());
             }
             else {
                 logger.error("Unable to place an order: status: {}, body: {}", response.getStatusCode().name(),
@@ -288,5 +294,6 @@ public class HttpServiceRobinhood implements HttpService {
         catch (Exception ex) {
             logger.warn("Fix me", ex);
         }
+        return null;
     }
 }

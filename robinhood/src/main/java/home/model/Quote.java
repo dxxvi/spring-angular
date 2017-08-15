@@ -80,7 +80,7 @@ public class Quote {
 
     @Override public String toString() {
         return String.format("{\"symbol\":\"%s\",\"price\":%-6.2f,\"updatedAt\":\"%s\",\"from\":\"%s\",\"to\":\"%s\"}",
-                symbol, price, updatedAt.format(ISO_LOCAL_DATE_TIME),
+                symbol, price, updatedAt == null ? null : updatedAt.format(ISO_LOCAL_DATE_TIME),
                 from.format(ISO_LOCAL_TIME), to.format(ISO_LOCAL_TIME));
     }
 }
