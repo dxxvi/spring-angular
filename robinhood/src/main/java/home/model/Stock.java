@@ -99,6 +99,16 @@ public class Stock extends StockDO {
                 getDayPercentage());
     }
 
+    private Tuple2<BigDecimal, BigDecimal> getMinMaxLast5Mins() {
+        if (quotes == null || quotes.isEmpty()) {
+            return null;
+        }
+        LinkedList<Quote> _quotes = new LinkedList<>(quotes);
+        BigDecimal min = BigDecimal.valueOf(Double.MAX_VALUE);
+        BigDecimal max = BigDecimal.valueOf(Double.MIN_VALUE);
+
+    }
+
     // returns true if the last n quotes are going down
     public boolean lastQuotesDown(int n) {
         if (quotes == null || quotes.size() < n) {
