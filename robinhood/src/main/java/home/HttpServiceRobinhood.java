@@ -21,6 +21,7 @@ import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
@@ -43,6 +44,20 @@ public class HttpServiceRobinhood implements HttpService {
     }
 
     @Override public Collection<Quote> quotes(String wantedSymbols) {
+        List<ShouldRetryException> exceptions = new ArrayList<>(3);
+        for (int i = 1; i <= 2; i++) {
+            try {
+                return _quotes(wantedSymbols);
+            } catch (ShouldRetryException srex) {
+                exceptions.add(srex);
+            }
+            sleep(4019);
+        }
+        exceptions.forEach(ex -> logger.error(ex.getMessage(), ex.getCause()));
+        return Collections.emptyList();
+    }
+
+    private Collection<Quote> _quotes(String wantedSymbols) {
         RestTemplate restTemplate = new RestTemplate();
         try {
             RequestEntity<Void> request = RequestEntity
@@ -68,7 +83,7 @@ public class HttpServiceRobinhood implements HttpService {
             }
         }
         catch (HttpServerErrorException | ResourceAccessException ex) {
-            logger.error("Perhaps there's nothing we can do.", ex);
+            throw new ShouldRetryException("Perhaps there's nothing we can do.", ex);
         }
         catch (Exception ex) {
             throw new RuntimeException("Fix me.", ex);
@@ -295,5 +310,34 @@ public class HttpServiceRobinhood implements HttpService {
             logger.warn("Fix me", ex);
         }
         return null;
+    }
+
+    private void sleep(long t) {
+        try {
+            Thread.sleep(t);
+        }
+        catch (InterruptedException iex) { /* who cares */ }
+    }
+}
+
+class ShouldRetryException extends RuntimeException {
+    public ShouldRetryException() {
+        super();
+    }
+
+    public ShouldRetryException(String message) {
+        super(message);
+    }
+
+    public ShouldRetryException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public ShouldRetryException(Throwable cause) {
+        super(cause);
+    }
+
+    protected ShouldRetryException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+        super(message, cause, enableSuppression, writableStackTrace);
     }
 }

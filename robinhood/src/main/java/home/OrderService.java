@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -58,7 +57,7 @@ public class OrderService {
         RobinhoodOrdersResult robinhoodOrdersResult = httpService.orders(loginToken);
         String nextUrl = robinhoodOrdersResult.getNext();
 
-        final Collection<BuySellOrder> filledBuyOrdersNeedResold = new ArrayList<>(32);
+        final Collection<BuySellOrder> filledBuySellOrdersNeedFlipped = new ArrayList<>(32);
 
         Map<String, Set<Order>> symbolOrdersMap = new HashMap<>();
         robinhoodOrdersResult.getResults().stream()
@@ -75,9 +74,9 @@ public class OrderService {
                     order.setSymbol(symbol);
 
                     if ("filled".equals(order.getState())) {
-                        BuySellOrder bso = db.getBuyOrderNeedsResold(order.getId());
+                        BuySellOrder bso = db.getBuySellOrderNeedsFlipped(order.getId());
                         if (bso != null) {
-                            filledBuyOrdersNeedResold.add(bso);
+                            filledBuySellOrdersNeedFlipped.add(bso);
                         }
                     }
 
@@ -97,9 +96,16 @@ public class OrderService {
             logger.error("Fix me.", jpex);
         }
 
-        filledBuyOrdersNeedResold.forEach(bso -> {
-            if (buySell(bso.setSide("sell").setPrice(bso.getPrice().add(bso.getResellDelta()))) != null) {
-                db.removeBuyOrderNeedsResold(bso.getId());
+        filledBuySellOrdersNeedFlipped.forEach(bso -> {
+            if ("buy".equals(bso.getSide())) {
+                if (buySell(bso.setSide("sell").setPrice(bso.getPrice().add(bso.getResellDelta()))) != null) {
+                    db.removeBuySellOrderNeedsFlipped(bso.getId());
+                }
+            }
+            else {
+                if (buySell(bso.setSide("buy").setPrice(bso.getPrice().subtract(bso.getResellDelta()))) != null) {
+                    db.removeBuySellOrderNeedsFlipped(bso.getId());
+                }
             }
         });
     }

@@ -40,6 +40,9 @@ export class StockComponent {
 
   toggleBuySellOpen() {
     this.buySellOpen = !this.buySellOpen;
+    if (this.buySellOpen) {
+      this.resell = false;
+    }
   }
 
   buildOrderClass(order: Order): string {
@@ -62,18 +65,6 @@ export class StockComponent {
     if (u !== null) {
       this.message.emit(u);
       return;
-    }
-
-    if (this.resell) {
-      this.resellDelta = parseFloat('' + this.resellDelta);
-      if (isNaN(this.resellDelta) || this.resellDelta <= 0) {
-        this.message.emit({
-          logLevel: LogLevel.error,
-          title: 'Invalid Arguments',
-          detail: 'resellDelta is not a number or <= 0'
-        });
-        return;
-      }
     }
 
     this.buySellOrder.emit({
@@ -100,8 +91,8 @@ export class StockComponent {
       price: this.priceToTrade,
       quantity: this.numberOfSharesToTrade,
       side: 'sell',
-      resell: false,
-      resellDelta: 0
+      resell: this.resell,
+      resellDelta: this.resellDelta
     });
   }
 
@@ -146,6 +137,17 @@ export class StockComponent {
         title: 'Invalid Arguments',
         detail: 'Price to trade cannot be negative.'
       };
+    }
+
+    if (this.resell) {
+      this.resellDelta = parseFloat('' + this.resellDelta);
+      if (isNaN(this.resellDelta) || this.resellDelta <= 0) {
+        return {
+          logLevel: LogLevel.error,
+          title: 'Invalid Arguments',
+          detail: 'resellDelta is not a number or <= 0'
+        };
+      }
     }
 
     return null;

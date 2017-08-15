@@ -54,8 +54,10 @@
                   <td><button class="btn btn-primary btn-xs" (click)="sell()">Sell</button></td>
                 </tr>
                 <tr>
-                  <td><label>Re-sell? <input type="checkbox" [(ngModel)]="resell" [ngModelOptions]="{standalone: true}"></label></td>
-                  <td style="text-align: right;"><label [style.display]="resell ? 'inline-block' : 'none'">+ $</label></td>
+                  <td><label>Re-sell/buy? <input type="checkbox" [(ngModel)]="resell" [ngModelOptions]="{standalone: true}"></label></td>
+                  <td style="text-align: right;">
+                    <label [style.display]="resell ? 'inline-block' : 'none'">&plusmn; $</label>
+                  </td>
                   <td colspan="2">
                     <input class="form-control input-sm" style="width: 3.9em;"  [(ngModel)]="resellDelta"
                            [style.display]="resell ? 'inline-block' : 'none'" [ngModelOptions]="{standalone: true}"/>

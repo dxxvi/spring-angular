@@ -1,6 +1,7 @@
 package home.model;
 
 import java.math.BigDecimal;
+import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -106,7 +107,14 @@ public class Stock extends StockDO {
         LinkedList<Quote> _quotes = new LinkedList<>(quotes);
         BigDecimal min = BigDecimal.valueOf(Double.MAX_VALUE);
         BigDecimal max = BigDecimal.valueOf(Double.MIN_VALUE);
-
+        Quote lastQuote = _quotes.pollLast();
+        Quote q = lastQuote;
+        while (q != null && q.getUpdatedAt() != null && q.getFrom().until(lastQuote.getTo(), ChronoUnit.SECONDS) < 301) {
+            min = min.compareTo(q.getPrice()) > 0 ? q.getPrice() : min;
+            max = max.compareTo(q.getPrice()) < 0 ? q.getPrice() : max;
+            q = _quotes.pollLast();
+        }
+        return new Tuple2<>(min, max);
     }
 
     // returns true if the last n quotes are going down

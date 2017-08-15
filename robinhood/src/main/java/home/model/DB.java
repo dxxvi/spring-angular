@@ -7,17 +7,14 @@ import org.springframework.core.env.Environment;
 import java.math.BigDecimal;
 import static java.util.Comparator.*;
 
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.function.ObjDoubleConsumer;
 import java.util.stream.DoubleStream;
 import java.util.stream.Stream;
 
@@ -32,7 +29,7 @@ public class DB {
     // keeps the historical quotes for a week
     private final Map<String, double[]> symbolHistoricalQuoteMap = new ConcurrentHashMap<>(32);
     private final BlockingQueue<BuySellOrder> buySellOrders = new LinkedBlockingQueue<>();
-    private final TreeSet<BuySellOrder> buyOrdersNeedResold;
+    private final TreeSet<BuySellOrder> buySellOrdersNeedFlipped;
 
     private final Environment env;
     private final TreeSet<Stock> stocks;
@@ -40,7 +37,7 @@ public class DB {
     public DB(Environment env) {
         this.env = env;
         this.stocks = new TreeSet<>(comparing(Stock::getSymbol));
-        this.buyOrdersNeedResold = new TreeSet<>(comparing(BuySellOrder::getId));
+        this.buySellOrdersNeedFlipped = new TreeSet<>(comparing(BuySellOrder::getId));
     }
 
     public Stream<Stock> getStocksStream() {
@@ -168,24 +165,21 @@ public class DB {
         }
     }
 
-    public void addBuyOrderNeedResold(BuySellOrder bso) {
+    public void addBuySellOrderNeedsFlipped(BuySellOrder bso) {
         if (bso.getId() == null) {
             throw new RuntimeException("buySellOrder id is null: " + bso);
         }
-        if (!"buy".equals(bso.getSide())) {
-            throw new RuntimeException("a sell order doesn't need to be resold: " + bso);
-        }
-        synchronized (buyOrdersNeedResold) {
-            buyOrdersNeedResold.add(bso);
+        synchronized (buySellOrdersNeedFlipped) {
+            buySellOrdersNeedFlipped.add(bso);
         }
     }
 
     /**
      * @return null if this orderId is not of a buy order that needs to be resold
      */
-    public BuySellOrder getBuyOrderNeedsResold(String id) {
-        synchronized (buyOrdersNeedResold) {
-            BuySellOrder bso = buyOrdersNeedResold.ceiling(new BuySellOrder(id));
+    public BuySellOrder getBuySellOrderNeedsFlipped(String id) {
+        synchronized (buySellOrdersNeedFlipped) {
+            BuySellOrder bso = buySellOrdersNeedFlipped.ceiling(new BuySellOrder(id));
             if (bso != null && bso.getId().equals(id)) {
                 return bso;
             }
@@ -193,11 +187,11 @@ public class DB {
         return null;
     }
 
-    public void removeBuyOrderNeedsResold(String id) {
-        synchronized (buyOrdersNeedResold) {
-            BuySellOrder bso = buyOrdersNeedResold.ceiling(new BuySellOrder(id));
+    public void removeBuySellOrderNeedsFlipped(String id) {
+        synchronized (buySellOrdersNeedFlipped) {
+            BuySellOrder bso = buySellOrdersNeedFlipped.ceiling(new BuySellOrder(id));
             if (bso != null && bso.getId().equals(id)) {
-                buyOrdersNeedResold.remove(bso);
+                buySellOrdersNeedFlipped.remove(bso);
             }
         }
     }

@@ -24,7 +24,7 @@ public class BuySellOrderReadyThread extends Thread {
                     // for some reason, Robinhood didn't accept our request, then we retry it later.
                     db.addBuySellOrder(buySellOrder);
                 } else if (buySellOrder.isResell()) {
-                    db.addBuyOrderNeedResold(buySellOrder.setId(id));
+                    db.addBuySellOrderNeedsFlipped(buySellOrder.setId(id));
                 }
             }
             catch (Exception ex) {
