@@ -48,6 +48,26 @@ export class AppComponent {
             }
           });
         }
+        else if (data.indexOf('NEW ORDER: ') === 0) {
+          const newOrder = JSON.parse(data.replace('NEW ORDER: ', ''));
+          const stock = this.stocks.find(stock => stock.symbol === newOrder.symbol);
+          if (stock !== undefined) {
+            newOrder.justRemoved = false;
+            newOrder.justCancelled = false;
+            if (stock.orders === undefined) {
+              stock.orders = [newOrder];
+            }
+            else {
+              stock.orders.push(newOrder);
+            }
+          }
+          else {
+            this.toastyService.error({
+              title: 'Unable to find a stock for this new order',
+              msg: data.replace('NEW ORDER: ', '')
+            });
+          }
+        }
         else if (data.indexOf('POSITIONS: ') === 0) {
           const symbolPositionMap = JSON.parse(data.replace('POSITIONS: ', ''));
           this.stocks.forEach(stock => {

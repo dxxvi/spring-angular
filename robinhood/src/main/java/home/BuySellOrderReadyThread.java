@@ -2,6 +2,7 @@ package home;
 
 import home.model.BuySellOrder;
 import home.model.DB;
+import home.model.RobinhoodOrderResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,12 +20,12 @@ public class BuySellOrderReadyThread extends Thread {
         while (true) {
             try {
                 BuySellOrder buySellOrder = db.waitForBuySellOrder();
-                String id = orderService.buySell(buySellOrder);
-                if (id == null) {
+                RobinhoodOrderResult ror = orderService.buySell(buySellOrder);
+                if (ror == null) {
                     // for some reason, Robinhood didn't accept our request, then we retry it later.
                     db.addBuySellOrder(buySellOrder);
                 } else if (buySellOrder.isResell()) {
-                    db.addBuySellOrderNeedsFlipped(buySellOrder.setId(id));
+                    db.addBuySellOrderNeedsFlipped(buySellOrder.setId(ror.getId()));
                 }
             }
             catch (Exception ex) {

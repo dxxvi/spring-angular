@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import home.model.BuySellOrder;
 import home.model.Quote;
 import home.model.RobinhoodHistoricalQuoteResult;
+import home.model.RobinhoodOrderResult;
 import home.model.RobinhoodOrdersResult;
 import home.model.RobinhoodPositionResult;
 import home.model.Tuple2;
@@ -79,7 +80,7 @@ public class HttpServiceLocal implements HttpService {
         return Collections.emptyList();
     }
 
-    @Override public Tuple2<String, String> buySell(BuySellOrder buySellOrder, String loginToken) {
-        return new Tuple2<>("0C12-5A8B-DE17", "confirmed");
+    @Override public RobinhoodOrderResult buySell(BuySellOrder buySellOrder, String loginToken) {
+        return new RobinhoodOrderResult();
     }
 }

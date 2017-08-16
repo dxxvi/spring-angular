@@ -1,11 +1,14 @@
 package home;
 
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import home.model.BuySellOrder;
 import home.model.Quote;
 import home.model.RobinhoodHistoricalQuoteResult;
+import home.model.RobinhoodOrderResult;
 import home.model.RobinhoodOrdersResult;
 import home.model.RobinhoodPositionResult;
 import home.model.RobinhoodPositionsResult;
@@ -272,7 +275,7 @@ public class HttpServiceRobinhood implements HttpService {
         return Collections.emptyList();
     }
 
-    @Override public Tuple2<String, String> buySell(BuySellOrder buySellOrder, String loginToken) {
+    @Override public RobinhoodOrderResult buySell(BuySellOrder buySellOrder, String loginToken) {
         RestTemplate restTemplate = new RestTemplate();
         try {
             Map<String, Object> bodyData = new HashMap<>();
@@ -296,11 +299,12 @@ public class HttpServiceRobinhood implements HttpService {
             ResponseEntity<String> response = restTemplate.exchange(request, String.class);
             if (response.getStatusCode() == HttpStatus.CREATED) {
                 wsh.send("BUY SELL: " + objectMapper.writeValueAsString(buySellOrder));
-                JsonNode jsonNode = objectMapper.readTree(response.getBody());
-                if (jsonNode.has("id") && jsonNode.has("state")) {
-                    return new Tuple2<>(jsonNode.get("id").asText(), jsonNode.get("state").asText());
+                try {
+                    return objectMapper.readValue(response.getBody(), RobinhoodOrderResult.class);
                 }
-                logger.error("The response format changed: {}", response.getBody());
+                catch (JsonParseException | JsonMappingException ex) {
+                    logger.error("The response format changed: {}", response.getBody());
+                }
             }
             else {
                 logger.error("Unable to place an order: status: {}, body: {}", response.getStatusCode().name(),

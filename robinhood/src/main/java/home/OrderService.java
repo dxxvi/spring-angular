@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import home.model.BuySellOrder;
 import home.model.DB;
 import home.model.Order;
+import home.model.RobinhoodOrderResult;
 import home.model.RobinhoodOrdersResult;
 import home.model.Tuple2;
 import home.web.socket.handler.WebSocketHandler;
@@ -66,21 +67,13 @@ public class OrderService {
                 .filter(ror -> ror.getCreatedAt().until(now2, ChronoUnit.HOURS) < 50)
                 .filter(ror -> !db.shouldBeHidden(ror.getId()))
                 .map(ror -> {
-                    Order order = ror.toOrder();
-                    String symbol = db.getSymbolFromInstrument(ror.getInstrument());
-                    if (symbol == null) {
-                        symbol = httpService.getSymbolFromInstrument(ror.getInstrument());
-                        db.updateInstrumentSymbol(ror.getInstrument(), symbol);
-                    }
-                    order.setSymbol(symbol);
-
+                    Order order = toOrder(ror);
                     if ("filled".equals(order.getState())) {
                         BuySellOrder bso = db.getBuySellOrderNeedsFlipped(order.getId());
                         if (bso != null) {
                             filledBuySellOrdersNeedFlipped.add(bso);
                         }
                     }
-
                     return order;
                 })
                 .collect(groupingBy(Order::getSymbol))  // returns Map<symbol, List<orders for that symbol>>
@@ -111,8 +104,28 @@ public class OrderService {
         });
     }
 
-    public Tuple2<String, String> buySell(BuySellOrder buySellOrder) {
+    public RobinhoodOrderResult buySell(BuySellOrder buySellOrder) {
         String loginToken = httpService.login(username, password);
-        return httpService.buySell(buySellOrder, loginToken);
+        RobinhoodOrderResult ror = httpService.buySell(buySellOrder, loginToken);
+        if (ror != null && "confirmed".equals(ror.getState())) {
+            try {
+                wsh.send("NEW ORDER: " + objectMapper.writeValueAsString(toOrder(ror)));
+            }
+            catch (JsonProcessingException jpex) {
+                logger.error("Fix me.", jpex);
+            }
+        }
+        return ror;
+    }
+
+    private Order toOrder(RobinhoodOrderResult ror) {
+        Order order = ror.toOrder();
+        String symbol = db.getSymbolFromInstrument(ror.getInstrument());
+        if (symbol == null) {
+            symbol = httpService.getSymbolFromInstrument(ror.getInstrument());
+            db.updateInstrumentSymbol(ror.getInstrument(), symbol);
+        }
+        order.setSymbol(symbol);
+        return order;
     }
 }

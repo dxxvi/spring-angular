@@ -22,9 +22,9 @@ import java.util.stream.Stream;
 public class Main {
     private final Logger logger = LoggerFactory.getLogger(Main.class);
 
-    public static final LocalTime OPEN  = LocalTime.of(21, 9, 30);
-    public static final LocalTime CLOSE = LocalTime.of(23, 59, 35);
-    public static final int graphWidth = 360;
+    static final LocalTime OPEN  = LocalTime.of(9, 30, 3);
+    static final LocalTime CLOSE = LocalTime.of(15, 59, 55);
+    private static final int graphWidth = 360;
     public static final int graphHeight = 75;
 
     public static void main(String[] args) {

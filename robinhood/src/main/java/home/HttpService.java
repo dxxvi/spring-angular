@@ -3,6 +3,7 @@ package home;
 import home.model.BuySellOrder;
 import home.model.Quote;
 import home.model.RobinhoodHistoricalQuoteResult;
+import home.model.RobinhoodOrderResult;
 import home.model.RobinhoodOrdersResult;
 import home.model.RobinhoodPositionResult;
 import home.model.Tuple2;
@@ -40,5 +41,5 @@ public interface HttpService {
     /**
      * @return the orderId and state of this order or null if errors
      */
-    Tuple2<String, String> buySell(BuySellOrder buySellOrder, String loginToken);
+    RobinhoodOrderResult buySell(BuySellOrder buySellOrder, String loginToken);
 }
