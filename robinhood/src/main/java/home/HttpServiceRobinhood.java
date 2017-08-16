@@ -9,6 +9,7 @@ import home.model.RobinhoodHistoricalQuoteResult;
 import home.model.RobinhoodOrdersResult;
 import home.model.RobinhoodPositionResult;
 import home.model.RobinhoodPositionsResult;
+import home.model.Tuple2;
 import home.web.socket.handler.WebSocketHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -271,7 +272,7 @@ public class HttpServiceRobinhood implements HttpService {
         return Collections.emptyList();
     }
 
-    @Override public String buySell(BuySellOrder buySellOrder, String loginToken) {
+    @Override public Tuple2<String, String> buySell(BuySellOrder buySellOrder, String loginToken) {
         RestTemplate restTemplate = new RestTemplate();
         try {
             Map<String, Object> bodyData = new HashMap<>();
@@ -296,8 +297,8 @@ public class HttpServiceRobinhood implements HttpService {
             if (response.getStatusCode() == HttpStatus.CREATED) {
                 wsh.send("BUY SELL: " + objectMapper.writeValueAsString(buySellOrder));
                 JsonNode jsonNode = objectMapper.readTree(response.getBody());
-                if (jsonNode.has("id")) {
-                    return jsonNode.get("id").asText();
+                if (jsonNode.has("id") && jsonNode.has("state")) {
+                    return new Tuple2<>(jsonNode.get("id").asText(), jsonNode.get("state").asText());
                 }
                 logger.error("The response format changed: {}", response.getBody());
             }

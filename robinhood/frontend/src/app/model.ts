@@ -13,6 +13,8 @@ export interface StockDO {
   graphUrl: string;
   weekPercentage: number;
   dayPercentage: number;
+  estMin: number;
+  estMax: number;
 }
 
 export interface Order {
@@ -22,8 +24,8 @@ export interface Order {
   state: string;
   side: string;
   createdAt: string;
-  justRemoved: boolean;
-  justCancelled: boolean;
+  justRemoved: boolean;                // true means I just clicked the blue X to not see this order on browser
+  justCancelled: boolean;              // true means I just clicked the pink X to cancel this order
 }
 
 export interface BuySellOrder {

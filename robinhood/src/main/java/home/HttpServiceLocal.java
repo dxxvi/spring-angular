@@ -6,6 +6,7 @@ import home.model.Quote;
 import home.model.RobinhoodHistoricalQuoteResult;
 import home.model.RobinhoodOrdersResult;
 import home.model.RobinhoodPositionResult;
+import home.model.Tuple2;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -78,7 +79,7 @@ public class HttpServiceLocal implements HttpService {
         return Collections.emptyList();
     }
 
-    @Override public String buySell(BuySellOrder buySellOrder, String loginToken) {
-        return "0C12-5A8B-DE17";
+    @Override public Tuple2<String, String> buySell(BuySellOrder buySellOrder, String loginToken) {
+        return new Tuple2<>("0C12-5A8B-DE17", "confirmed");
     }
 }

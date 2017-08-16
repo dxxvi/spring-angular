@@ -96,8 +96,16 @@ public class Stock extends StockDO {
     }
 
     public StockDO minified() {
+        BigDecimal estMin = null, estMax = null;
+        Tuple2<BigDecimal, BigDecimal> minMaxLast5Mins = getMinMaxLast5Mins();
+        if (minMaxLast5Mins != null) {
+            BigDecimal _estMin = minMaxLast5Mins._2.subtract(max5minsDelta);
+            BigDecimal _estMax = minMaxLast5Mins._1.add(max5minsDelta);
+            estMin = _estMin.compareTo(minMaxLast5Mins._1) < 0 ? _estMin : minMaxLast5Mins._1;
+            estMax = _estMax.compareTo(minMaxLast5Mins._2) > 0 ? _estMax : minMaxLast5Mins._2;
+        }
         return new StockDO(symbol, instrument, getPrice(), dayMin, dayMax, day5Min, day5Max, orders,
-                getDayPercentage());
+                getDayPercentage(), estMin, estMax);
     }
 
     private Tuple2<BigDecimal, BigDecimal> getMinMaxLast5Mins() {

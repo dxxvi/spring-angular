@@ -6,6 +6,7 @@ import home.model.BuySellOrder;
 import home.model.DB;
 import home.model.Order;
 import home.model.RobinhoodOrdersResult;
+import home.model.Tuple2;
 import home.web.socket.handler.WebSocketHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -110,7 +111,7 @@ public class OrderService {
         });
     }
 
-    public String buySell(BuySellOrder buySellOrder) {
+    public Tuple2<String, String> buySell(BuySellOrder buySellOrder) {
         String loginToken = httpService.login(username, password);
         return httpService.buySell(buySellOrder, loginToken);
     }

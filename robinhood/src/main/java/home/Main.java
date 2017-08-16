@@ -22,8 +22,8 @@ import java.util.stream.Stream;
 public class Main {
     private final Logger logger = LoggerFactory.getLogger(Main.class);
 
-    public static final LocalTime OPEN  = LocalTime.of(9, 30, 30);
-    public static final LocalTime CLOSE = LocalTime.of(16, 59, 35);
+    public static final LocalTime OPEN  = LocalTime.of(21, 9, 30);
+    public static final LocalTime CLOSE = LocalTime.of(23, 59, 35);
     public static final int graphWidth = 360;
     public static final int graphHeight = 75;
 

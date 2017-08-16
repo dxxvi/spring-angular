@@ -5,6 +5,7 @@ import home.model.Quote;
 import home.model.RobinhoodHistoricalQuoteResult;
 import home.model.RobinhoodOrdersResult;
 import home.model.RobinhoodPositionResult;
+import home.model.Tuple2;
 
 import java.util.Collection;
 import java.util.List;
@@ -37,7 +38,7 @@ public interface HttpService {
     List<RobinhoodHistoricalQuoteResult> getTodayHistoricalQuotes(String wantedSymbols);
 
     /**
-     * @return the orderId of this order or null if errors
+     * @return the orderId and state of this order or null if errors
      */
-    String buySell(BuySellOrder buySellOrder, String loginToken);
+    Tuple2<String, String> buySell(BuySellOrder buySellOrder, String loginToken);
 }

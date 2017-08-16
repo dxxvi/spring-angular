@@ -14,6 +14,8 @@ public class StockDO {
     List<Order> orders;
     int weekPercentage;
     int dayPercentage;
+    private BigDecimal estMin;
+    private BigDecimal estMax;
 
     public StockDO(String symbol, String instrument) {
         this.symbol = symbol;
@@ -21,7 +23,8 @@ public class StockDO {
     }
 
     public StockDO(String symbol, String instrument, BigDecimal price, BigDecimal dayMin, BigDecimal dayMax,
-                   BigDecimal day5Min, BigDecimal day5Max, List<Order> orders, int dayPercentage) {
+                   BigDecimal day5Min, BigDecimal day5Max, List<Order> orders, int dayPercentage,
+                   BigDecimal estMin, BigDecimal estMax) {
         this.symbol = symbol;
         this.instrument = instrument;
         this.price = price;
@@ -31,6 +34,8 @@ public class StockDO {
         this.day5Max = day5Max;
         this.orders = orders;
         this.dayPercentage = dayPercentage;
+        this.estMin = estMin;
+        this.estMax = estMax;
     }
 
     @Override public boolean equals(Object o) {
@@ -100,5 +105,13 @@ public class StockDO {
 
     public void setDayPercentage(int dayPercentage) {
         this.dayPercentage = dayPercentage;
+    }
+
+    public BigDecimal getEstMin() {
+        return estMin;
+    }
+
+    public BigDecimal getEstMax() {
+        return estMax;
     }
 }

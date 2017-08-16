@@ -97,6 +97,8 @@ export class AppComponent {
         oldStock.price  = stock.price;
         oldStock.weekPercentage = stock.weekPercentage;
         oldStock.dayPercentage = stock.dayPercentage;
+        oldStock.estMin = stock.estMin;
+        oldStock.estMax = stock.estMax;
       }
     });
   }
