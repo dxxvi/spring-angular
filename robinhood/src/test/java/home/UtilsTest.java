@@ -18,4 +18,9 @@ public class UtilsTest {
         System.out.println("Number of hours we need to add to Robinhood time to get our time: " +
                 (timeZone.getRawOffset() + timeZone.getDSTSavings()) / 3600 / 1000);
     }
+
+    @Test public void f() {
+        int n = 60 / 7 * 7;
+        System.out.println(n);
+    }
 }

@@ -80,7 +80,13 @@ public class DB {
     }
 
     public Stream<Tuple2<String, LinkedList<Quote>>> getStocksToDrawGraphs() {
-        return stocks.stream().map(stock -> new Tuple2<>(stock.getSymbol(), stock.getQuotes()));
+        return stocks.stream().map(stock -> {
+            LinkedList<Quote> quotes = stock.getQuotes().stream()
+                    .filter(q -> q.getFrom().getSecond() % 15 == 0)
+                    .map(q -> q.getTo().getSecond() % 15 == 0 ? q : q.setTo(q.getFrom().plusSeconds(15)))
+                    .collect(LinkedList<Quote>::new, LinkedList::add, LinkedList::addAll);
+            return new Tuple2<>(stock.getSymbol(), quotes);
+        });
     }
 
     public void addGraph(String symbol, byte[] graph) {

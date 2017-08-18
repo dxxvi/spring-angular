@@ -83,5 +83,11 @@ public class Quote {
                 symbol, price, updatedAt == null ? null : updatedAt.format(ISO_LOCAL_DATE_TIME),
                 from.format(ISO_LOCAL_TIME), to.format(ISO_LOCAL_TIME));
     }
+
+    public Quote clone() {
+        Quote q = new Quote(symbol, price, instrument, from, to);
+        q.setUpdatedAt(updatedAt);
+        return q;
+    }
 }
 

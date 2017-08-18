@@ -70,21 +70,9 @@ public class QuoteService {
         if (_fetchedAt.until(Main.OPEN, MINUTES) > 5 || _fetchedAt.until(Main.CLOSE, MINUTES) < 0) {
             return;
         }
+        boolean createGraph = _fetchedAt.get(ChronoField.SECOND_OF_MINUTE) % 15 == 0;
 
-        int secondOfMinute = _fetchedAt.get(ChronoField.SECOND_OF_MINUTE);
-        if (secondOfMinute < 15) {
-            _fetchedAt = _fetchedAt.withSecond(0);
-        }
-        else if (secondOfMinute < 30) {
-            _fetchedAt = _fetchedAt.withSecond(15);
-        }
-        else if (secondOfMinute < 45) {
-            _fetchedAt = _fetchedAt.withSecond(30);
-        }
-        else {
-            _fetchedAt = _fetchedAt.withSecond(45);
-        }
-        final LocalTime fetchedAt = _fetchedAt;
+        final LocalTime fetchedAt = roundSecond(_fetchedAt, 5);
 
         AtomicBoolean missingQuotesToday = new AtomicBoolean(false);
 
@@ -99,7 +87,7 @@ public class QuoteService {
         }
 
         quotes.forEach(q -> {
-            q.setFrom(fetchedAt).setTo(fetchedAt.plusSeconds(15));
+            q.setFrom(fetchedAt).setTo(fetchedAt.plusSeconds(5));
             db.updateInstrumentSymbol(q.getInstrument(), q.getSymbol());
             Stock stock = db.addStock(new Stock(q.getSymbol(), q.getInstrument()));
             stock.addQuote(q);
@@ -164,6 +152,15 @@ public class QuoteService {
             });
         }
 
-        db.quotesReady(fetchedAt.get(ChronoField.SECOND_OF_MINUTE) % 15 == 0);
+        db.quotesReady(createGraph);
+    }
+
+    private LocalTime roundSecond(LocalTime t, int n) {
+        for (int i = 1; i <= 60 / n; i++) {
+            if (t.get(ChronoField.SECOND_OF_MINUTE) < n*i) {
+                return t.withSecond(n * (i - 1));
+            }
+        }
+        return t.withSecond(60 / n * n);
     }
 }
