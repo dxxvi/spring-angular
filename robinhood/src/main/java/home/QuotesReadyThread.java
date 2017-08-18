@@ -29,7 +29,7 @@ public class QuotesReadyThread extends Thread {
 
     @Override public void run() {
         while (true) {
-            db.waitTillQuotesReady();
+            Boolean createGraph = db.waitTillQuotesReady();
 
             try {
                 // send the quotes to browser
@@ -50,11 +50,12 @@ public class QuotesReadyThread extends Thread {
                 logger.error("Fix me.", jpex);
             }
 
-            // generate graphs TODO should we put this in another thread?
-            db.getStocksToDrawGraphs().forEach(t -> {
-                db.addGraph(t._1(), Utils.drawGraph(width, height, t._2()));
-            });
-            wsh.send("GRAPHS: ");
+            if (createGraph) {
+                db.getStocksToDrawGraphs().forEach(t -> {
+                    db.addGraph(t._1(), Utils.drawGraph(width, height, t._2()));
+                });
+                wsh.send("GRAPHS: ");
+            }
         }
     }
 }

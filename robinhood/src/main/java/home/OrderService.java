@@ -44,7 +44,7 @@ public class OrderService {
         this.objectMapper = objectMapper;
     }
 
-    @Scheduled(cron = "5/15 0/1 * * * *")
+    @Scheduled(cron = "3/5 0/1 * * * *")
     public void orders() {
         LocalTime now = LocalTime.now();
         if (now.until(Main.OPEN, ChronoUnit.MINUTES) > 5 || now.until(Main.CLOSE, ChronoUnit.MINUTES) < 0) {

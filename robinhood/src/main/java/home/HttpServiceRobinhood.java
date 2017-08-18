@@ -48,20 +48,6 @@ public class HttpServiceRobinhood implements HttpService {
     }
 
     @Override public Collection<Quote> quotes(String wantedSymbols) {
-        List<ShouldRetryException> exceptions = new ArrayList<>(3);
-        for (int i = 1; i <= 2; i++) {
-            try {
-                return _quotes(wantedSymbols);
-            } catch (ShouldRetryException srex) {
-                exceptions.add(srex);
-            }
-            sleep(4019);
-        }
-        exceptions.forEach(ex -> logger.error(ex.getMessage(), ex.getCause()));
-        return Collections.emptyList();
-    }
-
-    private Collection<Quote> _quotes(String wantedSymbols) {
         RestTemplate restTemplate = new RestTemplate();
         try {
             RequestEntity<Void> request = RequestEntity
@@ -78,7 +64,7 @@ public class HttpServiceRobinhood implements HttpService {
                     List<Quote> quotes = objectMapper.readValue(
                             jsonNode.get("results").toString(), new TypeReference<List<Quote>>() {}
                     );
-                    logger.debug(":quotes - Got response for {}.", wantedSymbols);
+//                    logger.debug(":quotes - Got response for {}.", wantedSymbols);
                     return quotes;
                 }
                 else {

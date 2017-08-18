@@ -45,7 +45,7 @@ public class QuoteService {
         this.db = db;
     }
 
-    @Scheduled(cron = "0/15 0/1 * * * *")
+    @Scheduled(cron = "0/5 0/1 * * * *")
     public void quotes() {
         Map<String, Collection<BigDecimal>> stock5minsDeltasMap = new HashMap<>(32);
         if (!db.hasHistoricalQuotes()) {                    // we don't have historical quotes for last 5 days yet
@@ -164,6 +164,6 @@ public class QuoteService {
             });
         }
 
-        db.quotesReady();
+        db.quotesReady(fetchedAt.get(ChronoField.SECOND_OF_MINUTE) % 15 == 0);
     }
 }

@@ -44,20 +44,21 @@ public class DB {
         return stocks.stream();
     }
 
-    public void quotesReady() {
-        quotesReady.add(Boolean.TRUE);
+    public void quotesReady(Boolean createGraph) {
+        quotesReady.add(createGraph);
     }
 
-    public void waitTillQuotesReady() {
+    public Boolean waitTillQuotesReady() {
         try {
             do {
-                quotesReady.take();
+                Boolean createGraph = quotesReady.take();
                 if (quotesReady.isEmpty()) {
-                    break;
+                    return createGraph;
                 }
             } while (true);
         }
         catch (InterruptedException iex) { /* who cares */ }
+        return Boolean.FALSE;
     }
 
     // add if not exists and return the newly added. Or return the existing.
