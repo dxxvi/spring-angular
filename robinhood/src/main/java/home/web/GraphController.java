@@ -11,10 +11,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-@Controller
-public class GraphController {
+@Controller public class GraphController {
     private final Logger logger = LoggerFactory.getLogger(GraphController.class);
-
     private final DB db;
 
     public GraphController(DB db) {

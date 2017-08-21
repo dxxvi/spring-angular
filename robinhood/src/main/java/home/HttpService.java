@@ -26,6 +26,8 @@ public interface HttpService {
 
     RobinhoodOrdersResult orders(String loginToken);
 
+    RobinhoodOrdersResult nextOrders(String url, String loginToken);
+
     String getSymbolFromInstrument(String instrument);
 
     List<RobinhoodPositionResult> positions(String loginToken);

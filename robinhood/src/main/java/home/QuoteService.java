@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import java.math.BigDecimal;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -45,21 +47,14 @@ public class QuoteService {
         this.db = db;
     }
 
-    @Scheduled(cron = "0/5 0/1 * * * *")
     public void quotes() {
-        Map<String, Collection<BigDecimal>> stock5minsDeltasMap = new HashMap<>(32);
         if (!db.hasHistoricalQuotes()) {                    // we don't have historical quotes for last 5 days yet
             httpService.getHistoricalQuotes(wantedSymbols)  // historical quotes for a week
                     .forEach(rhqr -> {
                         db.addHistoricalQuotes(
                                 rhqr.getSymbol(),
                                 rhqr.getHistoricals().stream()
-                                        .flatMap(h -> {
-                                            Collection<BigDecimal> cbd = stock5minsDeltasMap
-                                                    .computeIfAbsent(rhqr.getSymbol(), s -> new LinkedList<>());
-                                            cbd.add(h.getHighPrice().subtract(h.getLowPrice()));
-                                            return Stream.of(h.getLowPrice(), h.getHighPrice());
-                                        })
+                                        .flatMap(h -> Stream.of(h.getLowPrice(), h.getHighPrice()))
                                         .mapToDouble(BigDecimal::doubleValue)
                                         .toArray()
                         );
@@ -78,7 +73,7 @@ public class QuoteService {
 
         Collection<Quote> quotes = httpService.quotes(wantedSymbols);
 
-        if (_fetchedAt.isAfter(LocalTime.of(16, 0))) {  // fluctuate the price because I'm testing
+        if (_fetchedAt.isAfter(LocalTime.of(17, 0))) {  // fluctuate the price because I'm testing
             quotes.forEach(q -> {
                 String s = String.format("%s0.%02d", random.nextBoolean() ? "-" : "", random.nextInt(20));
                 BigDecimal price = q.getPrice().add(new BigDecimal(s));
@@ -100,13 +95,10 @@ public class QuoteService {
                 }
             }
 
-            if (stock.getMax5minsDelta() == null && stock5minsDeltasMap.containsKey(q.getSymbol())) {
-                stock.addMax5minsDeltas(stock5minsDeltasMap.get(q.getSymbol()));
-            }
-
             Quote firstQuote = stock.getFirstQuoteOfDay();
             if (firstQuote != null
                     && !missingQuotesToday.get()
+                    && !isTodayWeekend()
                     && firstQuote.getFrom().isAfter(LocalTime.of(9, 40, 0))
                     && firstQuote.getTo().isBefore(LocalTime.of(15, 59, 0))) {
                 missingQuotesToday.set(true);
@@ -162,5 +154,10 @@ public class QuoteService {
             }
         }
         return t.withSecond(60 / n * n);
+    }
+
+    private boolean isTodayWeekend() {
+        DayOfWeek today = LocalDate.now().getDayOfWeek();
+        return today == DayOfWeek.SATURDAY || today == DayOfWeek.SUNDAY;
     }
 }

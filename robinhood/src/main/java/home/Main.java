@@ -2,6 +2,7 @@ package home;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import home.model.DB;
+import home.web.DetailsController;
 import home.web.socket.handler.WebSocketHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,8 +23,8 @@ import java.util.stream.Stream;
 public class Main {
     private final Logger logger = LoggerFactory.getLogger(Main.class);
 
-    static final LocalTime OPEN  = LocalTime.of(9, 30, 3);
-    static final LocalTime CLOSE = LocalTime.of(15, 59, 55);
+    static final LocalTime OPEN  = LocalTime.of(21, 30, 3);
+    static final LocalTime CLOSE = LocalTime.of(23, 59, 55);
     private static final int graphWidth = 360;
     public static final int graphHeight = 75;
 
@@ -72,9 +73,7 @@ public class Main {
         return new WebSocketHandler(db, objectMapper);
     }
 
-    @Bean public DB db(Environment env) {
-        return new DB(env);
-    }
+    @Bean public DB db() { return new DB(); }
 
     @Bean
     @Profile("!local")
@@ -91,5 +90,9 @@ public class Main {
     @Bean public PositionService positionService(DB db, HttpService httpService, WebSocketHandler wsh,
                                                  ObjectMapper objectMapper) {
         return new PositionService(db, httpService, wsh, objectMapper);
+    }
+
+    @Bean CronService cronService(QuoteService quoteService, OrderService orderService) {
+        return new CronService(quoteService, orderService);
     }
 }

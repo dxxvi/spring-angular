@@ -9,8 +9,9 @@ td.graph { width: 1px; border-bottom: 1px solid #FFF; }
 td.graph input { opacity: .7; padding-left: 4px; padding-right: 4px; }
 td.graph .btn-xs { opacity: .69; }
 td.graph label { opacity: .41; }
-td.graph div.est-min-max { font-size: 90%; color: rgba(41,82,194,.82); padding-right: 2em; }
-td.graph p.price { text-align: right; padding-right: .3em; margin-top: 1em; margin-bottom: 1em; }
+td.graph div.last5mins-min-max { font-size: 90%; color: rgba(41,82,194,.82); padding-right: 1.5em; text-align: right; }
+td.graph p.price { text-align: right; padding-right: .3em; margin-top: .7em; margin-bottom: .7em; }
+td.graph span.way-going { color: rgba(19,119,19,.75); padding-left: 2em; }
 
 td.orders::after { display: block; content: ''; clear: both; }
 td.orders .order .glyphicon-remove.remove {

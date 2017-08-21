@@ -12,18 +12,24 @@ import home.web.socket.handler.WebSocketHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Scheduled;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
+import static java.util.Comparator.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.function.BiConsumer;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Collector;
+import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.*;
 
@@ -44,7 +50,6 @@ public class OrderService {
         this.objectMapper = objectMapper;
     }
 
-    @Scheduled(cron = "3/5 0/1 * * * *")
     public void orders() {
         LocalTime now = LocalTime.now();
         if (now.until(Main.OPEN, ChronoUnit.MINUTES) > 5 || now.until(Main.CLOSE, ChronoUnit.MINUTES) < 0) {
@@ -57,31 +62,8 @@ public class OrderService {
             throw new RuntimeException("Unable to get orders because the loginToken is null.");
         }
         RobinhoodOrdersResult robinhoodOrdersResult = httpService.orders(loginToken);
-        String nextUrl = robinhoodOrdersResult.getNext();
 
-        final Collection<BuySellOrder> filledBuySellOrdersNeedFlipped = new ArrayList<>(32);
-
-        Map<String, Set<Order>> symbolOrdersMap = new HashMap<>();
-        robinhoodOrdersResult.getResults().stream()
-                .filter(ror -> !"cancelled".equals(ror.getState()))
-                .filter(ror -> ror.getCreatedAt().until(now2, ChronoUnit.HOURS) < 50)
-                .filter(ror -> !db.shouldBeHidden(ror.getId()))
-                .map(ror -> {
-                    Order order = toOrder(ror);
-                    if ("filled".equals(order.getState())) {
-                        BuySellOrder bso = db.getBuySellOrderNeedsFlipped(order.getId());
-                        if (bso != null) {
-                            filledBuySellOrdersNeedFlipped.add(bso);
-                        }
-                    }
-                    return order;
-                })
-                .collect(groupingBy(Order::getSymbol))  // returns Map<symbol, List<orders for that symbol>>
-                .forEach((symbol, list) -> {
-                    Set<Order> set = new TreeSet<>(Comparator.comparing(Order::getCreatedAt));
-                    set.addAll(list);
-                    symbolOrdersMap.put(symbol, set);
-                });
+        Map<String, TreeSet<Order>> symbolOrdersMap = buildSymbolOrdersMap(robinhoodOrdersResult);
 
         try {
             wsh.send("ORDERS: " + objectMapper.writeValueAsString(symbolOrdersMap));
@@ -90,18 +72,51 @@ public class OrderService {
             logger.error("Fix me.", jpex);
         }
 
-        filledBuySellOrdersNeedFlipped.forEach(bso -> {
-            if ("buy".equals(bso.getSide())) {
-                if (buySell(bso.setSide("sell").setPrice(bso.getPrice().add(bso.getResellDelta()))) != null) {
-                    db.removeBuySellOrderNeedsFlipped(bso.getId());
+        String nextUrl = robinhoodOrdersResult.getNext();
+        if (nextUrl != null && nextUrl.startsWith("https")) {
+            Map<String, TreeSet<Order>> m = buildSymbolOrdersMap(httpService.nextOrders(nextUrl, loginToken));
+            symbolOrdersMap.forEach((symbol, tree) -> {
+                TreeSet<Order> t = m.get(symbol);
+                if (t != null) {
+                    tree.addAll(t);
                 }
-            }
-            else {
-                if (buySell(bso.setSide("buy").setPrice(bso.getPrice().subtract(bso.getResellDelta()))) != null) {
-                    db.removeBuySellOrderNeedsFlipped(bso.getId());
-                }
-            }
-        });
+            });
+        }
+        symbolOrdersMap.values().stream()
+                .flatMap(Collection::stream)
+                .filter(o -> "filled".equals(o.getState()))
+                .map(o -> db.getBuySellOrderNeedsFlipped(o.getId()))
+                .filter(Objects::nonNull)
+                .forEach(bso -> {
+                    if ("buy".equals(bso.getSide())) {
+                        if (buySell(bso.setSide("sell").setPrice(bso.getPrice().add(bso.getResellDelta()))) != null) {
+                            db.removeBuySellOrderNeedsFlipped(bso.getId());
+                        }
+                    } else {
+                        if (buySell(bso.setSide("buy").setPrice(bso.getPrice().subtract(bso.getResellDelta()))) != null) {
+                            db.removeBuySellOrderNeedsFlipped(bso.getId());
+                        }
+                    }
+                });
+        try {
+            wsh.send("ORDERS: " + objectMapper.writeValueAsString(symbolOrdersMap));
+        }
+        catch (JsonProcessingException jpex) {
+            logger.error("Fix me.", jpex);
+        }
+    }
+
+    private Map<String, TreeSet<Order>> buildSymbolOrdersMap(RobinhoodOrdersResult robinhoodOrdersResult) {
+        LocalDateTime now = LocalDateTime.now();
+        return robinhoodOrdersResult.getResults().stream()
+                .filter(ror -> !"cancelled".equals(ror.getState()))
+                .filter(ror -> ror.getCreatedAt().until(now, ChronoUnit.HOURS) < 33)
+                .filter(ror -> !db.shouldBeHidden(ror.getId()))
+                .map(this::toOrder)
+                .collect(groupingBy(
+                        Order::getSymbol,
+                        mapping(Function.identity(), toCollection(() -> new TreeSet<>(comparing(Order::getCreatedAt))))
+                ));
     }
 
     public RobinhoodOrderResult buySell(BuySellOrder buySellOrder) {

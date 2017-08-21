@@ -19,6 +19,7 @@ public class BuySellOrder {
      */
     private boolean resell;
     private BigDecimal resellDelta;
+    private boolean wait;
 
     public BuySellOrder() {
     }
@@ -114,6 +115,14 @@ public class BuySellOrder {
         this.resellDelta = resellDelta;
     }
 
+    public boolean isWait() {
+        return wait;
+    }
+
+    public void setWait(boolean wait) {
+        this.wait = wait;
+    }
+
     @Override
     public String toString() {
         return "BuySellOrder {" +
@@ -129,6 +138,7 @@ public class BuySellOrder {
                 ", side='" + side + '\'' +
                 ", resell=" + resell +
                 ", resellDelta=" + resellDelta +
+                ", wait=" + wait +
                 '}';
     }
 }

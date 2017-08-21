@@ -6,6 +6,7 @@ import home.OrderService;
 import home.QuoteService;
 import home.model.BuySellOrder;
 import home.model.DB;
+import home.model.Order;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.socket.CloseStatus;
@@ -42,7 +43,8 @@ public class WebSocketHandler extends TextWebSocketHandler {
             db.addHiddenOrderId(message.replace("HIDE ORDER: ", ""));
         }
         else if (message.startsWith("CANCEL ORDER: ")) {
-            db.addCancelledOrderId(message.replace("CANCEL ORDER: ", ""));
+            Order cancelledOrder = objectMapper.readValue(message.replace("CANCEL ORDER: ", ""), Order.class);
+            db.addCancelledOrderId(cancelledOrder);
         }
         else if (message.startsWith("BUY SELL: ")) {
             try {
@@ -66,7 +68,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
             }
         }
         else {
-            logger.info("No open session to use.");
+//            logger.info("No open session to use.");
         }
     }
 }

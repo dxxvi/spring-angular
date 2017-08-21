@@ -83,10 +83,11 @@ public class HttpServiceRobinhood implements HttpService {
 
     // returns loginToken
     @Override public String login(String username, String password) {
-        if (loginToken != null && System.currentTimeMillis() - loginTokenAge < 60_001) {
+        if (loginToken != null && System.currentTimeMillis() - loginTokenAge < 600_001) {
             return loginToken;
         }
 
+        logger.debug("Do the real login...");
         RestTemplate restTemplate = new RestTemplate();
         try {
             Map<String, String> form = new HashMap<>(2);
@@ -147,10 +148,15 @@ public class HttpServiceRobinhood implements HttpService {
     }
 
     @Override public RobinhoodOrdersResult orders(String loginToken) {
+        return nextOrders("https://api.robinhood.com/orders/", loginToken);
+    }
+
+    @Override
+    public RobinhoodOrdersResult nextOrders(String url, String loginToken) {
         RestTemplate restTemplate = new RestTemplate();
         try {
             RequestEntity<Void> request = RequestEntity
-                    .get(new URI("https://api.robinhood.com/orders/"))
+                    .get(new URI(url))
                     .accept(MediaType.APPLICATION_JSON)
                     .header("Authorization", "Token " + loginToken)
                     .build();

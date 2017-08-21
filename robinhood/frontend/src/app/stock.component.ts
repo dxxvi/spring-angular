@@ -25,6 +25,7 @@ export class StockComponent {
   priceToTrade: number;
   resell = false;
   resellDelta: number;
+  wait = false;
 
   constructor(private wsService: WebsocketService) {
   }
@@ -74,7 +75,8 @@ export class StockComponent {
       quantity: this.numberOfSharesToTrade,
       side: 'buy',
       resell: this.resell,
-      resellDelta: this.resellDelta
+      resellDelta: this.resellDelta,
+      wait: this.wait
     });
   }
 
@@ -92,7 +94,8 @@ export class StockComponent {
       quantity: this.numberOfSharesToTrade,
       side: 'sell',
       resell: this.resell,
-      resellDelta: this.resellDelta
+      resellDelta: this.resellDelta,
+      wait: this.wait
     });
   }
 
@@ -103,7 +106,13 @@ export class StockComponent {
 
   cancel(order: Order) {
     order.justCancelled = true;
-    this.wsService.sendMessage('CANCEL ORDER: ' + order.id);
+    this.wsService.sendMessage('CANCEL ORDER: ' + JSON.stringify({
+      id: order.id,
+      quantity: order.quantity,
+      price: order.price,
+      side: order.side,
+      symbol: this.stock.symbol
+    }));
   }
 
   private check(): Message {
@@ -185,5 +194,9 @@ export class StockComponent {
     }
 
     return null;
+  }
+
+  isGoingOneWayLongEnough(duration: number): string {
+    return duration < 15 ? 'none' : 'inline';
   }
 }

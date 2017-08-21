@@ -60,6 +60,14 @@ public class HttpServiceLocal implements HttpService {
             throw new RuntimeException(ioex);
         }
     }
+    @Override public RobinhoodOrdersResult nextOrders(String url, String loginToken) {
+        try (InputStream is = HttpServiceLocal.class.getResourceAsStream("/orders.json")) {
+            return objectMapper.readValue(is, RobinhoodOrdersResult.class);
+        }
+        catch (IOException ioex) {
+            throw new RuntimeException(ioex);
+        }
+    }
 
     @Override public String getSymbolFromInstrument(String instrument) {
         return null;

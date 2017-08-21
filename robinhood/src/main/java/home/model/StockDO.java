@@ -14,8 +14,10 @@ public class StockDO {
     List<Order> orders;
     int weekPercentage;
     int dayPercentage;
-    private BigDecimal estMin;
-    private BigDecimal estMax;
+    private BigDecimal last5minsMin;
+    private BigDecimal last5minsMax;
+    private Going down;
+    private Going up;
 
     public StockDO(String symbol, String instrument) {
         this.symbol = symbol;
@@ -24,7 +26,8 @@ public class StockDO {
 
     public StockDO(String symbol, String instrument, BigDecimal price, BigDecimal dayMin, BigDecimal dayMax,
                    BigDecimal day5Min, BigDecimal day5Max, List<Order> orders, int dayPercentage,
-                   BigDecimal estMin, BigDecimal estMax) {
+                   BigDecimal last5minsMin, BigDecimal last5minsMax,
+                   Going down, Going up) {
         this.symbol = symbol;
         this.instrument = instrument;
         this.price = price;
@@ -34,8 +37,10 @@ public class StockDO {
         this.day5Max = day5Max;
         this.orders = orders;
         this.dayPercentage = dayPercentage;
-        this.estMin = estMin;
-        this.estMax = estMax;
+        this.last5minsMin = last5minsMin;
+        this.last5minsMax = last5minsMax;
+        this.down = down;
+        this.up   = up;
     }
 
     @Override public boolean equals(Object o) {
@@ -107,11 +112,27 @@ public class StockDO {
         this.dayPercentage = dayPercentage;
     }
 
-    public BigDecimal getEstMin() {
-        return estMin;
+    public BigDecimal getLast5minsMin() {
+        return last5minsMin;
     }
 
-    public BigDecimal getEstMax() {
-        return estMax;
+    public void setLast5minsMin(BigDecimal last5minsMin) {
+        this.last5minsMin = last5minsMin;
+    }
+
+    public BigDecimal getLast5minsMax() {
+        return last5minsMax;
+    }
+
+    public void setLast5minsMax(BigDecimal last5minsMax) {
+        this.last5minsMax = last5minsMax;
+    }
+
+    public Going getDown() {
+        return down;
+    }
+
+    public Going getUp() {
+        return up;
     }
 }

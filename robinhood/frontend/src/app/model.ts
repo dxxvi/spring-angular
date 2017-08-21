@@ -13,8 +13,16 @@ export interface StockDO {
   graphUrl: string;
   weekPercentage: number;
   dayPercentage: number;
-  estMin: number;
-  estMax: number;
+  last5minsMin: number;
+  last5minsMax: number;
+  down: Going;
+  up: Going;
+}
+
+export interface Going {
+  duration: number;
+  from: number;
+  to: number;
 }
 
 export interface Order {
@@ -36,4 +44,5 @@ export interface BuySellOrder {
   side: string;
   resell: boolean;
   resellDelta: number;
+  wait: boolean;
 }

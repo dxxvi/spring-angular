@@ -35,15 +35,8 @@ public class PositionService {
         this.objectMapper = objectMapper;
     }
 
-    @Scheduled(cron = "10/30 0/1 * * * *")
+    @Scheduled(cron = "13/30 0/1 * * * *")
     public void positions() {
-/*
-        LocalTime now = LocalTime.now();
-        if (now.until(Main.OPEN, ChronoUnit.MINUTES) > 5 || now.until(Main.CLOSE, ChronoUnit.MINUTES) < 0) {
-            return;
-        }
-*/
-
         String loginToken = httpService.login(username, password);
         if (loginToken == null) {
             throw new RuntimeException("Unable to get orders because the loginToken is null.");

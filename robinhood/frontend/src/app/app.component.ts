@@ -88,6 +88,12 @@ export class AppComponent {
           };
           this.toastyService.success(toastOptions);
         }
+        else if (data.indexOf('CANCELLED ORDER: ') === 0) {
+          this.toastyService.info({
+            title: "CANCELLED ORDER",
+            msg: data.replace('CANCELLED ORDER: ', '')
+          });
+        }
       },
       error => {
         console.log('Error channel:');
@@ -104,7 +110,7 @@ export class AppComponent {
 
     this.toastyConfig.theme = 'bootstrap';
     this.toastyConfig.position = 'top-right';
-    this.toastyConfig.timeout = 4019;
+    this.toastyConfig.timeout = 5678;
     this.toastyConfig.showClose = true;
   }
 
@@ -116,9 +122,11 @@ export class AppComponent {
         oldStock.dayMax = stock.dayMax;
         oldStock.price  = stock.price;
         oldStock.weekPercentage = stock.weekPercentage;
-        oldStock.dayPercentage = stock.dayPercentage;
-        oldStock.estMin = stock.estMin;
-        oldStock.estMax = stock.estMax;
+        oldStock.dayPercentage  = stock.dayPercentage;
+        oldStock.last5minsMin = stock.last5minsMin;
+        oldStock.last5minsMax = stock.last5minsMax;
+        oldStock.down = stock.down;
+        oldStock.up   = stock.up;
       }
     });
   }

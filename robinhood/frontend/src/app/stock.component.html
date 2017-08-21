@@ -37,9 +37,9 @@
         <div style="position: relative;">
           <img [src]="stock.graphUrl"/>
           <div class="top-right">
-            <div class="est-min-max">{{ stock.estMax }}</div>
+            <div class="last5mins-min-max">{{ stock.last5minsMax}}</div>
             <p class="price">{{ stock.price }}</p>
-            <div class="est-min-max">{{ stock.estMin }}</div>
+            <div class="last5mins-min-max">{{ stock.last5minsMin}}</div>
           </div>
           <div class="top-left">
             <form class="form-inline" [style.display]="buySellOpen ? 'block' : 'none'">
@@ -56,6 +56,7 @@
                            [ngModelOptions]="{standalone: true}"/>
                   </td>
                   <td><button class="btn btn-primary btn-xs" (click)="sell()">Sell</button></td>
+                  <td><label>Wait?</label></td>
                 </tr>
                 <tr>
                   <td><label>Re-sell/buy? <input type="checkbox" [(ngModel)]="resell" [ngModelOptions]="{standalone: true}"></label></td>
@@ -66,9 +67,18 @@
                     <input class="form-control input-sm" style="width: 3.9em;"  [(ngModel)]="resellDelta"
                            [style.display]="resell ? 'inline-block' : 'none'" [ngModelOptions]="{standalone: true}"/>
                   </td>
+                  <td><input type="checkbox" [(ngModel)]="wait" [ngModelOptions]="{standalone: true}"/></td>
                 </tr>
               </table>
             </form>
+          </div>
+          <div class="bottom-left">
+            <span class="way-going" [style.display]="isGoingOneWayLongEnough(stock.down.duration)">
+              down for {{ stock.down.duration }}s <sup>{{ stock.down.from }}</sup> <sub>{{ stock.down.to }}</sub>
+            </span>
+            <span class="way-going" [style.display]="isGoingOneWayLongEnough(stock.up.duration)">
+              up for {{ stock.up.duration }}s <sub>{{ stock.up.from }}</sub> <sup>{{ stock.up.to }}</sup>
+            </span>
           </div>
         </div>
       </td>

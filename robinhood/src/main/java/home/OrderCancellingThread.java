@@ -1,6 +1,7 @@
 package home;
 
 import home.model.DB;
+import home.model.Order;
 import home.web.socket.handler.WebSocketHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,10 +26,11 @@ public class OrderCancellingThread extends Thread {
 
     @Override public void run() {
         while (true) {
-            String orderId = db.waitForCancelledOrder();
+            Order co = db.waitForCancelledOrder();
             String loginToken = httpService.login(username, password);
-            httpService.cancelOrder(orderId, loginToken);
-            wsh.send("CANCELLED ORDER: " + orderId);
+            httpService.cancelOrder(co.getId(), loginToken);
+            wsh.send("CANCELLED ORDER: " + String.format("%s %d %s @ %s",
+                    co.getSide(), co.getQuantity(), co.getSymbol(), co.getPrice()));
         }
     }
 }

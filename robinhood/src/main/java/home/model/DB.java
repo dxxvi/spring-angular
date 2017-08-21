@@ -25,17 +25,15 @@ public class DB {
     // a translation from instrument url to symbol
     private final Map<String, String> instrumentSymbolMap = new ConcurrentHashMap<>();
     private final Set<String> hiddenOrderIds = new ConcurrentSkipListSet<>();
-    private final BlockingQueue<String> cancelledOrders = new LinkedBlockingQueue<>();
+    private final BlockingQueue<Order> cancelledOrders = new LinkedBlockingQueue<>();
     // keeps the historical quotes for a week
     private final Map<String, double[]> symbolHistoricalQuoteMap = new ConcurrentHashMap<>(32);
     private final BlockingQueue<BuySellOrder> buySellOrders = new LinkedBlockingQueue<>();
     private final TreeSet<BuySellOrder> buySellOrdersNeedFlipped;
 
-    private final Environment env;
     private final TreeSet<Stock> stocks;
 
-    public DB(Environment env) {
-        this.env = env;
+    public DB() {
         this.stocks = new TreeSet<>(comparing(Stock::getSymbol));
         this.buySellOrdersNeedFlipped = new TreeSet<>(comparing(BuySellOrder::getId));
     }
@@ -61,29 +59,37 @@ public class DB {
         return Boolean.FALSE;
     }
 
+    public Stock getStock(String symbol) {
+        Stock fake = new Stock(symbol, null);
+        Stock ceiling = stocks.ceiling(fake);
+        Stock floor   = stocks.floor(fake);
+        if (ceiling == floor) {
+            return ceiling;
+        }
+        return null;
+    }
+
     // add if not exists and return the newly added. Or return the existing.
     public Stock addStock(Stock stock) {
         if (stock == null) {
             throw new IllegalArgumentException("don't accept null argument");
         }
-        Stock ceiling = stocks.ceiling(stock);
-        Stock floor   = stocks.floor(stock);
-        if (ceiling != floor) {
-            stocks.add(stock);
-            return stock;
+        Stock existingStock = getStock(stock.getSymbol());
+        if (existingStock != null) {
+            return existingStock;
         }
-        if (ceiling == null) {
-            stocks.add(stock);
-            return stock;
-        }
-        return ceiling;
+        stocks.add(stock);
+        return stock;
     }
 
     public Stream<Tuple2<String, LinkedList<Quote>>> getStocksToDrawGraphs() {
         return stocks.stream().map(stock -> {
             LinkedList<Quote> quotes = stock.getQuotes().stream()
                     .filter(q -> q.getFrom().getSecond() % 15 == 0)
-                    .map(q -> q.getTo().getSecond() % 15 == 0 ? q : q.setTo(q.getFrom().plusSeconds(15)))
+                    .map(q -> {
+                        Quote _q = q.clone();
+                        return q.getTo().getSecond() % 15 == 0 ? _q : _q.setTo(_q.getFrom().plusSeconds(15));
+                    })
                     .collect(LinkedList<Quote>::new, LinkedList::add, LinkedList::addAll);
             return new Tuple2<>(stock.getSymbol(), quotes);
         });
@@ -113,16 +119,16 @@ public class DB {
         hiddenOrderIds.add(orderId);
     }
 
-    public void addCancelledOrderId(String orderId) {
-        cancelledOrders.add(orderId);
+    public void addCancelledOrderId(Order cancelledOrder) {
+        cancelledOrders.add(cancelledOrder);
     }
 
-    public String waitForCancelledOrder() {
+    public Order waitForCancelledOrder() {
         try {
             return cancelledOrders.take();
         }
         catch (InterruptedException iex) { /* who cares */ }
-        return "not-existing-order-because-of-interrupted-exception";
+        return null;
     }
 
     public boolean shouldBeHidden(String orderId) {
