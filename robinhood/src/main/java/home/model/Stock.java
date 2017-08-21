@@ -28,7 +28,7 @@ public class Stock extends StockDO {
         if (quotes == null || quotes.isEmpty()) {
             return null;
         }
-        return quotes.peek().getPrice();
+        return new LinkedList<>(quotes).peekLast().getPrice();
     }
 
     public void addQuote(Quote q) {

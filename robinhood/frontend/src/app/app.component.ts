@@ -17,7 +17,9 @@ export class AppComponent {
 
   constructor(private wsService: WebsocketService,
               private toastyService: ToastyService, private toastyConfig: ToastyConfig) {
-    this.wsService.createObservableSocket('ws://localhost:9090/websocket/quotes').subscribe(
+    const url = new URL(location.href);
+
+    this.wsService.createObservableSocket('ws://' + url.hostname + ':' + url.port + '/websocket/quotes').subscribe(
       data => {
         if (data.indexOf('QUOTES: ') === 0) {
           const newStocks = JSON.parse(data.replace('QUOTES: ', ''));

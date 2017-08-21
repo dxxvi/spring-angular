@@ -105,6 +105,7 @@ public class QuoteService {
             }
         });
 
+/*
         if (missingQuotesToday.get()) {  // fill up the missing quotes for today
             Map<String, LinkedList<RobinhoodHistoricalQuote>> symbolDayQuotesMap =
                     httpService.getTodayHistoricalQuotes(wantedSymbols).stream()
@@ -143,6 +144,7 @@ public class QuoteService {
                 }
             });
         }
+*/
 
         db.quotesReady(createGraph);
     }
