@@ -65,13 +65,6 @@ public class OrderService {
 
         Map<String, TreeSet<Order>> symbolOrdersMap = buildSymbolOrdersMap(robinhoodOrdersResult);
 
-        try {
-            wsh.send("ORDERS: " + objectMapper.writeValueAsString(symbolOrdersMap));
-        }
-        catch (JsonProcessingException jpex) {
-            logger.error("Fix me.", jpex);
-        }
-
         String nextUrl = robinhoodOrdersResult.getNext();
         if (nextUrl != null && nextUrl.startsWith("https")) {
             Map<String, TreeSet<Order>> m = buildSymbolOrdersMap(httpService.nextOrders(nextUrl, loginToken));

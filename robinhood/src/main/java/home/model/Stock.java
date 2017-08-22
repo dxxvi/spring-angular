@@ -139,7 +139,7 @@ public class Stock extends StockDO {
 
         while ((_tail = _quotes.pollLast()) != null) {
             debugList.add(_tail);
-            if (_tail.getPrice().compareTo(tail.getPrice()) > 0) {
+            if (_tail.getPrice().compareTo(tail.getPrice()) >= 0) {
                 tail = _tail;
                 foul = false;
             }
@@ -180,8 +180,7 @@ public class Stock extends StockDO {
 
         while ((_tail = _quotes.pollLast()) != null) {
             debugList.add(_tail);
-            debugList.add(_tail);
-            if (_tail.getPrice().compareTo(tail.getPrice()) <= 0) {
+            if (_tail.getPrice().compareTo(tail.getPrice()) < 0) {
                 tail = _tail;
                 foul = false;
             }

@@ -304,7 +304,7 @@ public class HttpServiceRobinhood implements HttpService {
             }
         }
         catch (Exception ex) {
-            logger.warn("Fix me", ex);
+            logger.warn("Fix me: HttpServiceRobinhood.buySell: {}", ex.getMessage());
         }
         return null;
     }

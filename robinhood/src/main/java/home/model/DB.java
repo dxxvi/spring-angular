@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 import static java.util.Comparator.*;
 
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -29,13 +30,14 @@ public class DB {
     // keeps the historical quotes for a week
     private final Map<String, double[]> symbolHistoricalQuoteMap = new ConcurrentHashMap<>(32);
     private final BlockingQueue<BuySellOrder> buySellOrders = new LinkedBlockingQueue<>();
-    private final TreeSet<BuySellOrder> buySellOrdersNeedFlipped;
+    private final ConcurrentHashMap<String, List<BuySellOrder>> patientBuySellOrders = new ConcurrentHashMap<>();
+    private final ConcurrentSkipListSet<BuySellOrder> buySellOrdersNeedFlipped;
 
     private final TreeSet<Stock> stocks;
 
     public DB() {
         this.stocks = new TreeSet<>(comparing(Stock::getSymbol));
-        this.buySellOrdersNeedFlipped = new TreeSet<>(comparing(BuySellOrder::getId));
+        this.buySellOrdersNeedFlipped = new ConcurrentSkipListSet<>(comparing(BuySellOrder::getId));
     }
 
     public Stream<Stock> getStocksStream() {
@@ -178,34 +180,36 @@ public class DB {
         }
     }
 
+    public void addPatientBuySellOrder(BuySellOrder bso) {
+        patientBuySellOrders.computeIfAbsent(bso.getSymbol(), k -> new LinkedList<>()).add(bso);
+    }
+
+    public List<BuySellOrder> gePatienttBuySellOrders(String symbol) {
+        return patientBuySellOrders.computeIfAbsent(symbol, k -> new LinkedList<>());
+    }
+
     public void addBuySellOrderNeedsFlipped(BuySellOrder bso) {
         if (bso.getId() == null) {
             throw new RuntimeException("buySellOrder id is null: " + bso);
         }
-        synchronized (buySellOrdersNeedFlipped) {
-            buySellOrdersNeedFlipped.add(bso);
-        }
+        buySellOrdersNeedFlipped.add(bso);
     }
 
     /**
      * @return null if this orderId is not of a buy order that needs to be resold
      */
     public BuySellOrder getBuySellOrderNeedsFlipped(String id) {
-        synchronized (buySellOrdersNeedFlipped) {
-            BuySellOrder bso = buySellOrdersNeedFlipped.ceiling(new BuySellOrder(id));
-            if (bso != null && bso.getId().equals(id)) {
-                return bso;
-            }
+        BuySellOrder bso = buySellOrdersNeedFlipped.ceiling(new BuySellOrder(id));
+        if (bso != null && bso.getId().equals(id)) {
+            return bso;
         }
         return null;
     }
 
     public void removeBuySellOrderNeedsFlipped(String id) {
-        synchronized (buySellOrdersNeedFlipped) {
-            BuySellOrder bso = buySellOrdersNeedFlipped.ceiling(new BuySellOrder(id));
-            if (bso != null && bso.getId().equals(id)) {
-                buySellOrdersNeedFlipped.remove(bso);
-            }
+        BuySellOrder bso = buySellOrdersNeedFlipped.ceiling(new BuySellOrder(id));
+        if (bso != null && bso.getId().equals(id)) {
+            buySellOrdersNeedFlipped.remove(bso);
         }
     }
 }

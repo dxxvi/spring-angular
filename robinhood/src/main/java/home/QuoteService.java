@@ -1,5 +1,6 @@
 package home;
 
+import home.model.BuySellOrder;
 import home.model.DB;
 import home.model.Quote;
 import home.model.RobinhoodHistoricalQuote;
@@ -39,12 +40,14 @@ public class QuoteService {
     private final Random random = new Random();
     private final DB db;
     private final HttpService httpService;
+    private final OrderService orderService;
 
     @Value("${wanted-symbols}") private String wantedSymbols;
 
-    public QuoteService(HttpService httpService, DB db) {
+    public QuoteService(HttpService httpService, DB db, OrderService orderService) {
         this.httpService = httpService;
         this.db = db;
+        this.orderService = orderService;
     }
 
     public void quotes() {
@@ -103,6 +106,16 @@ public class QuoteService {
                     && firstQuote.getTo().isBefore(LocalTime.of(15, 59, 0))) {
                 missingQuotesToday.set(true);
             }
+
+            List<BuySellOrder> patientBuySellOrders = db.gePatienttBuySellOrders(q.getSymbol());
+            patientBuySellOrders.forEach(pbso -> {
+                if ("buy".equals(pbso.getSide())) {
+
+                }
+                else {
+
+                }
+            });
         });
 
 /*
