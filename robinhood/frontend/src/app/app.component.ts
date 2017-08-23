@@ -96,6 +96,16 @@ export class AppComponent {
             msg: data.replace('CANCELLED ORDER: ', '')
           });
         }
+        else if (data.indexOf('FIX ME: ') === 0) {
+          const array = data.split('|');
+          const title = array.length > 1 ? array[0] : 'FiX ME in app.component.ts';
+          const msg   = array.length > 1 ? array[1] : array[0].replace('FIX ME: ', '');
+          this.toastyService.error({
+            title: title,
+            msg: msg,
+            timeout: 9876
+          });
+        }
       },
       error => {
         console.log('Error channel:');
@@ -112,7 +122,7 @@ export class AppComponent {
 
     this.toastyConfig.theme = 'bootstrap';
     this.toastyConfig.position = 'top-right';
-    this.toastyConfig.timeout = 5678;
+    this.toastyConfig.timeout = 6789;
     this.toastyConfig.showClose = true;
   }
 

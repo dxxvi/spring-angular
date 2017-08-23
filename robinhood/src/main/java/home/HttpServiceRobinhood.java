@@ -269,6 +269,7 @@ public class HttpServiceRobinhood implements HttpService {
 
     @Override public RobinhoodOrderResult buySell(BuySellOrder buySellOrder, String loginToken) {
         RestTemplate restTemplate = new RestTemplate();
+        String bodyDataString = "";
         try {
             Map<String, Object> bodyData = new HashMap<>();
             bodyData.put("account", accountUrl(loginToken));
@@ -280,7 +281,7 @@ public class HttpServiceRobinhood implements HttpService {
             bodyData.put("price", buySellOrder.getPrice());
             bodyData.put("quantity", buySellOrder.getQuantity());
             bodyData.put("side", buySellOrder.getSide());
-            String bodyDataString = objectMapper.writeValueAsString(bodyData);
+            bodyDataString = objectMapper.writeValueAsString(bodyData);
 
             RequestEntity<String> request = RequestEntity
                     .post(new URI("https://api.robinhood.com/orders/"))
@@ -301,10 +302,13 @@ public class HttpServiceRobinhood implements HttpService {
             else {
                 logger.error("Unable to place an order: status: {}, body: {}", response.getStatusCode().name(),
                         response.getBody());
+                wsh.send("FIX ME: HttpService.buySell unable to place an order|status: " +
+                        response.getStatusCode().name() + " " + bodyDataString);
             }
         }
         catch (Exception ex) {
             logger.warn("Fix me: HttpServiceRobinhood.buySell: {}", ex.getMessage());
+            wsh.send("FIX ME: HttpService.buySell|" + ex.getMessage() + " " + bodyDataString);
         }
         return null;
     }

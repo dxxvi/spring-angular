@@ -155,6 +155,7 @@ public class Stock extends StockDO {
         }
 
         Going result = new Going(tail.getFrom().until(head.getTo(), ChronoUnit.SECONDS), tail.getPrice(), head.getPrice());
+/*
         logger.debug("going down: tail: {}, debugList:\n{}\nresult: {}", tail, debugList.stream()
                 .map(q -> String.format("%s | %s | %s",
                         q.getFrom().format(DTF),
@@ -163,6 +164,7 @@ public class Stock extends StockDO {
                 )
                 .collect(joining("\n")), result
         );
+*/
         return result;
     }
 
@@ -196,6 +198,7 @@ public class Stock extends StockDO {
         }
 
         Going result = new Going(tail.getFrom().until(head.getTo(), ChronoUnit.SECONDS), tail.getPrice(), head.getPrice());
+/*
         logger.debug("going up: tail: {}, debugList:\n{}\nresult: {}", tail, debugList.stream()
                 .map(q -> String.format("%s | %s | %s",
                         q.getFrom().format(DTF),
@@ -204,6 +207,7 @@ public class Stock extends StockDO {
                 )
                 .collect(joining("\n")), result
         );
+*/
         return result;
     }
 

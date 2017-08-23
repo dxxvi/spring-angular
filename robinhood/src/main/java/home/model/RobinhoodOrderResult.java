@@ -17,7 +17,7 @@ public class RobinhoodOrderResult {
     private String id;
     @JsonProperty("cumulative_quantity") private BigDecimal cumQuantity;
     private String instrument;         // mapped 1:1 to symbol, this is a GET rest endpoint
-    // queued, unconfirmed, confirmed, partially_filled, filled, rejected, canceled, or failed
+    // queued, unconfirmed, confirmed, partially_filled, filled, rejected, cancelled, or failed
     private String state;
     private BigDecimal price;
     private List<RobinhoodOrderExecution> executions;

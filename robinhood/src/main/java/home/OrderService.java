@@ -7,7 +7,6 @@ import home.model.DB;
 import home.model.Order;
 import home.model.RobinhoodOrderResult;
 import home.model.RobinhoodOrdersResult;
-import home.model.Tuple2;
 import home.web.socket.handler.WebSocketHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,20 +15,12 @@ import org.springframework.beans.factory.annotation.Value;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.Collection;
 import static java.util.Comparator.*;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.TreeSet;
-import java.util.function.BiConsumer;
-import java.util.function.BinaryOperator;
 import java.util.function.Function;
-import java.util.function.Supplier;
-import java.util.stream.Collector;
-import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.*;
 
@@ -42,6 +33,7 @@ public class OrderService {
 
     @Value("${username}") private String username;
     @Value("${password}") private String password;
+    @Value("${far-back-for-orders}") private long farBackForOrders;
 
     public OrderService(DB db, HttpService httpService, WebSocketHandler wsh, ObjectMapper objectMapper) {
         this.db = db;
@@ -51,12 +43,13 @@ public class OrderService {
     }
 
     public void orders() {
+/*
         LocalTime now = LocalTime.now();
         if (now.until(Main.OPEN, ChronoUnit.MINUTES) > 5 || now.until(Main.CLOSE, ChronoUnit.MINUTES) < 0) {
             return;
         }
+*/
 
-        LocalDateTime now2 = LocalDateTime.now();
         String loginToken = httpService.login(username, password);
         if (loginToken == null) {
             throw new RuntimeException("Unable to get orders because the loginToken is null.");
@@ -82,14 +75,12 @@ public class OrderService {
                 .filter(Objects::nonNull)
                 .forEach(bso -> {
                     if ("buy".equals(bso.getSide())) {
-                        if (buySell(bso.setSide("sell").setPrice(bso.getPrice().add(bso.getResellDelta()))) != null) {
-                            db.removeBuySellOrderNeedsFlipped(bso.getId());
-                        }
-                    } else {
-                        if (buySell(bso.setSide("buy").setPrice(bso.getPrice().subtract(bso.getResellDelta()))) != null) {
-                            db.removeBuySellOrderNeedsFlipped(bso.getId());
-                        }
+                        buySell(bso.setSide("sell").setPrice(bso.getPrice().add(bso.getResellDelta())));
                     }
+                    else {
+                        buySell(bso.setSide("buy").setPrice(bso.getPrice().subtract(bso.getResellDelta())));
+                    }
+                    db.removeBuySellOrderNeedsFlipped(bso.getId());
                 });
         try {
             wsh.send("ORDERS: " + objectMapper.writeValueAsString(symbolOrdersMap));
@@ -102,8 +93,15 @@ public class OrderService {
     private Map<String, TreeSet<Order>> buildSymbolOrdersMap(RobinhoodOrdersResult robinhoodOrdersResult) {
         LocalDateTime now = LocalDateTime.now();
         return robinhoodOrdersResult.getResults().stream()
+                .map(ror -> {
+                    if ("cancelled".equals(ror.getState()) && ror.getCumQuantity().intValue() > 0) {
+                        ror.setState("filled");
+                        ror.setQuantity(ror.getCumQuantity());
+                    }
+                    return ror;
+                })
                 .filter(ror -> !"cancelled".equals(ror.getState()))
-                .filter(ror -> ror.getCreatedAt().until(now, ChronoUnit.HOURS) < 33)
+                .filter(ror -> ror.getCreatedAt().until(now, ChronoUnit.HOURS) < farBackForOrders)
                 .filter(ror -> !db.shouldBeHidden(ror.getId()))
                 .map(this::toOrder)
                 .collect(groupingBy(

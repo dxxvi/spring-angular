@@ -40,14 +40,12 @@ public class QuoteService {
     private final Random random = new Random();
     private final DB db;
     private final HttpService httpService;
-    private final OrderService orderService;
 
     @Value("${wanted-symbols}") private String wantedSymbols;
 
     public QuoteService(HttpService httpService, DB db, OrderService orderService) {
         this.httpService = httpService;
         this.db = db;
-        this.orderService = orderService;
     }
 
     public void quotes() {
@@ -66,7 +64,9 @@ public class QuoteService {
 
         LocalTime _fetchedAt = LocalTime.now();
         if (_fetchedAt.until(Main.OPEN, MINUTES) > 5 || _fetchedAt.until(Main.CLOSE, MINUTES) < 0) {
-            return;
+            if (_fetchedAt.getSecond() > 4) {
+                return;
+            }
         }
         boolean createGraph = _fetchedAt.get(ChronoField.SECOND_OF_MINUTE) % 15 == 0;
 
