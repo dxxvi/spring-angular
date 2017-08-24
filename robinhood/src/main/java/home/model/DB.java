@@ -121,6 +121,14 @@ public class DB {
         hiddenOrderIds.add(orderId);
     }
 
+    public boolean shouldBeHidden(String orderId) {
+        return hiddenOrderIds.contains(orderId);
+    }
+
+    public void clearHiddenOrderIds() {
+        hiddenOrderIds.clear();
+    }
+
     public void addCancelledOrderId(Order cancelledOrder) {
         cancelledOrders.add(cancelledOrder);
     }
@@ -131,10 +139,6 @@ public class DB {
         }
         catch (InterruptedException iex) { /* who cares */ }
         return null;
-    }
-
-    public boolean shouldBeHidden(String orderId) {
-        return hiddenOrderIds.contains(orderId);
     }
 
     public void addHistoricalQuotes(String symbol, double[] quotes) {

@@ -6,7 +6,6 @@ import org.slf4j.LoggerFactory;
 import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -98,7 +97,7 @@ public class Stock extends StockDO {
 
     public StockDO minified() {
         BigDecimal last5minsMin = null, last5minsMax = null;
-        Tuple2<BigDecimal, BigDecimal> minMaxLast5Mins = getMinMaxLast5Mins();
+        Tuple2<BigDecimal, BigDecimal> minMaxLast5Mins = getMinMaxLast15Mins();
         if (minMaxLast5Mins != null) {
             last5minsMin = minMaxLast5Mins._1;
             last5minsMax = minMaxLast5Mins._2;
@@ -108,7 +107,7 @@ public class Stock extends StockDO {
                 _getDown(), _getUp());
     }
 
-    private Tuple2<BigDecimal, BigDecimal> getMinMaxLast5Mins() {
+    private Tuple2<BigDecimal, BigDecimal> getMinMaxLast15Mins() {
         if (quotes == null || quotes.isEmpty()) {
             return null;
         }
@@ -117,7 +116,7 @@ public class Stock extends StockDO {
         BigDecimal max = BigDecimal.valueOf(Double.MIN_VALUE);
         Quote lastQuote = _quotes.pollLast();
         Quote q = lastQuote;
-        while (q != null && q.getUpdatedAt() != null && q.getFrom().until(lastQuote.getTo(), ChronoUnit.SECONDS) < 301) {
+        while (q != null && q.getUpdatedAt() != null && q.getFrom().until(lastQuote.getTo(), ChronoUnit.SECONDS) < 601) {
             min = min.compareTo(q.getPrice()) > 0 ? q.getPrice() : min;
             max = max.compareTo(q.getPrice()) < 0 ? q.getPrice() : max;
             q = _quotes.pollLast();

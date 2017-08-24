@@ -70,6 +70,13 @@ public class OrderService {
         }
         symbolOrdersMap.values().stream()
                 .flatMap(Collection::stream)
+                .filter(o -> {
+                    if ("confirmed".equals(o.getState()) && "buy".equals(o.getSide())
+                            && db.getStock(o.getSymbol()).getPrice().subtract(o.getPrice()).doubleValue() > 0.13) {
+                        db.addCancelledOrderId(o);
+                    }
+                    return true;
+                })
                 .filter(o -> "filled".equals(o.getState()))
                 .map(o -> db.getBuySellOrderNeedsFlipped(o.getId()))
                 .filter(Objects::nonNull)
