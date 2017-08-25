@@ -56,8 +56,9 @@ public class Order implements Serializable {
         return symbol;
     }
 
-    public void setSymbol(String symbol) {
+    public Order setSymbol(String symbol) {
         this.symbol = symbol;
+        return this;
     }
 
     public String getState() {

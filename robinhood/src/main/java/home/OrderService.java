@@ -17,9 +17,14 @@ import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import static java.util.Comparator.*;
+
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.function.Function;
 
 import static java.util.stream.Collectors.*;
@@ -43,26 +48,19 @@ public class OrderService {
     }
 
     public void orders() {
-/*
-        LocalTime now = LocalTime.now();
-        if (now.until(Main.OPEN, ChronoUnit.MINUTES) > 5 || now.until(Main.CLOSE, ChronoUnit.MINUTES) < 0) {
-            return;
-        }
-*/
-
         String loginToken = httpService.login(username, password);
         if (loginToken == null) {
             throw new RuntimeException("Unable to get orders because the loginToken is null.");
         }
         RobinhoodOrdersResult robinhoodOrdersResult = httpService.orders(loginToken);
 
-        Map<String, TreeSet<Order>> symbolOrdersMap = buildSymbolOrdersMap(robinhoodOrdersResult);
+        Map<String, SortedSet<Order>> symbolOrdersMap = buildSymbolOrdersMap(robinhoodOrdersResult);
 
         String nextUrl = robinhoodOrdersResult.getNext();
         if (nextUrl != null && nextUrl.startsWith("https")) {
-            Map<String, TreeSet<Order>> m = buildSymbolOrdersMap(httpService.nextOrders(nextUrl, loginToken));
+            Map<String, SortedSet<Order>> m = buildSymbolOrdersMap(httpService.nextOrders(nextUrl, loginToken));
             symbolOrdersMap.forEach((symbol, tree) -> {
-                TreeSet<Order> t = m.get(symbol);
+                SortedSet<Order> t = m.get(symbol);
                 if (t != null) {
                     tree.addAll(t);
                 }
@@ -89,6 +87,18 @@ public class OrderService {
                     }
                     db.removeBuySellOrderNeedsFlipped(bso.getId());
                 });
+
+        // add patient buy sell orders to symbolOrdersMap
+        symbolOrdersMap.forEach((symbol, orders) -> {
+            List<Order> patientOrders = db.gePatienttBuySellOrders(symbol).stream()
+                    .map(bso ->
+                            new Order(bso.getId(), bso.getQuantity(), bso.getPrice(),
+                                "patient", bso.getSide(), LocalDateTime.now()).setSymbol(symbol)
+                    )
+                    .collect(toList());
+            orders.addAll(patientOrders);
+        });
+
         try {
             wsh.send("ORDERS: " + objectMapper.writeValueAsString(symbolOrdersMap));
         }
@@ -97,7 +107,7 @@ public class OrderService {
         }
     }
 
-    private Map<String, TreeSet<Order>> buildSymbolOrdersMap(RobinhoodOrdersResult robinhoodOrdersResult) {
+    private Map<String, SortedSet<Order>> buildSymbolOrdersMap(RobinhoodOrdersResult robinhoodOrdersResult) {
         LocalDateTime now = LocalDateTime.now();
         return robinhoodOrdersResult.getResults().stream()
                 .map(ror -> {
@@ -113,7 +123,10 @@ public class OrderService {
                 .map(this::toOrder)
                 .collect(groupingBy(
                         Order::getSymbol,
-                        mapping(Function.identity(), toCollection(() -> new TreeSet<>(comparing(Order::getCreatedAt))))
+                        mapping(
+                                Function.identity(),
+                                toCollection(() -> new ConcurrentSkipListSet<>(comparing(Order::getCreatedAt)))
+                        )
                 ));
     }
 
@@ -122,7 +135,8 @@ public class OrderService {
         RobinhoodOrderResult ror = httpService.buySell(buySellOrder, loginToken);
         if (ror != null && "confirmed".equals(ror.getState())) {
             try {
-                wsh.send("NEW ORDER: " + objectMapper.writeValueAsString(toOrder(ror)));
+                wsh.send("NEW ORDER: " + buySellOrder.humanBeingString());
+                logger.debug("NEW ORDER: {}", objectMapper.writeValueAsString(toOrder(ror)));
             }
             catch (JsonProcessingException jpex) {
                 logger.error("Fix me.", jpex);

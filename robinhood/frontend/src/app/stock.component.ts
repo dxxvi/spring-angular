@@ -54,6 +54,9 @@ export class StockComponent {
     else if (order.state === 'filled') {
       styleClasses += ' filled';
     }
+    else if (order.state === 'patient') {
+      styleClasses += ' patient';
+    }
     else {
       styleClasses += ' not-confirmed';
     }
@@ -111,7 +114,8 @@ export class StockComponent {
       quantity: order.quantity,
       price: order.price,
       side: order.side,
-      symbol: this.stock.symbol
+      symbol: this.stock.symbol,
+      state: order.state
     }));
   }
 

@@ -141,4 +141,22 @@ public class BuySellOrder {
                 ", wait=" + wait +
                 '}';
     }
+
+    public String humanBeingString() {
+        return String.format("%s %d %s @ %s", getSide(), getQuantity(), getSymbol(), getPrice());
+    }
+
+    @Override public int hashCode() {
+        return id == null ? 1 : id.hashCode();
+    }
+
+    @Override public boolean equals(Object obj) {
+        if (obj instanceof  BuySellOrder) {
+            BuySellOrder that = (BuySellOrder) obj;
+            if (that.id != null) {
+                return that.id.equals(id);
+            }
+        }
+        return false;
+    }
 }

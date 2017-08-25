@@ -106,6 +106,16 @@ export class AppComponent {
             timeout: 9876
           });
         }
+        else if (data.indexOf('ERROR: ') === 0) {
+          const array = data.replace('ERROR: ', '').split('|');
+          const title = array.length > 1 ? array[0] : 'ERROR';
+          const msg   = array.length > 1 ? array[1] : array[0];
+          this.toastyService.error({
+            title: title,
+            msg: msg,
+            timeout: 9876
+          });
+        }
       },
       error => {
         console.log('Error channel:');

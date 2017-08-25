@@ -49,7 +49,7 @@ public class Main {
                 environment.getProperty("username"), environment.getProperty("password"), wsh).start();
 
         OrderService orderService = ac.getBean(OrderService.class);
-        new BuySellOrderReadyThread(db, orderService).start();
+        new BuySellOrderReadyThread(db, orderService, wsh).start();
     }
 
     @Bean public AuthenticationService authenticationService(ObjectMapper objectMapper) {

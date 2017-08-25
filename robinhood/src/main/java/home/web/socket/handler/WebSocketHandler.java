@@ -14,6 +14,8 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
+import java.util.UUID;
+
 public class WebSocketHandler extends TextWebSocketHandler {
     private final Logger logger = LoggerFactory.getLogger(WebSocketHandler.class);
     private final DB db;
@@ -50,7 +52,13 @@ public class WebSocketHandler extends TextWebSocketHandler {
             try {
                 BuySellOrder buySellOrder = objectMapper.readValue(
                             message.replace("BUY SELL: ", ""), BuySellOrder.class);
-                db.addBuySellOrder(buySellOrder);
+                if (buySellOrder.isWait()) {
+                    buySellOrder.setId(UUID.randomUUID().toString());
+                    db.addPatientBuySellOrder(buySellOrder);
+                }
+                else {
+                    db.addBuySellOrder(buySellOrder);
+                }
             }
             catch (Exception ex) {
                 throw new RuntimeException("Fix me: " + message, ex);

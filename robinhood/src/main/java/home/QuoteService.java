@@ -27,6 +27,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -107,13 +108,19 @@ public class QuoteService {
                 missingQuotesToday.set(true);
             }
 
-            List<BuySellOrder> patientBuySellOrders = db.gePatienttBuySellOrders(q.getSymbol());
-            patientBuySellOrders.forEach(pbso -> {
-                if ("buy".equals(pbso.getSide())) {
-
+            Set<BuySellOrder> patientBuySellOrders = db.gePatienttBuySellOrders(q.getSymbol());
+            patientBuySellOrders.forEach(bso -> {
+                if ("buy".equals(bso.getSide())) {
+                    if (Math.abs(stock.getPrice().subtract(bso.getPrice()).doubleValue()) < 0.04) {
+                        patientBuySellOrders.remove(bso);
+                        db.addBuySellOrder(bso);
+                    }
                 }
                 else {
-
+                    if (Math.abs(bso.getPrice().subtract(stock.getPrice()).doubleValue()) < 0.04) {
+                        patientBuySellOrders.remove(bso);
+                        db.addBuySellOrder(bso);
+                    }
                 }
             });
         });
