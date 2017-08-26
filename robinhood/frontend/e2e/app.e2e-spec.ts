@@ -1,10 +1,10 @@
-import { TestprojectPage } from './app.po';
+import { AppPage } from './app.po';
 
 describe('testproject App', () => {
-  let page: TestprojectPage;
+  let page: AppPage;
 
   beforeEach(() => {
-    page = new TestprojectPage();
+    page = new AppPage();
   });
 
   it('should display welcome message', () => {
