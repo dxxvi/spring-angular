@@ -28,6 +28,18 @@ public class BuySellOrder {
         this.id = id;
     }
 
+    public BuySellOrder flip() {
+        if (side.equals("buy")) {
+            side = "sell";
+            price = price.add(resellDelta);
+        }
+        else {
+            side = "buy";
+            price = price.subtract(resellDelta);
+        }
+        return this;
+    }
+
     public String getId() {
         return id;
     }

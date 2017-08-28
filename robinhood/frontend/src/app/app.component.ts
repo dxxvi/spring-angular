@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { BuySellOrder, StockDO } from './model';
 import { LogLevel, Message } from './model2';
 import { WebsocketService } from './websocket.service';
@@ -12,10 +13,13 @@ import { ToastData, ToastOptions, ToastyConfig, ToastyService } from 'ng2-toasty
 export class AppComponent {
   stocks: Array<StockDO> = [];
   graphHeight = '20px';
-  // the same value is sent to all stock components which will if this value is the same as the symbol in that component
+  // the same value is sent to all stock components which check if this value is the same as the symbol in that component
   closeBuySellBoxFor: string;
+  nosound = true;
+  farBackForOrders = 33;
+  utilsOpen = false;
 
-  constructor(private wsService: WebsocketService,
+  constructor(private wsService: WebsocketService, private http: HttpClient,
               private toastyService: ToastyService, private toastyConfig: ToastyConfig) {
     const url = new URL(location.href);
 
@@ -96,6 +100,9 @@ export class AppComponent {
             msg: data.replace('CANCELLED ORDER: ', '')
           });
         }
+        else if (data.indexOf('SOUND: ') === 0) {
+          this.play(data.replace('SOUND: ', ''));
+        }
         else if (data.indexOf('FIX ME: ') === 0) {
           const array = data.split('|');
           const title = array.length > 1 ? array[0] : 'FiX ME in app.component.ts';
@@ -175,5 +182,39 @@ export class AppComponent {
     this.toastyService.info(toastOptions);
 
     this.wsService.sendMessage('BUY SELL: ' + JSON.stringify(buySellOrder));
+  }
+
+  private play(word: string) {
+    if (!this.nosound) {
+      const audio = new Audio();
+      audio.src = '/sound/' + word + '.mp3';
+      audio.load();
+      audio.play();
+    }
+  }
+
+  private setFarBackForOrders() {
+    this.farBackForOrders = parseInt('' + this.farBackForOrders);
+    if (isNaN(this.farBackForOrders) || this.farBackForOrders < 8) {
+      this.farBackForOrders = 33;
+    }
+    this.http.get('/utils/far-back-for-orders?farBackForOrders=' + this.farBackForOrders)
+      .subscribe(data => {
+        console.log(data)
+      });
+  }
+
+  private clearHiddenOrderIds() {
+    this.http.get('/utils/clear-hidden-order-ids')
+      .subscribe(data => {
+        console.log(data)
+      });
+  }
+
+  private writeDbToJson() {
+    this.http.get('/utils/write-db-to-json')
+      .subscribe(data => {
+        console.log(data)
+      });
   }
 }

@@ -19,6 +19,7 @@ public class StockDO {
     private Going down;
     private Going up;
 
+    public StockDO() {}
     public StockDO(String symbol, String instrument) {
         this.symbol = symbol;
         this.instrument = instrument;
@@ -60,8 +61,16 @@ public class StockDO {
         return symbol;
     }
 
+    public void setSymbol(String symbol) {
+        this.symbol = symbol;
+    }
+
     public String getInstrument() {
         return instrument;
+    }
+
+    public void setInstrument(String instrument) {
+        this.instrument = instrument;
     }
 
     public BigDecimal getPrice() {

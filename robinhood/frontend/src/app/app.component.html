@@ -8,3 +8,44 @@
     </div>
 </div>
 <ng2-toasty></ng2-toasty>
+
+<div class="container-fluid" style="position: relative;">
+  <div style="position: absolute; top: 0; right: 0;">
+    <span class="glyphicon glyphicon-chevron-down"  [style.display]="utilsOpen ? 'none'  : 'block'"
+          style="cursor: pointer;"
+          (click)="utilsOpen = !utilsOpen"></span>
+    <span class="glyphicon glyphicon-chevron-up"    [style.display]="utilsOpen ? 'block' : 'none'"
+          style="cursor: pointer;"
+          (click)="utilsOpen = !utilsOpen"></span>
+  </div>
+  <div class="row" [style.display]="utilsOpen ? 'block' : 'none'">
+    <div class="col-xs-3 col-sm-2 col-md-1"><label>Test Sound</label></div>
+    <div class="col-xs-3 col-sm-2 col-md-1">
+      <button class="btn btn-default" (click)="play('buy')">Play buy</button>
+    </div>
+    <div class="col-xs-3 col-sm-2 col-md-1">
+      <button class="btn btn-default" (click)="play('sell')">Play sell</button>
+    </div>
+    <div class="col-xs-3 col-sm-2 col-md-1 form-inline">
+      <label for="nosound">No sound</label>
+      <input type="checkbox" id="nosound" [(ngModel)]="nosound" [ngModelOptions]="{standalone: true}"
+             class="form-control" style="width: auto;"/>
+    </div>
+  </div>
+  <div class="row" [style.display]="utilsOpen ? 'block' : 'none'">
+    <div class="col-xs-4 col-sm-4 col-md-3 col-lg-2">
+      <button class="btn btn-default" (click)="clearHiddenOrderIds()">Clear hidden Order ID's</button>
+    </div>
+    <div class="col-xs-8 form-inline">
+      <label>Far back for Orders</label>
+      <input type="text" [(ngModel)]="farBackForOrders" [ngModelOptions]="{standalone: true}"
+             class="form-control" style="width: auto;">
+      <button class="btn btn-default" (click)="setFarBackForOrders()">Send</button>
+    </div>
+  </div>
+  <div class="row" [style.display]="utilsOpen ? 'block' : 'none'">
+    <div class="col-xs-1">
+      <button class="btn btn-default" (click)="writeDbToJson()">Stop</button>
+    </div>
+  </div>
+</div>

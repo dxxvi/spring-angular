@@ -1,5 +1,6 @@
 package home;
 
+import home.model.BuySellOrder;
 import home.model.Order;
 import home.model.Quote;
 import org.junit.Ignore;
@@ -10,15 +11,8 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Set;
-import java.util.TimeZone;
-import java.util.TreeSet;
+import java.util.*;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
@@ -46,8 +40,21 @@ public class UtilsTest {
         Order o5 = new Order(); o5.setSymbol("WLL"); o5.setId("5"); o5.setCreatedAt(now.minusMinutes(4));
 
         Map<String, TreeSet<Order>> map = Stream.of(o1, o2, o3, o4, o5).collect(groupingBy(
-                Order::getSymbol, Collectors.mapping(Function.identity(), Collectors.toCollection(() -> new TreeSet<Order>(Comparator.comparing(Order::getCreatedAt))))
+                Order::getSymbol, Collectors.mapping(Function.identity(),
+                        Collectors.toCollection(() -> new TreeSet<Order>(Comparator.comparing(Order::getCreatedAt))))
         ));
         map = null;
+    }
+
+    @Test public void g() {
+        BuySellOrder bso1 = new BuySellOrder("1").setSide("side1");
+        BuySellOrder bso2 = new BuySellOrder("2").setSide("side2");
+        BuySellOrder bso3 = new BuySellOrder("3").setSide("side3");
+        SortedSet<BuySellOrder> set = new ConcurrentSkipListSet<>(Comparator.comparing(BuySellOrder::getId));
+        set.add(bso2);
+        set.add(bso3);
+        set.add(bso1);
+        set.remove(new BuySellOrder("3"));
+        set = null;
     }
 }

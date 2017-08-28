@@ -15,15 +15,10 @@ import org.springframework.beans.factory.annotation.Value;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Collection;
+import java.util.*;
+
 import static java.util.Comparator.*;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.SortedSet;
-import java.util.TreeSet;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.function.Function;
 
@@ -35,6 +30,8 @@ public class OrderService {
     private final DB db;
     private final WebSocketHandler wsh;
     private final ObjectMapper objectMapper;
+    private final SortedSet<BuySellOrder> buySellOrdersNeedSound =
+            new ConcurrentSkipListSet<>(Comparator.comparing(BuySellOrder::getId));
 
     @Value("${username}") private String username;
     @Value("${password}") private String password;
@@ -68,10 +65,19 @@ public class OrderService {
         }
         symbolOrdersMap.values().stream()
                 .flatMap(Collection::stream)
-                .filter(o -> {
+                .filter(o -> {         // auto cancel buy orders if the price is too high
                     if ("confirmed".equals(o.getState()) && "buy".equals(o.getSide())
                             && db.getStock(o.getSymbol()).getPrice().subtract(o.getPrice()).doubleValue() > 0.13) {
                         db.addCancelledOrderId(o);
+                    }
+                    return true;
+                })
+                .filter(o -> {
+                    BuySellOrder bso = new BuySellOrder(o.getId());
+                    if (o.getState().equals("filled") && buySellOrdersNeedSound.contains(bso)) {
+                        wsh.send("SOUND: " + o.getSide());
+                        buySellOrdersNeedSound.remove(bso);
+                        return false;
                     }
                     return true;
                 })
@@ -79,13 +85,13 @@ public class OrderService {
                 .map(o -> db.getBuySellOrderNeedsFlipped(o.getId()))
                 .filter(Objects::nonNull)
                 .forEach(bso -> {
-                    if ("buy".equals(bso.getSide())) {
-                        buySell(bso.setSide("sell").setPrice(bso.getPrice().add(bso.getResellDelta())));
+                    String filledId = bso.getId();
+                    RobinhoodOrderResult ror = buySell(bso.flip());
+                    if (ror != null && !ror.getState().equals("filled")) {
+                        buySellOrdersNeedSound.add(bso.setId(ror.getId()));
                     }
-                    else {
-                        buySell(bso.setSide("buy").setPrice(bso.getPrice().subtract(bso.getResellDelta())));
-                    }
-                    db.removeBuySellOrderNeedsFlipped(bso.getId());
+
+                    db.removeBuySellOrderNeedsFlipped(filledId);
                 });
 
         // add patient buy sell orders to symbolOrdersMap
@@ -154,5 +160,13 @@ public class OrderService {
         }
         order.setSymbol(symbol);
         return order;
+    }
+
+    public long getFarBackForOrders() {
+        return farBackForOrders;
+    }
+
+    public void setFarBackForOrders(long farBackForOrders) {
+        this.farBackForOrders = farBackForOrders;
     }
 }

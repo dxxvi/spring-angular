@@ -19,6 +19,7 @@ public class Stock extends StockDO {
     private transient final DateTimeFormatter DTF = DateTimeFormatter.ofPattern("HH:mm:ss");
     private ConcurrentLinkedQueue<Quote> quotes;
 
+    public Stock() {}
     public Stock(String symbol, String instrument) {
         super(symbol, instrument);
     }
