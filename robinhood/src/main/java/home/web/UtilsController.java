@@ -3,6 +3,7 @@ package home.web;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import home.OrderService;
 import home.model.DB;
+import home.model.Stock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -41,7 +42,7 @@ public class UtilsController {
 
     @GetMapping(path = "/write-db-to-json")
     public String writeDbToJson() throws IOException {
-        String s = objectMapper.writeValueAsString(db.getStocksStream().collect(Collectors.toList()));
+        String s = objectMapper.writeValueAsString(db.getStocksStream().map(Stock::clone).collect(Collectors.toList()));
         try {
             Files.write(Paths.get(pathToMemory), s.getBytes(), CREATE, TRUNCATE_EXISTING);
         }

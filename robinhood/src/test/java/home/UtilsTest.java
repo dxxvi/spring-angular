@@ -58,12 +58,4 @@ public class UtilsTest {
         set.remove(new BuySellOrder("3"));
         set = null;
     }
-
-    @Test public void h() {
-        DateTimeFormatter DTF = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'");
-        String s = "2017-08-28T19:10:10.153462Z";
-        System.out.println(LocalDateTime.now().format(DTF));
-        LocalDateTime ldt = LocalDateTime.parse(s, DTF);
-        System.out.printf(ldt.format(DTF));
-    }
 }

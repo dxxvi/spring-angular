@@ -33,7 +33,6 @@
     </dependencies>
 
     <build>
-        <directory>/dev/shm/spring-angular/robinhood/target</directory>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>

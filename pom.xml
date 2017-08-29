@@ -28,7 +28,6 @@
     </properties>
 
     <build>
-        <directory>/dev/shm/spring-angular/target</directory>
         <pluginManagement>
             <plugins>
                 <plugin>

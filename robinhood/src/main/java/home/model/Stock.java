@@ -224,4 +224,10 @@ public class Stock extends StockDO {
                 ", dayPercentage=" + dayPercentage +
                 '}';
     }
+
+    public Stock clone() {             // to remove the orders
+        Stock replica = new Stock(symbol, instrument);
+        quotes.forEach(replica::addQuote);
+        return replica;
+    }
 }

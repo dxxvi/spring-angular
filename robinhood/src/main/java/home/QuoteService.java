@@ -1,5 +1,7 @@
 package home;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import home.model.BuySellOrder;
 import home.model.DB;
 import home.model.Quote;
@@ -13,6 +15,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -37,10 +41,20 @@ public class QuoteService {
     private final HttpService httpService;
 
     @Value("${wanted-symbols}") private String wantedSymbols;
+    @Value("${path-to-memory}") private String pathToMemory;
 
-    public QuoteService(HttpService httpService, DB db, OrderService orderService) {
+    public QuoteService(HttpService httpService, DB db, OrderService orderService, ObjectMapper objectMapper) {
         this.httpService = httpService;
         this.db = db;
+
+        try {
+            String s = Files.readAllLines(Paths.get(pathToMemory)).stream().collect(joining());
+            List<Stock> stocks = objectMapper.readValue(s, new TypeReference<List<Stock>>() {});
+            stocks.forEach(db::addStock);
+        }
+        catch (Exception ex) {
+            logger.warn("Error in reading memory json", ex);
+        }
     }
 
     public void quotes() {
@@ -58,13 +72,13 @@ public class QuoteService {
         }
 
         LocalTime _fetchedAt = LocalTime.now();
+        int sec = _fetchedAt.getSecond();
         if (_fetchedAt.until(Main.OPEN, MINUTES) > 5 || _fetchedAt.until(Main.CLOSE, MINUTES) < 0) {
-            int sec = _fetchedAt.getSecond();
             if ((4 < sec && sec < 30) || (34 < sec && sec < 59)) {
                 return;
             }
         }
-        boolean createGraph = _fetchedAt.get(ChronoField.SECOND_OF_MINUTE) % 15 == 0;
+        boolean createGraph = sec % 15 == 0;
 
         final LocalTime fetchedAt = roundSecond(_fetchedAt, 5);
 
