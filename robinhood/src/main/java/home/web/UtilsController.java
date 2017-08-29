@@ -5,12 +5,16 @@ import home.OrderService;
 import home.model.DB;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import static java.nio.file.StandardOpenOption.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -20,6 +24,8 @@ public class UtilsController {
     private final DB db;
     private final OrderService orderService;
     private final ObjectMapper objectMapper;
+
+    @Value("${path-to-memory}") private String pathToMemory;
 
     public UtilsController(DB db, OrderService orderService, ObjectMapper objectMapper) {
         this.db = db;
@@ -36,6 +42,12 @@ public class UtilsController {
     @GetMapping(path = "/write-db-to-json")
     public String writeDbToJson() throws IOException {
         String s = objectMapper.writeValueAsString(db.getStocksStream().collect(Collectors.toList()));
+        try {
+            Files.write(Paths.get(pathToMemory), s.getBytes(), CREATE, TRUNCATE_EXISTING);
+        }
+        catch (Exception ex) {
+            logger.error("Unable to export to file", ex);
+        }
         return "Check the json string.";
     }
 

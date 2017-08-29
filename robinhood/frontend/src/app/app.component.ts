@@ -195,8 +195,8 @@ export class AppComponent {
 
   private setFarBackForOrders() {
     this.farBackForOrders = parseInt('' + this.farBackForOrders);
-    if (isNaN(this.farBackForOrders) || this.farBackForOrders < 8) {
-      this.farBackForOrders = 33;
+    if (isNaN(this.farBackForOrders)) {
+      this.farBackForOrders = 8;
     }
     this.http.get('/utils/far-back-for-orders?farBackForOrders=' + this.farBackForOrders)
       .subscribe(data => {

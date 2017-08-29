@@ -2,6 +2,12 @@ package home.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import home.RobinhoodDateTimeDeserializer;
+import home.RobinhoodDateTimeSerializer;
+import home.RobinhoodTimeDeserializer;
+import home.RobinhoodTimeSerializer;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -14,8 +20,13 @@ public class Quote {
     @JsonProperty(value = "updated_at") private LocalDateTime updatedAt;
     private String instrument;         // I think this instrument url is mapped 1:1 to the symbol
 
-    @JsonIgnore private LocalTime from;
-    @JsonIgnore private LocalTime to;
+    @JsonDeserialize(using = RobinhoodTimeDeserializer.class)
+    @JsonSerialize(using = RobinhoodTimeSerializer.class)
+    private LocalTime from;
+
+    @JsonDeserialize(using = RobinhoodTimeDeserializer.class)
+    @JsonSerialize(using = RobinhoodTimeSerializer.class)
+    private LocalTime to;
 
     public Quote() {
     }
@@ -80,8 +91,10 @@ public class Quote {
 
     @Override public String toString() {
         return String.format("{\"symbol\":\"%s\",\"price\":%-6.2f,\"updatedAt\":\"%s\",\"from\":\"%s\",\"to\":\"%s\"}",
-                symbol, price, updatedAt == null ? null : updatedAt.format(ISO_LOCAL_DATE_TIME),
-                from.format(ISO_LOCAL_TIME), to.format(ISO_LOCAL_TIME));
+                symbol, price,
+                updatedAt == null ? null : updatedAt.format(ISO_LOCAL_DATE_TIME),
+                from == null ? null : from.format(ISO_LOCAL_TIME),
+                to == null ? null : to.format(ISO_LOCAL_TIME));
     }
 
     public Quote clone() {

@@ -2,6 +2,8 @@ package home.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import home.RobinhoodDateTimeDeserializer;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -10,6 +12,7 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class RobinhoodOrderResult {
     @JsonProperty("updated_at")
+    @JsonDeserialize(using = RobinhoodDateTimeDeserializer.class)
     private LocalDateTime updatedAt;
 
     @JsonProperty("time_in_force") private String timeInForce;
@@ -23,7 +26,9 @@ public class RobinhoodOrderResult {
     private List<RobinhoodOrderExecution> executions;
     private String account;
     private String url;
-    @JsonProperty("created_at") private LocalDateTime createdAt;
+    @JsonProperty("created_at")
+    @JsonDeserialize(using = RobinhoodDateTimeDeserializer.class)
+    private LocalDateTime createdAt;
     private String side;               // sell, buy
     private String position;
     @JsonProperty("average_price") private BigDecimal averagePrice;

@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
@@ -30,8 +29,7 @@ public class OrderService {
     private final DB db;
     private final WebSocketHandler wsh;
     private final ObjectMapper objectMapper;
-    private final SortedSet<BuySellOrder> buySellOrdersNeedSound =
-            new ConcurrentSkipListSet<>(Comparator.comparing(BuySellOrder::getId));
+    private final SortedSet<String> orderIdsNeedSound = new ConcurrentSkipListSet<>();
 
     @Value("${username}") private String username;
     @Value("${password}") private String password;
@@ -65,19 +63,20 @@ public class OrderService {
         }
         symbolOrdersMap.values().stream()
                 .flatMap(Collection::stream)
-                .filter(o -> {         // auto cancel buy orders if the price is too high
-                    if ("confirmed".equals(o.getState()) && "buy".equals(o.getSide())
-                            && db.getStock(o.getSymbol()).getPrice().subtract(o.getPrice()).doubleValue() > 0.13) {
-                        db.addCancelledOrderId(o);
-                    }
-                    return true;
-                })
                 .filter(o -> {
-                    BuySellOrder bso = new BuySellOrder(o.getId());
-                    if (o.getState().equals("filled") && buySellOrdersNeedSound.contains(bso)) {
+                    if ("confirmed".equals(o.getState()))  {
+                        if ("buy".equals(o.getSide())  // auto cancel buy orders if the price is too high
+                                && db.getStock(o.getSymbol()).getPrice().subtract(o.getPrice()).doubleValue() > 0.13) {
+                            db.addCancelledOrderId(o);
+                            orderIdsNeedSound.remove(o.getId());
+                        }
+                        else {
+                            orderIdsNeedSound.add(o.getId());
+                        }
+                    }
+                    else if ("filled".equals(o.getState()) && orderIdsNeedSound.contains(o.getId())) {
                         wsh.send("SOUND: " + o.getSide());
-                        buySellOrdersNeedSound.remove(bso);
-                        return false;
+                        orderIdsNeedSound.remove(o.getId());
                     }
                     return true;
                 })
@@ -86,11 +85,7 @@ public class OrderService {
                 .filter(Objects::nonNull)
                 .forEach(bso -> {
                     String filledId = bso.getId();
-                    RobinhoodOrderResult ror = buySell(bso.flip());
-                    if (ror != null && !ror.getState().equals("filled")) {
-                        buySellOrdersNeedSound.add(bso.setId(ror.getId()));
-                    }
-
+                    buySell(bso.flip());
                     db.removeBuySellOrderNeedsFlipped(filledId);
                 });
 
@@ -123,7 +118,7 @@ public class OrderService {
                     }
                     return ror;
                 })
-                .filter(ror -> !"cancelled".equals(ror.getState()))
+                .filter(ror -> !"cancelled".equals(ror.getState()) && !"failed".equals(ror.getState()))
                 .filter(ror -> ror.getCreatedAt().until(now, ChronoUnit.HOURS) < farBackForOrders)
                 .filter(ror -> !db.shouldBeHidden(ror.getId()))
                 .map(this::toOrder)

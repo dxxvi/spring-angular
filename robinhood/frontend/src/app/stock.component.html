@@ -72,18 +72,11 @@
               </table>
             </form>
           </div>
-          <div class="bottom-left">
-            <span class="way-going" [style.display]="isGoingOneWayLongEnough(stock.down.duration)">
-              down for {{ stock.down.duration }}s <sup>{{ stock.down.from }}</sup> <sub>{{ stock.down.to }}</sub>
-            </span>
-            <span class="way-going" [style.display]="isGoingOneWayLongEnough(stock.up.duration)">
-              up for {{ stock.up.duration }}s <sub>{{ stock.up.from }}</sub> <sup>{{ stock.up.to }}</sup>
-            </span>
-          </div>
         </div>
       </td>
       <td class="orders">
         <span [class]="buildOrderClass(order)" *ngFor="let order of stock.orders">
+          <span style="display: none;">state: {{ order.state }}</span>
           {{ order.createdAt }}<br/>{{ order.quantity }} @ {{ order.price }}
           <span class="glyphicon glyphicon-remove remove" (click)="hide(order)"
                 [style.display]="!order.justRemoved && (order.state === 'filled') ? 'inline-block' : 'none'">

@@ -21,13 +21,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -65,7 +59,8 @@ public class QuoteService {
 
         LocalTime _fetchedAt = LocalTime.now();
         if (_fetchedAt.until(Main.OPEN, MINUTES) > 5 || _fetchedAt.until(Main.CLOSE, MINUTES) < 0) {
-            if (_fetchedAt.getSecond() > 4) {
+            int sec = _fetchedAt.getSecond();
+            if ((4 < sec && sec < 30) || (34 < sec && sec < 59)) {
                 return;
             }
         }
@@ -75,7 +70,7 @@ public class QuoteService {
 
         AtomicBoolean missingQuotesToday = new AtomicBoolean(false);
 
-        Collection<Quote> quotes = httpService.quotes(wantedSymbols);
+        Collection<Quote> quotes = httpService.quotes(wantedSymbols).stream().filter(Objects::nonNull).collect(toList());
 
         if (_fetchedAt.isAfter(LocalTime.of(17, 0))) {  // fluctuate the price because I'm testing
             quotes.forEach(q -> {

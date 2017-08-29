@@ -12,7 +12,7 @@ public class Order implements Serializable {
     private int quantity;
     private BigDecimal price;
     private String symbol;
-    private String state;              // filled, confirmed
+    private String state;              // filled, confirmed, failed
     private String side;               // sell, buy
     @JsonSerialize(using = RobinhoodDateTimeSerializer.class) private LocalDateTime createdAt;
 

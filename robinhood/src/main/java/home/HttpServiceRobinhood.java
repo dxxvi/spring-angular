@@ -161,7 +161,16 @@ public class HttpServiceRobinhood implements HttpService {
                     .header("Authorization", "Token " + loginToken)
                     .build();
             ResponseEntity<String> response = restTemplate.exchange(request, String.class);
-            return objectMapper.readValue(response.getBody(), RobinhoodOrdersResult.class);
+            RobinhoodOrdersResult rosr = objectMapper.readValue(response.getBody(), RobinhoodOrdersResult.class);
+            rosr.getResults().forEach(ror -> {
+                if (ror.getUpdatedAt() != null) {
+                    ror.setUpdatedAt(ror.getUpdatedAt().plusHours(Utils.robinhoodAndMyTimeDifference()));
+                }
+                if (ror.getCreatedAt() != null) {
+                    ror.setCreatedAt(ror.getCreatedAt().plusHours(Utils.robinhoodAndMyTimeDifference()));
+                }
+            });
+            return rosr;
         }
         catch (Exception ex) {
             throw new RuntimeException("Unable to get orders", ex);
