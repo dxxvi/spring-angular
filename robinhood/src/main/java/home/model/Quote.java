@@ -1,11 +1,9 @@
 package home.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import home.RobinhoodDateTimeDeserializer;
-import home.RobinhoodDateTimeSerializer;
 import home.RobinhoodTimeDeserializer;
 import home.RobinhoodTimeSerializer;
 
@@ -17,7 +15,10 @@ import static java.time.format.DateTimeFormatter.*;
 public class Quote {
     @JsonProperty(value = "symbol") private String symbol;
     @JsonProperty(value = "last_trade_price") private BigDecimal price;
-    @JsonProperty(value = "updated_at") private LocalDateTime updatedAt;
+
+    @JsonProperty(value = "updated_at")
+    @JsonDeserialize(using = RobinhoodDateTimeDeserializer.class)
+    private LocalDateTime updatedAt;
     private String instrument;         // I think this instrument url is mapped 1:1 to the symbol
 
     @JsonDeserialize(using = RobinhoodTimeDeserializer.class)
