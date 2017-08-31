@@ -81,7 +81,13 @@ public class OrderService {
                     return true;
                 })
                 .filter(o -> "filled".equals(o.getState()))
-                .map(o -> db.getBuySellOrderNeedsFlipped(o.getId()))
+                .map(o -> {
+                    BuySellOrder bso = db.getBuySellOrderNeedsFlipped(o.getId());
+                    if (bso != null) {
+                        bso.setQuantity(o.getQuantity());
+                    }
+                    return bso;
+                })
                 .filter(Objects::nonNull)
                 .forEach(bso -> {
                     String filledId = bso.getId();
