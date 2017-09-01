@@ -21,32 +21,14 @@ public class Quote {
     private LocalDateTime updatedAt;
     private String instrument;         // I think this instrument url is mapped 1:1 to the symbol
 
-    @JsonDeserialize(using = RobinhoodTimeDeserializer.class)
-    @JsonSerialize(using = RobinhoodTimeSerializer.class)
-    private LocalTime from;
-
-    @JsonDeserialize(using = RobinhoodTimeDeserializer.class)
-    @JsonSerialize(using = RobinhoodTimeSerializer.class)
-    private LocalTime to;
-
     public Quote() {
     }
 
-    public Quote(String symbol, BigDecimal price, String instrument, LocalTime from, LocalTime to) {
+    public Quote(String symbol, BigDecimal price, LocalDateTime updatedAt, String instrument) {
         this.symbol = symbol;
         this.price = price;
+        this.updatedAt = updatedAt;
         this.instrument = instrument;
-        this.from = from;
-        this.to = to;
-    }
-
-    public LocalTime getTo() {
-        return to;
-    }
-
-    public Quote setTo(LocalTime to) {
-        this.to = to;
-        return this;
     }
 
     public String getSymbol() {
@@ -81,27 +63,14 @@ public class Quote {
         this.instrument = instrument;
     }
 
-    public LocalTime getFrom() {
-        return from;
-    }
-
-    public Quote setFrom(LocalTime from) {
-        this.from = from;
-        return this;
-    }
-
     @Override public String toString() {
-        return String.format("{\"symbol\":\"%s\",\"price\":%-6.2f,\"updatedAt\":\"%s\",\"from\":\"%s\",\"to\":\"%s\"}",
+        return String.format("{\"symbol\":\"%s\",\"price\":%-6.2f,\"updatedAt\":\"%s\"}",
                 symbol, price,
-                updatedAt == null ? null : updatedAt.format(ISO_LOCAL_DATE_TIME),
-                from == null ? null : from.format(ISO_LOCAL_TIME),
-                to == null ? null : to.format(ISO_LOCAL_TIME));
+                updatedAt == null ? null : updatedAt.format(ISO_LOCAL_DATE_TIME));
     }
 
     public Quote clone() {
-        Quote q = new Quote(symbol, price, instrument, from, to);
-        q.setUpdatedAt(updatedAt);
-        return q;
+        return new Quote(symbol, price, updatedAt, instrument);
     }
 }
 

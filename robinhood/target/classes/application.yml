@@ -1,0 +1,7 @@
+logging:
+  level:
+    home: debug
+  pattern:
+    console: "%clr(%d{HH:mm:ss.SSS}){faint} %clr(%5p) %clr(${PID:- }){magenta} %clr([%9.9t]){faint} %clr(%40.40C{39}){cyan} %clr(:){faint} %m%n"
+
+far-back-for-orders: 33

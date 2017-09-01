@@ -88,11 +88,7 @@ public class DB {
     public Stream<Tuple2<String, LinkedList<Quote>>> getStocksToDrawGraphs() {
         return stocks.stream().map(stock -> {
             LinkedList<Quote> quotes = stock.getQuotes().stream()
-                    .filter(q -> q.getFrom().getSecond() % 15 == 0)
-                    .map(q -> {
-                        Quote _q = q.clone();
-                        return q.getTo().getSecond() % 15 == 0 ? _q : _q.setTo(_q.getFrom().plusSeconds(15));
-                    })
+                    .map(Quote::clone)
                     .collect(LinkedList<Quote>::new, LinkedList::add, LinkedList::addAll);
             return new Tuple2<>(stock.getSymbol(), quotes);
         });

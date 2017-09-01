@@ -23,10 +23,10 @@ import java.util.stream.Stream;
 public class Main {
     private final Logger logger = LoggerFactory.getLogger(Main.class);
 
-    static final LocalTime OPEN  = LocalTime.of(9, 30, 3);
+    static final LocalTime OPEN  = LocalTime.of(9, 30, 0);
     static final LocalTime CLOSE = LocalTime.of(15, 59, 55);
-    private static final int graphWidth = 360;
-    public static final int graphHeight = 75;
+    public static final long graphWidth = 1560;  // 15 seconds is 1 pixel
+    public static final int graphHeight = 402;
 
     public static void main(String[] args) {
         if (Stream.of(args).noneMatch(a -> a.startsWith("--username="))
@@ -41,7 +41,7 @@ public class Main {
         ObjectMapper objectMapper = ac.getBean(ObjectMapper.class);
         WebSocketHandler wsh = ac.getBean(WebSocketHandler.class);
 
-        new QuotesReadyThread(db, graphWidth, graphHeight, wsh, objectMapper).start();
+        new QuotesReadyThread(db, (int)graphWidth, graphHeight, wsh, objectMapper).start();
 
         HttpService httpService = ac.getBean(HttpService.class);
         Environment environment = ac.getEnvironment();

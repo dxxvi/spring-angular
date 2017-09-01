@@ -34,8 +34,6 @@ public class HttpServiceLocal implements HttpService {
                     Quote q = new Quote();
                     q.setSymbol(s);
                     q.setPrice(randomQuotePrice());
-                    q.setFrom(now);
-                    q.setTo(now.plusSeconds(30));
                     return q;
                 })
                 .collect(toList());

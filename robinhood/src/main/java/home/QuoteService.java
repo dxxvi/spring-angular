@@ -80,8 +80,6 @@ public class QuoteService {
         }
         boolean createGraph = sec % 15 == 0;
 
-        final LocalTime fetchedAt = roundSecond(_fetchedAt, 5);
-
         AtomicBoolean missingQuotesToday = new AtomicBoolean(false);
 
         Collection<Quote> quotes = httpService.quotes(wantedSymbols).stream().filter(Objects::nonNull).collect(toList());
@@ -95,7 +93,6 @@ public class QuoteService {
         }
 
         quotes.forEach(q -> {
-            q.setFrom(fetchedAt).setTo(fetchedAt.plusSeconds(5));
             db.updateInstrumentSymbol(q.getInstrument(), q.getSymbol());
             Stock stock = db.addStock(new Stock(q.getSymbol(), q.getInstrument()));
             stock.addQuote(q);
@@ -112,8 +109,7 @@ public class QuoteService {
             if (firstQuote != null
                     && !missingQuotesToday.get()
                     && !isTodayWeekend()
-                    && firstQuote.getFrom().isAfter(LocalTime.of(9, 40, 0))
-                    && firstQuote.getTo().isBefore(LocalTime.of(15, 59, 0))) {
+                    && firstQuote.getUpdatedAt().toLocalTime().isAfter(LocalTime.of(9, 40, 0))) {
                 missingQuotesToday.set(true);
             }
 
@@ -176,15 +172,6 @@ public class QuoteService {
 */
 
         db.quotesReady(createGraph);
-    }
-
-    private LocalTime roundSecond(LocalTime t, int n) {
-        for (int i = 1; i <= 60 / n; i++) {
-            if (t.get(ChronoField.SECOND_OF_MINUTE) < n*i) {
-                return t.withSecond(n * (i - 1));
-            }
-        }
-        return t.withSecond(60 / n * n);
     }
 
     private boolean isTodayWeekend() {

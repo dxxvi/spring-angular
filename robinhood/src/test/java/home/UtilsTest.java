@@ -9,6 +9,9 @@ import org.junit.Test;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import static java.nio.file.StandardOpenOption.*;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -26,9 +29,21 @@ import static java.util.stream.Collectors.groupingBy;
 
 public class UtilsTest {
     @Test public void drawGraph() throws IOException {
-        TimeZone timeZone = Calendar.getInstance().getTimeZone();
-        System.out.println("Number of hours we need to add to Robinhood time to get our time: " +
-                (timeZone.getRawOffset() + timeZone.getDSTSavings()) / 3600 / 1000);
+        Random random = new Random();
+        LinkedList<Quote> quotes = new LinkedList<>();
+        LocalDateTime now = LocalDateTime.of(2017,1,1,9,30, 0);
+        double price = 13;
+        for (int i = 0; i < 290; i++) {
+            LocalDateTime _now = now.plusSeconds(random.nextInt(6) + 1);
+            quotes.add(new Quote(null, new BigDecimal(price + 2*random.nextDouble()), now, null));
+            now = _now;
+        }
+
+        byte[] bytes = Utils.drawGraph((int)Main.graphWidth, Main.graphHeight, quotes);
+        long start = System.currentTimeMillis();
+        for (int i = 1; i <10; i ++)
+            Files.write(Paths.get("/dev/shm/test.png"), bytes, CREATE, TRUNCATE_EXISTING);
+        System.out.println(System.currentTimeMillis() - start);
     }
 
     @Test public void f() {

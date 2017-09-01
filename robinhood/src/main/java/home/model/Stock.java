@@ -37,27 +37,7 @@ public class Stock extends StockDO {
         }
         else {
             Quote lastQ = quotes.peek();
-            if (lastQ.getPrice().equals(q.getPrice()) && lastQ.getTo().equals(q.getFrom())) {
-                lastQ.setTo(q.getTo());
-            }
-            else {
-                quotes.add(q);
-            }
-        }
-
-        recalculateDayMinMax(q);
-    }
-
-    public void prependQuote(Quote q) {
-        if (quotes == null) {
-            quotes = new ConcurrentLinkedQueue<>(Collections.singleton(q));
-        }
-        else {
-            Quote firstQ = getFirstQuoteOfDay();
-            if (firstQ.getPrice().equals(q.getPrice()) && q.getTo().equals(firstQ.getFrom())) {
-                firstQ.setFrom(q.getFrom());
-            }
-            else {
+            if (!lastQ.getUpdatedAt().equals(q.getUpdatedAt())) {
                 quotes.add(q);
             }
         }
@@ -117,7 +97,8 @@ public class Stock extends StockDO {
         BigDecimal max = BigDecimal.valueOf(Double.MIN_VALUE);
         Quote lastQuote = _quotes.pollLast();
         Quote q = lastQuote;
-        while (q != null && q.getUpdatedAt() != null && q.getFrom().until(lastQuote.getTo(), ChronoUnit.SECONDS) < 601) {
+        while (q != null && q.getUpdatedAt() != null
+                && q.getUpdatedAt().until(lastQuote.getUpdatedAt(), ChronoUnit.SECONDS) < 601) {
             min = min.compareTo(q.getPrice()) > 0 ? q.getPrice() : min;
             max = max.compareTo(q.getPrice()) < 0 ? q.getPrice() : max;
             q = _quotes.pollLast();
@@ -154,7 +135,8 @@ public class Stock extends StockDO {
             }
         }
 
-        Going result = new Going(tail.getFrom().until(head.getTo(), ChronoUnit.SECONDS), tail.getPrice(), head.getPrice());
+        Going result = new Going(tail.getUpdatedAt().until(head.getUpdatedAt(), ChronoUnit.SECONDS),
+                tail.getPrice(), head.getPrice());
 /*
         logger.debug("going down: tail: {}, debugList:\n{}\nresult: {}", tail, debugList.stream()
                 .map(q -> String.format("%s | %s | %s",
@@ -197,7 +179,8 @@ public class Stock extends StockDO {
             }
         }
 
-        Going result = new Going(tail.getFrom().until(head.getTo(), ChronoUnit.SECONDS), tail.getPrice(), head.getPrice());
+        Going result = new Going(tail.getUpdatedAt().until(head.getUpdatedAt(), ChronoUnit.SECONDS),
+                tail.getPrice(), head.getPrice());
 /*
         logger.debug("going up: tail: {}, debugList:\n{}\nresult: {}", tail, debugList.stream()
                 .map(q -> String.format("%s | %s | %s",
