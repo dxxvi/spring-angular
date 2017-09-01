@@ -30,7 +30,7 @@ public abstract class Utils {
     static byte[] drawGraph(int width, int height, LinkedList<Quote> _quotes) {
         LinkedList<Quote> quotes = new LinkedList<>(_quotes);
         int n = quotes.size();
-        if (n < 3) return null;
+        if (n < 3) return new byte[0];
 
         double[] x = new double[n], y = new double[n];
         double xmin = Main.OPEN.until(quotes.peekFirst().getUpdatedAt().toLocalTime(), ChronoUnit.SECONDS);

@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import static java.nio.file.StandardOpenOption.*;
+import static java.time.LocalDateTime.*;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -31,19 +32,16 @@ public class UtilsTest {
     @Test public void drawGraph() throws IOException {
         Random random = new Random();
         LinkedList<Quote> quotes = new LinkedList<>();
-        LocalDateTime now = LocalDateTime.of(2017,1,1,9,30, 0);
-        double price = 13;
-        for (int i = 0; i < 290; i++) {
-            LocalDateTime _now = now.plusSeconds(random.nextInt(6) + 1);
-            quotes.add(new Quote(null, new BigDecimal(price + 2*random.nextDouble()), now, null));
-            now = _now;
-        }
+        quotes.add(new Quote(null, new BigDecimal(8.23), of(2017, 9, 1, 15, 16, 0), null));
+        quotes.add(new Quote(null, new BigDecimal(8.235), of(2017, 9, 1, 15, 16, 4), null));
+        quotes.add(new Quote(null, new BigDecimal(8.235), of(2017, 9, 1, 15, 16, 11), null));
+        quotes.add(new Quote(null, new BigDecimal(8.235), of(2017, 9, 1, 15, 16, 17), null));
+        quotes.add(new Quote(null, new BigDecimal(8.235), of(2017, 9, 1, 15, 16, 23), null));
+        quotes.add(new Quote(null, new BigDecimal(8.24), of(2017, 9, 1, 15, 16, 31), null));
+        quotes.add(new Quote(null, new BigDecimal(8.235), of(2017, 9, 1, 15, 16, 36), null));
 
         byte[] bytes = Utils.drawGraph((int)Main.graphWidth, Main.graphHeight, quotes);
-        long start = System.currentTimeMillis();
-        for (int i = 1; i <10; i ++)
-            Files.write(Paths.get("/dev/shm/test.png"), bytes, CREATE, TRUNCATE_EXISTING);
-        System.out.println(System.currentTimeMillis() - start);
+        Files.write(Paths.get("/dev/shm/test.png"), bytes, CREATE, TRUNCATE_EXISTING);
     }
 
     @Test public void f() {

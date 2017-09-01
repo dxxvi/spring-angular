@@ -36,8 +36,14 @@ public class Stock extends StockDO {
             quotes = new ConcurrentLinkedQueue<>(Collections.singleton(q));
         }
         else {
-            Quote lastQ = quotes.peek();
-            if (!lastQ.getUpdatedAt().equals(q.getUpdatedAt())) {
+            Quote lastQ = new LinkedList<>(quotes).getLast();
+            int h1 = lastQ.getUpdatedAt().getHour();
+            int m1 = lastQ.getUpdatedAt().getMinute();
+            int s1 = lastQ.getUpdatedAt().getSecond();
+            int h2 = q.getUpdatedAt().getHour();
+            int m2 = q.getUpdatedAt().getMinute();
+            int s2 = q.getUpdatedAt().getSecond();
+            if (h1 != h2 || m1 != m2 || s1 != s2) {
                 quotes.add(q);
             }
         }

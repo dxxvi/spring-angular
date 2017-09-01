@@ -78,7 +78,6 @@ public class QuoteService {
                 return;
             }
         }
-        boolean createGraph = sec % 15 == 0;
 
         AtomicBoolean missingQuotesToday = new AtomicBoolean(false);
 
@@ -171,7 +170,7 @@ public class QuoteService {
         }
 */
 
-        db.quotesReady(createGraph);
+        db.quotesReady(true);
     }
 
     private boolean isTodayWeekend() {
