@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import home.RobinhoodDateTimeDeserializer;
+import home.RobinhoodDateTimeSerializer;
 import home.RobinhoodTimeDeserializer;
 import home.RobinhoodTimeSerializer;
 
@@ -18,6 +19,7 @@ public class Quote {
 
     @JsonProperty(value = "updated_at")
     @JsonDeserialize(using = RobinhoodDateTimeDeserializer.class)
+    @JsonSerialize(using = RobinhoodDateTimeSerializer.ForQuote.class)
     private LocalDateTime updatedAt;
     private String instrument;         // I think this instrument url is mapped 1:1 to the symbol
 
