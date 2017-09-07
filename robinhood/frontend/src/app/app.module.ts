@@ -19,7 +19,7 @@ import { HttpClientModule } from '@angular/common/http';
     BrowserModule,
     FormsModule,
     HttpClientModule,
-    ToastyModule.forRoot()
+    ToastyModule.forRoot(),
   ],
   providers: [WebsocketService],
   bootstrap: [AppComponent]

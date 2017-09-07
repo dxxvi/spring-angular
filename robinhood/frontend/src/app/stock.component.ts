@@ -1,7 +1,9 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, Output } from '@angular/core';
 import { BuySellOrder, Order, StockDO } from './model';
 import { LogLevel, Message } from './model2';
 import { WebsocketService } from './websocket.service';
+import * as Highcharts from 'highcharts';
+import {Color, Gradient} from "highcharts";
 
 @Component({
   selector: 'stock',
@@ -27,7 +29,167 @@ export class StockComponent {
   resellDelta: number;
   wait = false;
 
-  constructor(private wsService: WebsocketService) {
+  private dayChart: any;
+  private minuteChart: any;
+
+  constructor(private wsService: WebsocketService, private el: ElementRef) {
+    const hc1 = el.nativeElement.querySelector('div.highchart.whole-day');
+    const hc2 = el.nativeElement.querySelector('div.highchart.last-minutes');
+    if (hc1 !== undefined) {
+      const y: Color = Highcharts.getOptions().colors[0];
+      const x: Gradient = Highcharts.Color(y);
+      this.dayChart = Highcharts.chart(hc1, {
+        chart: {
+          zoomType: 'x'
+        },
+        credits: {
+          enabled: false
+        },
+        title: {
+          text: null
+        },
+        subtitle: {
+          text: null
+        },
+        xAxis: {
+          type: 'datetime'
+        },
+        yAxis: {
+          title: {
+            text: null
+          }
+        },
+        legend: {
+          enabled: false
+        },
+        plotOptions: {
+          area: {
+            fillColor: {
+              linearGradient: {
+                x1: 0,
+                y1: 0,
+                x2: 0,
+                y2: 1
+              },
+              stops: [
+                [0, y],
+                [1, x.setOpacity(0).get('rgba')]
+              ]
+            },
+            marker: {
+              radius: 2
+            },
+            lineWidth: 1,
+            states: {
+              hover: {
+                lineWidth: 1
+              }
+            },
+            threshold: null
+          }
+        },
+
+        series: [{
+          type: 'area',
+          data: [
+            [Date.UTC(2017, 9, 1, 9, 30, 0), 13.1300],
+            [Date.UTC(2017, 9, 1, 9, 30, 5), 13.12],
+            [Date.UTC(2017, 9, 1, 9, 30, 10), 13.12],
+            [Date.UTC(2017, 9, 1, 9, 30, 14), 13.11],
+            [Date.UTC(2017, 9, 1, 9, 30, 17), 13.11],
+            [Date.UTC(2017, 9, 1, 9, 30, 22), 13.115],
+            [Date.UTC(2017, 9, 1, 9, 30, 28), 13.115],
+            [Date.UTC(2017, 9, 1, 9, 30, 31), 13.13],
+            [Date.UTC(2017, 9, 1, 9, 30, 35), 13.11],
+            [Date.UTC(2017, 9, 1, 9, 30, 39), 13.125],
+            [Date.UTC(2017, 9, 1, 9, 30, 42), 13.14],
+            [Date.UTC(2017, 9, 1, 9, 30, 48), 13.14],
+            [Date.UTC(2017, 9, 1, 9, 30, 52), 13.155],
+            [Date.UTC(2017, 9, 1, 9, 30, 55), 13.17],
+            [Date.UTC(2017, 9, 1, 9, 31, 1), 13.19],
+            [Date.UTC(2017, 9, 1, 9, 31, 4), 13.19],
+            [Date.UTC(2017, 9, 1, 9, 31, 8), 13.2],
+            [Date.UTC(2017, 9, 1, 9, 31, 14), 13.22],
+            [Date.UTC(2017, 9, 1, 9, 31, 19), 13.22],
+            [Date.UTC(2017, 9, 1, 9, 31, 22), 13.215],
+            [Date.UTC(2017, 9, 1, 9, 31, 26), 13.21],
+            [Date.UTC(2017, 9, 1, 9, 31, 31), 13.19],
+            [Date.UTC(2017, 9, 1, 9, 31, 35), 13.19],
+            [Date.UTC(2017, 9, 1, 9, 31, 39), 13.195],
+            [Date.UTC(2017, 9, 1, 9, 31, 45), 13.18],
+            [Date.UTC(2017, 9, 1, 9, 31, 48), 13.175]
+          ]
+        }]
+      });
+    }
+    if (hc2 != undefined) {
+      const y: Color = Highcharts.getOptions().colors[0];
+      const x: Gradient = Highcharts.Color(y);
+      this.minuteChart = Highcharts.chart(hc2, {
+        chart: {
+          zoomType: 'x'
+        },
+        credits: {
+          enabled: false
+        },
+        title: {
+          text: null
+        },
+        subtitle: {
+          text: null
+        },
+        xAxis: {
+          type: 'datetime'
+        },
+        yAxis: {
+          title: {
+            text: null
+          }
+        },
+        legend: {
+          enabled: false
+        },
+        plotOptions: {
+          area: {
+            fillColor: {
+              linearGradient: {
+                x1: 0,
+                y1: 0,
+                x2: 0,
+                y2: 1
+              },
+              stops: [
+                [0, y],
+                [1, x]
+              ]
+            },
+            marker: {
+              radius: 2
+            },
+            lineWidth: 1,
+            states: {
+              hover: {
+                lineWidth: 1
+              }
+            },
+            threshold: null
+          }
+        },
+
+        series: [{
+          type: 'area',
+          data: [
+            [Date.UTC(2017, 9, 1, 9, 30, 0), 13.1300],
+            [Date.UTC(2017, 9, 1, 9, 30, 5), 13.12],
+            [Date.UTC(2017, 9, 1, 9, 30, 10), 13.12],
+            [Date.UTC(2017, 9, 1, 9, 30, 14), 13.11],
+            [Date.UTC(2017, 9, 1, 9, 30, 17), 13.11],
+            [Date.UTC(2017, 9, 1, 9, 30, 22), 13.115],
+            [Date.UTC(2017, 9, 1, 9, 30, 28), 13.115]
+          ]
+        }]
+      });
+    }
   }
 
   @Input() set closeBuySellBoxFor(_symbol: string) {

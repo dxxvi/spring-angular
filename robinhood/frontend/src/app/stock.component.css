@@ -1,17 +1,12 @@
-td.symbol { width: 3.8em; border-bottom: 1px solid #ccc; }
-td.symbol .position { color: #666; font-size: 82%; }
+td.symbol { width: 15em; vertical-align: top; }
+.position { color: #666; font-size: 82%; }
 
-td.min-max { width: 7.2em; }
-td.min-max .plus-minus { color: rgba(33,33,33,.19); cursor: pointer; }
-td.min-max span.day-week-min-max { width: 3.55em; text-align: right; display: inline-block; }
+.plus-minus { color: rgba(33,33,33,.19); cursor: pointer; }
 
-td.graph { width: 1px; border-bottom: 1px solid #FFF; }
-td.graph input { opacity: .7; padding-left: 4px; padding-right: 4px; }
-td.graph .btn-xs { opacity: .69; }
-td.graph label { opacity: .41; }
-td.graph div.last5mins-min-max { font-size: 90%; color: rgba(41,82,194,.82); padding-right: 1.5em; text-align: right; }
-td.graph p.price { text-align: right; padding-right: .3em; margin-top: .7em; margin-bottom: .7em; }
-td.graph span.way-going { color: rgba(19,119,19,.75); padding-left: 2em; }
+td.graph input { opacity: .8; padding-left: 4px; padding-right: 4px; }
+td.graph .btn-xs { opacity: .72; }
+td.graph label { opacity: .51; }
+td.graph p.price { padding-right: .3em; }
 
 td.orders::after { display: block; content: ''; clear: both; }
 td.orders .order .glyphicon-remove { position: absolute; top: 4px; font-size: 2.4em; cursor: pointer; }
@@ -37,3 +32,8 @@ span.plus-minus { vertical-align: middle; }
 span.price-percentage { display: inline-block; vertical-align: middle; color: #666; font-size: 82%; }
 
 
+div.highchart { width: 800px; }
+div.whole-day { height: 82px; }
+div.last-minutes { height: 241px; }
+
+.table > tbody > tr > td { border-top: 0; }

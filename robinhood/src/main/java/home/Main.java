@@ -23,8 +23,8 @@ import java.util.stream.Stream;
 public class Main {
     private final Logger logger = LoggerFactory.getLogger(Main.class);
 
-    static final LocalTime OPEN  = LocalTime.of(9, 30, 0);
-    static final LocalTime CLOSE = LocalTime.of(15, 59, 55);
+    static final LocalTime OPEN  = LocalTime.of(7, 0, 0);
+    static final LocalTime CLOSE = LocalTime.of(14, 59, 55);
     public static final long graphWidth = 1560;  // 15 seconds is 1 pixel
     public static final int graphHeight = 402;
 

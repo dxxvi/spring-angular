@@ -2,51 +2,57 @@
   <tbody>
     <tr>
       <td class="symbol">
-        <div [style.height]="graphHeight" style="position: relative;">
-          <div class="top-left">
-            {{ stock.symbol }}
-            <div class="position" *ngIf="stock.quantity">
-              {{ stock.quantity }} @ {{ stock.averageBuyPrice }}<br/>
-              held: {{ stock.heldForSells }}
-            </div>
-          </div>
-        </div>
-      </td>
-      <td class="min-max">
-        <div [style.height]="graphHeight" style="position: relative; text-align: right;">
-          <div class="top-right small">
-            <span class="day-week-min-max">{{ stock.day5Max }}</span>
-            <span class="day-week-min-max">{{ stock.dayMax }}</span>
-          </div>
-          <div class="bottom-right small">
-            <span class="day-week-min-max">{{ stock.day5Min }}</span>
-            <span class="day-week-min-max">{{ stock.dayMin }}</span>
-          </div>
-          <span class="aligner"></span>
-          <span class="price-percentage">
-            5days &lt; {{ stock.weekPercentage }}%<br/>
-            today &lt; {{ stock.dayPercentage }}%
-          </span>
-          <span class="glyphicon glyphicon-plus plus-minus"
-                [style.display]="buySellOpen ? 'none' : 'inline-block'" (click)="toggleBuySellOpen()"></span>
-          <span class="glyphicon glyphicon-minus plus-minus"
-                [style.display]="buySellOpen ? 'inline-block' : 'none'" (click)="toggleBuySellOpen()"></span>
-        </div>
+        <table class="table">
+          <tr>
+            <td title="5 days max" style="padding-left: 0;">{{ stock.day5Max }}</td>
+            <td title="today max" style="background-color: #eee;">{{ stock.dayMax }}</td>
+            <td title="20mins max">{{ stock.last5minsMax }}</td>
+          </tr>
+          <tr>
+            <td colspan="3" style="padding-left: 0; padding-right: 0;">
+              <table class="table">
+                <tr>
+                  <td style="padding-left: 0;">
+                    {{ stock.symbol }}
+                    <div class="position" *ngIf="stock.quantity">
+                      {{ stock.quantity }} @ {{ stock.averageBuyPrice }}<br/>
+                      held: {{ stock.heldForSells }}
+                    </div>
+                  </td>
+                  <td style="padding-right: 0; text-align: right;">
+                    <span class="aligner"></span>
+                    <span class="price-percentage">
+                      5days &lt; {{ stock.weekPercentage }}%
+                      <br/><br/>
+                      today &lt; {{ stock.dayPercentage }}%
+                    </span>
+                    <span class="glyphicon glyphicon-plus plus-minus"
+                          [style.display]="buySellOpen ? 'none' : 'inline-block'" (click)="toggleBuySellOpen()"></span>
+                    <span class="glyphicon glyphicon-minus plus-minus"
+                          [style.display]="buySellOpen ? 'inline-block' : 'none'" (click)="toggleBuySellOpen()"></span>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td title="5 days min" style="padding-left: 0;">{{ stock.day5Min }}</td>
+            <td title="today min" style="background-color: #eee;">{{ stock.dayMin }}</td>
+            <td title="20mins min">{{ stock.last5minsMax }}</td>
+          </tr>
+        </table>
       </td>
       <td class="graph">
         <div style="position: relative;">
-          <img [src]="stock.graphUrl" width="780" [style.height]="graphHeight"/>
-          <div class="top-right">
-            <div class="last5mins-min-max">{{ stock.last5minsMax}}</div>
-            <p class="price">{{ stock.price }}</p>
-            <div class="last5mins-min-max">{{ stock.last5minsMin}}</div>
-          </div>
+          <div class="highchart whole-day"></div>
+          <div class="highchart last-minutes"></div>
+          <div class="top-right"><p class="price">{{ stock.price }}</p></div>
           <div class="top-left">
-            <form class="form-inline" [style.display]="buySellOpen ? 'block' : 'none'">
-              <table>
+            <form class="" [style.display]="buySellOpen ? 'block' : 'none'">
+              <table class="table">
                 <tr>
                   <td>
-                    <button class="btn btn-warning btn-xs" (click)="buy()">Buy</button>
+                    <button class="btn btn-warning btn-sm" (click)="buy()">Buy</button>
                     <input class="form-control input-sm" style="width: 3em; text-align: center;"
                            [(ngModel)]="numberOfSharesToTrade" [ngModelOptions]="{standalone: true}"/>
                   </td>
@@ -55,18 +61,22 @@
                     <input class="form-control input-sm" style="width: 3.9em;" [(ngModel)]="priceToTrade"
                            [ngModelOptions]="{standalone: true}"/>
                   </td>
-                  <td><button class="btn btn-primary btn-xs" (click)="sell()">Sell</button></td>
+                  <td><button class="btn btn-primary btn-sm" (click)="sell()">Sell</button></td>
                   <td><label>Wait?</label></td>
                 </tr>
                 <tr>
-                  <td><label>Re-sell/buy? <input type="checkbox" [(ngModel)]="resell" [ngModelOptions]="{standalone: true}"></label></td>
+                  <td>
+                    <label>Re-sell/buy?</label>
+                    <input type="checkbox" [(ngModel)]="resell" [ngModelOptions]="{standalone: true}">
+                  </td>
                   <td style="text-align: right;">
                     <label [style.display]="resell ? 'inline-block' : 'none'">&plusmn; $</label>
                   </td>
-                  <td colspan="2">
+                  <td>
                     <input class="form-control input-sm" style="width: 3.9em;"  [(ngModel)]="resellDelta"
                            [style.display]="resell ? 'inline-block' : 'none'" [ngModelOptions]="{standalone: true}"/>
                   </td>
+                  <td></td>
                   <td><input type="checkbox" [(ngModel)]="wait" [ngModelOptions]="{standalone: true}"/></td>
                 </tr>
               </table>
