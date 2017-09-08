@@ -18,6 +18,7 @@ public class StockDO {
     private BigDecimal last5minsMax;
     private Going down;
     private Going up;
+    private int[] updatedAt = new int[6];
 
     public StockDO() {}
     public StockDO(String symbol, String instrument) {
@@ -28,7 +29,8 @@ public class StockDO {
     public StockDO(String symbol, String instrument, BigDecimal price, BigDecimal dayMin, BigDecimal dayMax,
                    BigDecimal day5Min, BigDecimal day5Max, List<Order> orders, int dayPercentage,
                    BigDecimal last5minsMin, BigDecimal last5minsMax,
-                   Going down, Going up) {
+                   Going down, Going up,
+                   int year, int month, int day, int hour, int minute, int second) {
         this.symbol = symbol;
         this.instrument = instrument;
         this.price = price;
@@ -42,6 +44,12 @@ public class StockDO {
         this.last5minsMax = last5minsMax;
         this.down = down;
         this.up   = up;
+        updatedAt[0] = year;
+        updatedAt[1] = month;
+        updatedAt[2] = day;
+        updatedAt[3] = hour;
+        updatedAt[4] = minute;
+        updatedAt[5] = second;
     }
 
     @Override public boolean equals(Object o) {
@@ -143,5 +151,9 @@ public class StockDO {
 
     public Going getUp() {
         return up;
+    }
+
+    public int[] getUpdatedAt() {
+        return updatedAt;
     }
 }

@@ -88,6 +88,11 @@ public class HttpServiceRobinhood implements HttpService {
                         });
                         i++;
                     }
+                    else {
+                        quotes.forEach(q -> {
+                            q.setUpdatedAt(q.getUpdatedAt().plusHours(Utils.robinhoodAndMyTimeDifference()));
+                        });
+                    }
                     return quotes;
                 }
                 else {

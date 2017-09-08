@@ -17,6 +17,7 @@ export interface StockDO {
   last5minsMax: number;
   down: Going;
   up: Going;
+  updatedAt: number[];
 }
 
 export interface Going {

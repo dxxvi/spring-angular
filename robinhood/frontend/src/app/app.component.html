@@ -1,6 +1,6 @@
 <div class="container-fluid">
     <div *ngFor="let stock of stocks">
-      <stock [stock]="stock" [graphHeight]="graphHeight"
+      <stock [_stock]="stock" [graphHeight]="graphHeight"
              [closeBuySellBoxFor]="closeBuySellBoxFor"
              (message)="messageHandler($event)"
              (buySellOrder)="buySellOrderHandler($event)">

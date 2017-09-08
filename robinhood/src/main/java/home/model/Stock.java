@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
@@ -24,11 +25,11 @@ public class Stock extends StockDO {
         super(symbol, instrument);
     }
 
-    public BigDecimal getPrice() {
+    public Quote getLatestQuote() {
         if (quotes == null || quotes.isEmpty()) {
             return null;
         }
-        return new LinkedList<>(quotes).peekLast().getPrice();
+        return new LinkedList<>(quotes).peekLast();
     }
 
     public void addQuote(Quote q) {
@@ -45,6 +46,7 @@ public class Stock extends StockDO {
             int s2 = q.getUpdatedAt().getSecond();
             if (h1 != h2 || m1 != m2 || s1 != s2) {
                 quotes.add(q);
+                price = q.getPrice();
             }
         }
 
@@ -77,7 +79,9 @@ public class Stock extends StockDO {
     }
 
     @Override public int getDayPercentage() {
-        BigDecimal price = getPrice();
+        if (price == null) {
+            return 0;
+        }
         long n = quotes.stream().filter(q -> price.compareTo(q.getPrice()) < 0).count();
         return Math.round((float)n / (float)(quotes.size()) * 100f);
     }
@@ -89,9 +93,12 @@ public class Stock extends StockDO {
             last5minsMin = minMaxLast5Mins._1;
             last5minsMax = minMaxLast5Mins._2;
         }
-        return new StockDO(symbol, instrument, getPrice(), dayMin, dayMax, day5Min, day5Max, orders,
+        Quote latestQuote = getLatestQuote();
+        LocalDateTime ua = latestQuote.getUpdatedAt();
+        return new StockDO(symbol, instrument, latestQuote.getPrice(), dayMin, dayMax, day5Min, day5Max, orders,
                 getDayPercentage(), last5minsMin, last5minsMax,
-                _getDown(), _getUp());
+                _getDown(), _getUp(),
+                ua.getYear(), ua.getMonthValue(), ua.getDayOfMonth(), ua.getHour(), ua.getMinute(), ua.getSecond());
     }
 
     private Tuple2<BigDecimal, BigDecimal> getMinMaxLast15Mins() {

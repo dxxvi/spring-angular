@@ -32,8 +32,8 @@ span.plus-minus { vertical-align: middle; }
 span.price-percentage { display: inline-block; vertical-align: middle; color: #666; font-size: 82%; }
 
 
-div.highchart { width: 800px; }
+div.highchart { width: 400px; }
 div.whole-day { height: 82px; }
-div.last-minutes { height: 241px; }
+div.last-minutes { height: 82px; }
 
 .table > tbody > tr > td { border-top: 0; }
