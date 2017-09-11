@@ -1,9 +1,8 @@
-import {Component, ElementRef, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { BuySellOrder, Order, StockDO } from './model';
 import { LogLevel, Message } from './model2';
 import { WebsocketService } from './websocket.service';
 import * as Highcharts from 'highcharts';
-import {Color, Gradient} from "highcharts";
 
 @Component({
   selector: 'stock',
@@ -41,15 +40,6 @@ export class StockComponent implements OnInit {
       if (a.length > 0 && a[0] === this.stock.symbol) {
         this.buySellOpen = false;
       }
-    }
-  }
-
-  @Input() set _stock(stock: StockDO) {
-    this.stock = stock;
-    if (this.dayChart != null) {
-      this.dayChart.series[0].addPoint([Date.UTC(
-        stock.updatedAt[0], stock.updatedAt[1], stock.updatedAt[2],
-        stock.updatedAt[3], stock.updatedAt[4], stock.updatedAt[5]), stock.price]);
     }
   }
 
@@ -217,8 +207,8 @@ export class StockComponent implements OnInit {
   ngOnInit(): void {
     const hc1 = this.el.nativeElement.querySelector('div.highchart.whole-day');
     const hc2 = this.el.nativeElement.querySelector('div.highchart.last-minutes');
-    if (hc1 !== undefined) {
-      this.dayChart = Highcharts.chart(hc1, {
+    if (hc2 != undefined) {
+      this.minuteChart = Highcharts.chart(hc2, {
         credits: { enabled: false },
         plotOptions: {
           area: {
@@ -244,7 +234,20 @@ export class StockComponent implements OnInit {
         }]
       });
     }
-    if (hc2 != undefined) {
+  }
+
+  @Input() set priceChange(price: Array<number>) {
+    const t = Date.UTC(price[0], price[1], price[2], price[3], price[4], price[5]);
+    if (this.dayChart != null) {
+      this.dayChart.series[0].addPoint([t, price[6]]);
+    }
+    if (this.minuteChart != null) {
+      const series = this.minuteChart.series[0];
+      const a = series.data;
+      if (a.length > 0 && a[0].x + 300000 < t) {
+        series.removePoint(0, false);
+      }
+      series.addPoint([t, price[6]]);
     }
   }
 }

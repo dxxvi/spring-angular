@@ -157,7 +157,6 @@ export class AppComponent {
         oldStock.down = stock.down;
         oldStock.up   = stock.up;
         oldStock.updatedAt = stock.updatedAt;
-        console.log(stock.symbol + ' ' + stock.price + ' ' + stock.updatedAt);
       }
     });
   }

@@ -9,9 +9,9 @@ td.graph label { opacity: .51; }
 td.graph p.price { padding-right: .3em; }
 
 td.orders::after { display: block; content: ''; clear: both; }
-td.orders .order .glyphicon-remove { position: absolute; top: 4px; font-size: 2.4em; cursor: pointer; }
-td.orders .order .glyphicon-remove.remove { left:  4px; color: rgba(0,194,10,.35); }
-td.orders .order .glyphicon-remove.cancel { right: 4px; color: rgba(255,82,0,.41); }
+td.orders .order .fa-times { position: absolute; top: 4px; font-size: 2.4em; cursor: pointer; }
+td.orders .order .fa-times.remove { left:  4px; color: rgba(0,194,10,.35); }
+td.orders .order .fa-times.cancel { right: 4px; color: rgba(255,82,0,.41); }
 td.orders .order { border: 2px solid #fff; border-radius: 6px; padding: 0 4px; display: inline-block; position: relative; }
 td.orders .order.buy.not-confirmed { background: linear-gradient(to right, #FCC, #FCC 33%, #FFF 34%); border: 1px solid #FCC; }
 td.orders .order.buy.confirmed { background: linear-gradient(to right, #FCC, #FCC 66%, #FFF 67%); border: 1px solid #FCC; }
@@ -28,12 +28,13 @@ div.top-left { position: absolute; top: 0; left: 0; }
 div.bottom-left { position: absolute; bottom: 0; left: 0; }
 
 span.aligner { height: 100%; width: 2px; display: inline-block; vertical-align: middle; }
-span.plus-minus { vertical-align: middle; }
+i.plus-minus { vertical-align: middle; }
 span.price-percentage { display: inline-block; vertical-align: middle; color: #666; font-size: 82%; }
 
 
-div.highchart { width: 400px; }
+div.highchart { width: 500px; }
 div.whole-day { height: 82px; }
-div.last-minutes { height: 82px; }
+div.last-minutes { height: 194px; }
 
-.table > tbody > tr > td { border-top: 0; }
+.table > tbody > tr > td { border-top: 0; padding-top: 0; padding-bottom: 0; }
+form.buy-sell button { opacity: .5; }

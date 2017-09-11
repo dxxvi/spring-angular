@@ -73,23 +73,17 @@ public class QuoteService {
 
         LocalTime _fetchedAt = LocalTime.now();
         int sec = _fetchedAt.getSecond();
+/*
         if (_fetchedAt.until(Main.OPEN, MINUTES) > 5 || _fetchedAt.until(Main.CLOSE, MINUTES) < 0) {
             if ((4 < sec && sec < 30) || (34 < sec && sec < 59)) {
                 return;
             }
         }
+*/
 
         AtomicBoolean missingQuotesToday = new AtomicBoolean(false);
 
         Collection<Quote> quotes = httpService.quotes(wantedSymbols).stream().filter(Objects::nonNull).collect(toList());
-
-        if (_fetchedAt.isAfter(LocalTime.of(17, 0))) {  // fluctuate the price because I'm testing
-            quotes.forEach(q -> {
-                String s = String.format("%s0.%02d", random.nextBoolean() ? "-" : "", random.nextInt(20));
-                BigDecimal price = q.getPrice().add(new BigDecimal(s));
-                q.setPrice(price);
-            });
-        }
 
         quotes.forEach(q -> {
             db.updateInstrumentSymbol(q.getInstrument(), q.getSymbol());

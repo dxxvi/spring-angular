@@ -1,24 +1,20 @@
 <div class="container-fluid">
-    <div *ngFor="let stock of stocks">
-      <stock [_stock]="stock" [graphHeight]="graphHeight"
-             [closeBuySellBoxFor]="closeBuySellBoxFor"
-             (message)="messageHandler($event)"
-             (buySellOrder)="buySellOrderHandler($event)">
-      </stock>
-    </div>
+    <stock *ngFor="let stock of stocks" [stock]="stock"
+           [priceChange]="[stock.updatedAt[0], stock.updatedAt[1], stock.updatedAt[2], stock.updatedAt[3], stock.updatedAt[4], stock.updatedAt[5], stock.price]"
+           [graphHeight]="graphHeight"
+           [closeBuySellBoxFor]="closeBuySellBoxFor"
+           (message)="messageHandler($event)"
+           (buySellOrder)="buySellOrderHandler($event)">
+    </stock>
 </div>
 <ng2-toasty></ng2-toasty>
 
 <div class="container-fluid" style="position: relative;">
-  <div style="position: absolute; top: 0; right: 0;">
-    <span class="glyphicon glyphicon-chevron-down"  [style.display]="utilsOpen ? 'none'  : 'block'"
-          style="cursor: pointer;"
-          (click)="utilsOpen = !utilsOpen"></span>
-    <span class="glyphicon glyphicon-chevron-up"    [style.display]="utilsOpen ? 'block' : 'none'"
-          style="cursor: pointer;"
-          (click)="utilsOpen = !utilsOpen"></span>
+  <div class="control">
+    <i class="fa fa-caret-down" [style.display]="utilsOpen ? 'none'  : 'block'" (click)="utilsOpen = !utilsOpen"></i>
+    <i class="fa fa-caret-up"   [style.display]="utilsOpen ? 'block' : 'none'"  (click)="utilsOpen = !utilsOpen"></i>
   </div>
-  <div class="row" [style.display]="utilsOpen ? 'block' : 'none'">
+  <div class="row" [style.display]="utilsOpen ? 'flex' : 'none'">
     <div class="col-xs-3 col-sm-2 col-md-1"><label>Test Sound</label></div>
     <div class="col-xs-3 col-sm-2 col-md-1">
       <button class="btn btn-default" (click)="play('buy')">Play buy</button>
@@ -32,7 +28,7 @@
              class="form-control" style="width: auto;"/>
     </div>
   </div>
-  <div class="row" [style.display]="utilsOpen ? 'block' : 'none'">
+  <div class="row" [style.display]="utilsOpen ? 'flex' : 'none'">
     <div class="col-xs-4 col-sm-4 col-md-3 col-lg-2">
       <button class="btn btn-default" (click)="clearHiddenOrderIds()">Clear hidden Order ID's</button>
     </div>
@@ -43,7 +39,7 @@
       <button class="btn btn-default" (click)="setFarBackForOrders()">Send</button>
     </div>
   </div>
-  <div class="row" [style.display]="utilsOpen ? 'block' : 'none'">
+  <div class="row" [style.display]="utilsOpen ? 'flex' : 'none'">
     <div class="col-xs-1">
       <button class="btn btn-default" (click)="writeDbToJson()">Stop</button>
     </div>

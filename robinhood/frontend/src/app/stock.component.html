@@ -26,10 +26,10 @@
                       <br/><br/>
                       today &lt; {{ stock.dayPercentage }}%
                     </span>
-                    <span class="glyphicon glyphicon-plus plus-minus"
-                          [style.display]="buySellOpen ? 'none' : 'inline-block'" (click)="toggleBuySellOpen()"></span>
-                    <span class="glyphicon glyphicon-minus plus-minus"
-                          [style.display]="buySellOpen ? 'inline-block' : 'none'" (click)="toggleBuySellOpen()"></span>
+                    <i class="fa fa-window-maximize plus-minus"
+                          [style.display]="buySellOpen ? 'none' : 'inline-block'" (click)="toggleBuySellOpen()"></i>
+                    <i class="fa fa-window-minimize plus-minus"
+                          [style.display]="buySellOpen ? 'inline-block' : 'none'" (click)="toggleBuySellOpen()"></i>
                   </td>
                 </tr>
               </table>
@@ -38,22 +38,22 @@
           <tr>
             <td title="5 days min" style="padding-left: 0;">{{ stock.day5Min }}</td>
             <td title="today min" style="background-color: #eee;">{{ stock.dayMin }}</td>
-            <td title="20mins min">{{ stock.last5minsMax }}</td>
+            <td title="20mins min">{{ stock.last5minsMin }}</td>
           </tr>
         </table>
       </td>
       <td class="graph">
         <div style="position: relative;">
-          <div class="highchart whole-day"></div>
+          <!--div class="highchart whole-day"></div-->
           <div class="highchart last-minutes"></div>
           <div class="top-right"><p class="price">{{ stock.price }}</p></div>
           <div class="top-left">
-            <form class="" [style.display]="buySellOpen ? 'block' : 'none'">
+            <form class="buy-sell" [style.display]="buySellOpen ? 'block' : 'none'">
               <table class="table">
                 <tr>
                   <td>
-                    <button class="btn btn-warning btn-sm" (click)="buy()">Buy</button>
-                    <input class="form-control input-sm" style="width: 3em; text-align: center;"
+                    <button class="btn btn-warning" (click)="buy()">Buy</button>
+                    <input class="form-control input-sm" style="width: 3em; text-align: center; display: inline-block;"
                            [(ngModel)]="numberOfSharesToTrade" [ngModelOptions]="{standalone: true}"/>
                   </td>
                   <td style="text-align: right;"><label>@ $</label></td>
@@ -61,7 +61,7 @@
                     <input class="form-control input-sm" style="width: 3.9em;" [(ngModel)]="priceToTrade"
                            [ngModelOptions]="{standalone: true}"/>
                   </td>
-                  <td><button class="btn btn-primary btn-sm" (click)="sell()">Sell</button></td>
+                  <td><button class="btn btn-primary" (click)="sell()">Sell</button></td>
                   <td><label>Wait?</label></td>
                 </tr>
                 <tr>
@@ -88,12 +88,12 @@
         <span [class]="buildOrderClass(order)" *ngFor="let order of stock.orders">
           <span style="display: none;">state: {{ order.state }}</span>
           {{ order.createdAt }}<br/>{{ order.quantity }} @ {{ order.price }}
-          <span class="glyphicon glyphicon-remove remove" (click)="hide(order)"
+          <i class="fa fa-times remove" (click)="hide(order)"
                 [style.display]="!order.justRemoved && (order.state === 'filled') ? 'inline-block' : 'none'">
-          </span>
-          <span class="glyphicon glyphicon-remove cancel" (click)="cancel(order)"
+          </i>
+          <i class="fa fa-times cancel" (click)="cancel(order)"
                 [style.display]="!order.justCancelled && (order.state !== 'filled') ? 'inline-block' : 'none'">
-          </span>
+          </i>
         </span>
       </td>
     </tr>
