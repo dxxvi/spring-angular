@@ -200,8 +200,6 @@ public class DB {
         return patientBuySellOrders.computeIfAbsent(symbol, k -> new HashSet<>());
     }
 
-
-
     public void addBuySellOrderNeedsFlipped(BuySellOrder bso) {
         if (bso.getId() == null) {
             throw new RuntimeException("buySellOrder id is null: " + bso);

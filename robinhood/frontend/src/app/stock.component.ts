@@ -3,6 +3,7 @@ import { BuySellOrder, Order, StockDO } from './model';
 import { LogLevel, Message } from './model2';
 import { WebsocketService } from './websocket.service';
 import * as Highcharts from 'highcharts';
+import {Gradient} from "highcharts";
 
 @Component({
   selector: 'stock',
@@ -11,7 +12,6 @@ import * as Highcharts from 'highcharts';
 })
 export class StockComponent implements OnInit {
   @Input() stock: StockDO;
-  @Input() graphHeight: string;
 
   // this message check if we enter the valid numbers when buying or selling. Nothing to do with the server.
   @Output() message: EventEmitter<Message> = new EventEmitter();
@@ -27,6 +27,8 @@ export class StockComponent implements OnInit {
   resell = false;
   resellDelta: number;
   wait = false;
+  graphKeepingDuration: number;        // in milliseconds
+  @Input() i: number;                  // to get different colors for different stocks
 
   private dayChart: any;
   private minuteChart: any;
@@ -204,7 +206,16 @@ export class StockComponent implements OnInit {
     return null;
   }
 
+  private hexToRGBA(hex: string|Gradient, opacity: number): string {
+    if (typeof hex === 'string') {
+      const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      return 'rgba(' + parseInt(result[1], 16) + ', ' + parseInt(result[2], 16) + ', ' + parseInt(result[3], 16) +
+        ', ' + opacity + ')';
+    }
+    return 'rgba(255, 255, 255, 0)';
+  }
   ngOnInit(): void {
+    const colorIndex = this.i % Highcharts.getOptions().colors.length;
     const hc1 = this.el.nativeElement.querySelector('div.highchart.whole-day');
     const hc2 = this.el.nativeElement.querySelector('div.highchart.last-minutes');
     if (hc2 != undefined) {
@@ -212,14 +223,17 @@ export class StockComponent implements OnInit {
         credits: { enabled: false },
         plotOptions: {
           area: {
-            marker: {
-              radius: 1
+            fillColor: {
+              linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+              stops: [
+                [0, Highcharts.getOptions().colors[colorIndex]],
+                [1, this.hexToRGBA(Highcharts.getOptions().colors[colorIndex], 0)]
+              ]
             },
+            marker: { radius: 1 },
             lineWidth: 1,
             states: {
-              hover: {
-                lineWidth: 1
-              }
+              hover: { lineWidth: 1 }
             },
             threshold: null
           }
@@ -230,24 +244,37 @@ export class StockComponent implements OnInit {
         legend: { enabled: false },
         series: [{
           type: 'area',
+          color: Highcharts.getOptions().colors[colorIndex],
           data: []
         }]
       });
     }
   }
 
-  @Input() set priceChange(price: Array<number>) {
-    const t = Date.UTC(price[0], price[1], price[2], price[3], price[4], price[5]);
+  @Input() set priceChange(neverUsed: number) {
+    const t = Date.UTC(this.stock.updatedAt[0], this.stock.updatedAt[1], this.stock.updatedAt[2],
+      this.stock.updatedAt[3], this.stock.updatedAt[4], this.stock.updatedAt[5]);
     if (this.dayChart != null) {
-      this.dayChart.series[0].addPoint([t, price[6]]);
+      this.dayChart.series[0].addPoint([t, this.stock.updatedAt[6]]);
     }
     if (this.minuteChart != null) {
-      const series = this.minuteChart.series[0];
-      const a = series.data;
-      if (a.length > 0 && a[0].x + 300000 < t) {
-        series.removePoint(0, false);
+      while (true) {
+        const series = this.minuteChart.series[0];
+        const a = series.data;
+        if (a.length > 0 && a[0].x + this.graphKeepingDuration < t) {
+          series.removePoint(0, false);
+          continue;
+        }
+        break;
       }
-      series.addPoint([t, price[6]]);
+      this.minuteChart.series[0].addPoint([t, this.stock.price]);
+    }
+  }
+
+  @Input() set _graphKeepingDuration(graphKeepingDuration: number) {
+    const a = parseInt('' + graphKeepingDuration);
+    if (!isNaN(a)) {
+      this.graphKeepingDuration = a * 60 * 1000;
     }
   }
 }

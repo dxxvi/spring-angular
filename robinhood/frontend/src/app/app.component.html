@@ -1,7 +1,7 @@
 <div class="container-fluid">
-    <stock *ngFor="let stock of stocks" [stock]="stock"
-           [priceChange]="[stock.updatedAt[0], stock.updatedAt[1], stock.updatedAt[2], stock.updatedAt[3], stock.updatedAt[4], stock.updatedAt[5], stock.price]"
-           [graphHeight]="graphHeight"
+    <stock *ngFor="let stock of stocks" [i]="index" [stock]="stock"
+           [priceChange]="timestamp"
+           [_graphKeepingDuration]="graphKeepingDuration"
            [closeBuySellBoxFor]="closeBuySellBoxFor"
            (message)="messageHandler($event)"
            (buySellOrder)="buySellOrderHandler($event)">
@@ -15,32 +15,37 @@
     <i class="fa fa-caret-up"   [style.display]="utilsOpen ? 'block' : 'none'"  (click)="utilsOpen = !utilsOpen"></i>
   </div>
   <div class="row" [style.display]="utilsOpen ? 'flex' : 'none'">
-    <div class="col-xs-3 col-sm-2 col-md-1"><label>Test Sound</label></div>
-    <div class="col-xs-3 col-sm-2 col-md-1">
+    <div class="col-sm-2 col-md-1"><label>Test Sound</label></div>
+    <div class="col-sm-2 col-md-1">
       <button class="btn btn-default" (click)="play('buy')">Play buy</button>
     </div>
-    <div class="col-xs-3 col-sm-2 col-md-1">
+    <div class="col-sm-2 col-md-1">
       <button class="btn btn-default" (click)="play('sell')">Play sell</button>
     </div>
-    <div class="col-xs-3 col-sm-2 col-md-1 form-inline">
+    <div class="col-sm-2 col-md-1 form-inline">
       <label for="nosound">No sound</label>
       <input type="checkbox" id="nosound" [(ngModel)]="nosound" [ngModelOptions]="{standalone: true}"
              class="form-control" style="width: auto;"/>
     </div>
   </div>
   <div class="row" [style.display]="utilsOpen ? 'flex' : 'none'">
-    <div class="col-xs-4 col-sm-4 col-md-3 col-lg-2">
+    <div class="col-sm-4 col-md-3 col-lg-2">
       <button class="btn btn-default" (click)="clearHiddenOrderIds()">Clear hidden Order ID's</button>
     </div>
-    <div class="col-xs-8 form-inline">
-      <label>Far back for Orders</label>
-      <input type="text" [(ngModel)]="farBackForOrders" [ngModelOptions]="{standalone: true}"
-             class="form-control" style="width: auto;">
+    <div class="col-sm-8 form-inline">
+      <label>Far back for Orders &nbsp;</label>
+      <input type="number" [(ngModel)]="farBackForOrders" [ngModelOptions]="{standalone: true}"
+             class="form-control" style="width: 4.2em;">
       <button class="btn btn-default" (click)="setFarBackForOrders()">Send</button>
     </div>
   </div>
   <div class="row" [style.display]="utilsOpen ? 'flex' : 'none'">
-    <div class="col-xs-1">
+    <div class="col-sm-11 form-inline">
+      <label>Keep the graphs for the last {{ graphKeepingDuration }} minutes &nbsp;</label>
+      <input type="number" [(ngModel)]="graphKeepingDuration" [ngModelOptions]="{standalone: true}"
+             class="form-control" style="width: 4.2em;">
+    </div>
+    <div class="col-sm-1">
       <button class="btn btn-default" (click)="writeDbToJson()">Stop</button>
     </div>
   </div>

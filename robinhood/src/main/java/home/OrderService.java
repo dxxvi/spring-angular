@@ -65,7 +65,9 @@ public class OrderService {
                 .flatMap(Collection::stream)
                 .filter(o -> {
                     if ("confirmed".equals(o.getState()))  {
-                        if ("buy".equals(o.getSide())  // auto cancel buy orders if the price is too high
+                        if ("buy".equals(o.getSide())
+                                && db.getStock(o.getSymbol()).getPrice() != null
+                                // auto cancel buy orders if the price is too high
                                 && db.getStock(o.getSymbol()).getPrice().subtract(o.getPrice()).doubleValue() > 0.13) {
                             db.addCancelledOrderId(o);
                             orderIdsNeedSound.remove(o.getId());

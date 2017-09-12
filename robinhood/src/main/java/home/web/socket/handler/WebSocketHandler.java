@@ -29,9 +29,8 @@ public class WebSocketHandler extends TextWebSocketHandler {
     }
 
     @Override public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        logger.debug("Quote websocket connection established, send it the graph height.");
+        logger.debug("Quote websocket connection established.");
         this.session = session;
-        send("GRAPH HEIGHT: " + Main.graphHeight);
     }
 
     @Override public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {

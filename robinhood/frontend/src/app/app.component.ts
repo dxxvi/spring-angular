@@ -12,12 +12,13 @@ import { ToastData, ToastOptions, ToastyConfig, ToastyService } from 'ng2-toasty
 })
 export class AppComponent {
   stocks: Array<StockDO> = [];
-  graphHeight = '20px';
   // the same value is sent to all stock components which check if this value is the same as the symbol in that component
   closeBuySellBoxFor: string;
   nosound = true;
   farBackForOrders = 33;
   utilsOpen = false;
+  timestamp = 0;
+  graphKeepingDuration = 10;  // in minutes
 
   constructor(private wsService: WebsocketService, private http: HttpClient,
               private toastyService: ToastyService, private toastyConfig: ToastyConfig) {
@@ -33,14 +34,12 @@ export class AppComponent {
           else {
             this.update(this.stocks, newStocks);
           }
+          this.timestamp = new Date().getTime();
         }
         else if (data.indexOf('GRAPHS: ') === 0) {
           const newTime = new Date().getTime();
           this.stocks.forEach(stock =>
             stock.graphUrl = '/graph/' + stock.symbol + '?' + newTime);
-        }
-        else if (data.indexOf('GRAPH HEIGHT: ') === 0) {
-          this.graphHeight = data.replace('GRAPH HEIGHT: ', '') + 'px';
         }
         else if (data.indexOf('ORDERS: ') === 0) {
           const symbolOrdersMap = JSON.parse(data.replace('ORDERS: ', ''));
