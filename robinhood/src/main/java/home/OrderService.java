@@ -66,6 +66,9 @@ public class OrderService {
                 .filter(o -> {
                     if ("confirmed".equals(o.getState()))  {
                         if ("buy".equals(o.getSide())
+                                // the following will be null if no such symbol in wanted-symbols but there are orders
+                                //   for that symbol
+                                && db.getStock(o.getSymbol()) != null
                                 && db.getStock(o.getSymbol()).getPrice() != null
                                 // auto cancel buy orders if the price is too high
                                 && db.getStock(o.getSymbol()).getPrice().subtract(o.getPrice()).doubleValue() > 0.13) {

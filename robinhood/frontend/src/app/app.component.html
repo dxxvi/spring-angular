@@ -1,5 +1,5 @@
 <div class="container-fluid">
-    <stock *ngFor="let stock of stocks" [i]="index" [stock]="stock"
+    <stock *ngFor="let stock of stocks; let i = index" [i]="i" [stock]="stock"
            [priceChange]="timestamp"
            [_graphKeepingDuration]="graphKeepingDuration"
            [closeBuySellBoxFor]="closeBuySellBoxFor"

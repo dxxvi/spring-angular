@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 
+import javax.annotation.PostConstruct;
 import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -39,14 +40,18 @@ public class QuoteService {
     private final Random random = new Random();
     private final DB db;
     private final HttpService httpService;
+    private final ObjectMapper objectMapper;
 
     @Value("${wanted-symbols}") private String wantedSymbols;
     @Value("${path-to-memory}") private String pathToMemory;
 
-    public QuoteService(HttpService httpService, DB db, OrderService orderService, ObjectMapper objectMapper) {
+    public QuoteService(HttpService httpService, DB db, ObjectMapper objectMapper) {
         this.httpService = httpService;
         this.db = db;
+        this.objectMapper = objectMapper;
+    }
 
+    @PostConstruct public void postConstruct() {
         try {
             String s = Files.readAllLines(Paths.get(pathToMemory)).stream().collect(joining());
             List<Stock> stocks = objectMapper.readValue(s, new TypeReference<List<Stock>>() {});

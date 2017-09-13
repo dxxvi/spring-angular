@@ -28,10 +28,11 @@ public class RobinhoodDateTimeSerializer {
     }
 
     public static class ForQuote extends JsonSerializer<LocalDateTime> {
+        private final DateTimeFormatter DTF3 = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
         @Override
         public void serialize(LocalDateTime x, JsonGenerator jsonGenerator,
                               SerializerProvider serializerProvider) throws IOException, JsonProcessingException {
-            jsonGenerator.writeString(x.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+            jsonGenerator.writeString(x.format(DTF3));
         }
     }
 }

@@ -18,7 +18,7 @@ export class AppComponent {
   farBackForOrders = 33;
   utilsOpen = false;
   timestamp = 0;
-  graphKeepingDuration = 10;  // in minutes
+  graphKeepingDuration = 20;  // in minutes
 
   constructor(private wsService: WebsocketService, private http: HttpClient,
               private toastyService: ToastyService, private toastyConfig: ToastyConfig) {
@@ -212,6 +212,7 @@ export class AppComponent {
   }
 
   private writeDbToJson() {
+    console.log('app.component.ts: writeDbToJson');
     this.http.get('/utils/write-db-to-json')
       .subscribe(data => {
         console.log(data)

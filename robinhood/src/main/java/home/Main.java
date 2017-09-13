@@ -56,9 +56,8 @@ public class Main {
         return new AuthenticationService(objectMapper);
     }
 
-    @Bean public QuoteService quoteService(HttpService httpService, DB db, OrderService orderService,
-                                           ObjectMapper objectMapper) {
-        return new QuoteService(httpService, db, orderService, objectMapper);
+    @Bean public QuoteService quoteService(HttpService httpService, DB db, ObjectMapper objectMapper) {
+        return new QuoteService(httpService, db, objectMapper);
     }
 
     @Bean public OrderService orderService(DB db, HttpService httpService, WebSocketHandler wsh,

@@ -33,7 +33,7 @@ public class Stock extends StockDO {
     }
 
     public void addQuote(Quote q) {
-        if (quotes == null) {
+        if (quotes == null || quotes.isEmpty()) {
             quotes = new ConcurrentLinkedQueue<>(Collections.singleton(q));
         }
         else {

@@ -18,7 +18,7 @@ public class Quote {
     @JsonProperty(value = "last_trade_price") private BigDecimal price;
 
     @JsonProperty(value = "updated_at")
-    @JsonDeserialize(using = RobinhoodDateTimeDeserializer.class)
+    @JsonDeserialize(using = RobinhoodDateTimeDeserializer.ForQuote.class)
     @JsonSerialize(using = RobinhoodDateTimeSerializer.ForQuote.class)
     private LocalDateTime updatedAt;
     private String instrument;         // I think this instrument url is mapped 1:1 to the symbol

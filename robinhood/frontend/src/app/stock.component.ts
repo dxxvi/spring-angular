@@ -216,6 +216,7 @@ export class StockComponent implements OnInit {
   }
   ngOnInit(): void {
     const colorIndex = this.i % Highcharts.getOptions().colors.length;
+    console.log(this.stock.symbol + ' colorIndex: ' + colorIndex);
     const hc1 = this.el.nativeElement.querySelector('div.highchart.whole-day');
     const hc2 = this.el.nativeElement.querySelector('div.highchart.last-minutes');
     if (hc2 != undefined) {
@@ -244,6 +245,7 @@ export class StockComponent implements OnInit {
         legend: { enabled: false },
         series: [{
           type: 'area',
+          name: this.stock.symbol,
           color: Highcharts.getOptions().colors[colorIndex],
           data: []
         }]
