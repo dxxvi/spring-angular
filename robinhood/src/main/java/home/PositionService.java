@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import home.model.DB;
 import home.model.Position;
+import home.model.Stock;
 import home.web.socket.handler.WebSocketHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +51,15 @@ public class PositionService {
                         db.updateInstrumentSymbol(rpr.getInstrument(), symbol);
                     }
                     position.setSymbol(symbol);
+
+                    Stock stock = db.getStock(symbol);
+                    if (stock != null) {
+                        stock
+                                .setAverageBuyPrice(position.getAverageBuyPrice())
+                                .setHeldForSells(position.getHeldForSells())
+                                .setQuantity(position.getQuantity());
+                    }
+
                     return position;
                 })
                 .collect(toMap(Position::getSymbol, Function.identity()));

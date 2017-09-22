@@ -15,15 +15,7 @@ export interface StockDO {
   dayPercentage: number;
   last5minsMin: number;
   last5minsMax: number;
-  down: Going;
-  up: Going;
   updatedAt: number[];
-}
-
-export interface Going {
-  duration: number;
-  from: number;
-  to: number;
 }
 
 export interface Order {

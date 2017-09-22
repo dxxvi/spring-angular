@@ -16,8 +16,6 @@ public class StockDO {
     int dayPercentage;
     private BigDecimal last5minsMin;
     private BigDecimal last5minsMax;
-    private Going down;
-    private Going up;
     private int[] updatedAt = new int[6];
 
     public StockDO() {}
@@ -29,7 +27,6 @@ public class StockDO {
     public StockDO(String symbol, String instrument, BigDecimal price, BigDecimal dayMin, BigDecimal dayMax,
                    BigDecimal day5Min, BigDecimal day5Max, List<Order> orders, int dayPercentage,
                    BigDecimal last5minsMin, BigDecimal last5minsMax,
-                   Going down, Going up,
                    int year, int month, int day, int hour, int minute, int second) {
         this.symbol = symbol;
         this.instrument = instrument;
@@ -42,8 +39,6 @@ public class StockDO {
         this.dayPercentage = dayPercentage;
         this.last5minsMin = last5minsMin;
         this.last5minsMax = last5minsMax;
-        this.down = down;
-        this.up   = up;
         updatedAt[0] = year;
         updatedAt[1] = month;
         updatedAt[2] = day;
@@ -143,14 +138,6 @@ public class StockDO {
 
     public void setLast5minsMax(BigDecimal last5minsMax) {
         this.last5minsMax = last5minsMax;
-    }
-
-    public Going getDown() {
-        return down;
-    }
-
-    public Going getUp() {
-        return up;
     }
 
     public int[] getUpdatedAt() {

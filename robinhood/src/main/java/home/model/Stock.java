@@ -20,6 +20,10 @@ public class Stock extends StockDO {
     private transient final DateTimeFormatter DTF = DateTimeFormatter.ofPattern("HH:mm:ss");
     private ConcurrentLinkedQueue<Quote> quotes;
 
+    private int heldForSells;
+    private int quantity;
+    private BigDecimal averageBuyPrice;
+
     public Stock() {}
     public Stock(String symbol, String instrument) {
         super(symbol, instrument);
@@ -97,7 +101,6 @@ public class Stock extends StockDO {
         LocalDateTime ua = latestQuote.getUpdatedAt();
         return new StockDO(symbol, instrument, latestQuote.getPrice(), dayMin, dayMax, day5Min, day5Max, orders,
                 getDayPercentage(), last5minsMin, last5minsMax,
-                _getDown(), _getUp(),
                 ua.getYear(), ua.getMonthValue(), ua.getDayOfMonth(), ua.getHour(), ua.getMinute(), ua.getSecond());
     }
 
@@ -119,94 +122,6 @@ public class Stock extends StockDO {
         return new Tuple2<>(min, max);
     }
 
-    private Going _getDown() {
-        if (quotes.isEmpty()) {
-            return new Going(0, null, null);
-        }
-
-        LinkedList<Quote> _quotes = new LinkedList<>(quotes);
-
-        boolean foul = false;
-        Quote head = _quotes.pollLast(), tail = head, _tail;
-
-        List<Quote> debugList = new LinkedList<>(Collections.singleton(head));
-
-        while ((_tail = _quotes.pollLast()) != null) {
-            debugList.add(_tail);
-            if (_tail.getPrice().compareTo(tail.getPrice()) >= 0) {
-                tail = _tail;
-                foul = false;
-            }
-            else if (foul) {
-                break;
-            }
-            else {
-                foul = true;
-                if (_tail.getPrice().compareTo(head.getPrice()) <= 0) {
-                    break;
-                }
-            }
-        }
-
-        Going result = new Going(tail.getUpdatedAt().until(head.getUpdatedAt(), ChronoUnit.SECONDS),
-                tail.getPrice(), head.getPrice());
-/*
-        logger.debug("going down: tail: {}, debugList:\n{}\nresult: {}", tail, debugList.stream()
-                .map(q -> String.format("%s | %s | %s",
-                        q.getFrom().format(DTF),
-                        q.getTo().format(DTF),
-                        q.getPrice())
-                )
-                .collect(joining("\n")), result
-        );
-*/
-        return result;
-    }
-
-    private Going _getUp() {
-        if (quotes.isEmpty()) {
-            return new Going(0, null, null);
-        }
-
-        LinkedList<Quote> _quotes = new LinkedList<>(quotes);
-
-        boolean foul = false;
-        Quote head = _quotes.pollLast(), tail = head, _tail;
-
-        List<Quote> debugList = new LinkedList<>(Collections.singleton(head));
-
-        while ((_tail = _quotes.pollLast()) != null) {
-            debugList.add(_tail);
-            if (_tail.getPrice().compareTo(tail.getPrice()) < 0) {
-                tail = _tail;
-                foul = false;
-            }
-            else if (foul) {
-                break;
-            }
-            else {
-                foul = true;
-                if (_tail.getPrice().compareTo(head.getPrice()) >= 0) {
-                    break;
-                }
-            }
-        }
-
-        Going result = new Going(tail.getUpdatedAt().until(head.getUpdatedAt(), ChronoUnit.SECONDS),
-                tail.getPrice(), head.getPrice());
-/*
-        logger.debug("going up: tail: {}, debugList:\n{}\nresult: {}", tail, debugList.stream()
-                .map(q -> String.format("%s | %s | %s",
-                        q.getFrom().format(DTF),
-                        q.getTo().format(DTF),
-                        q.getPrice())
-                )
-                .collect(joining("\n")), result
-        );
-*/
-        return result;
-    }
-
     @Override
     public String toString() {
         return "Stock {" +
@@ -225,5 +140,32 @@ public class Stock extends StockDO {
         Stock replica = new Stock(symbol, instrument);
         quotes.forEach(replica::addQuote);
         return replica;
+    }
+
+    public int getHeldForSells() {
+        return heldForSells;
+    }
+
+    public Stock setHeldForSells(int heldForSells) {
+        this.heldForSells = heldForSells;
+        return this;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public Stock setQuantity(int quantity) {
+        this.quantity = quantity;
+        return this;
+    }
+
+    public BigDecimal getAverageBuyPrice() {
+        return averageBuyPrice;
+    }
+
+    public Stock setAverageBuyPrice(BigDecimal averageBuyPrice) {
+        this.averageBuyPrice = averageBuyPrice;
+        return this;
     }
 }

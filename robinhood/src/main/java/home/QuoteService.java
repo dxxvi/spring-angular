@@ -172,6 +172,18 @@ public class QuoteService {
         db.quotesReady(true);
     }
 
+    public void removeSymbol(String symbol) {
+        symbol = "," + symbol + ",";
+        String s = ("," + wantedSymbols + ",").replace(symbol, "");
+        if (s.startsWith(",")) {
+            s = s.substring(1);
+        }
+        if (s.endsWith(",")) {
+            s = s.substring(0, s.length() - 1);
+        }
+        wantedSymbols = s;
+    }
+
     private boolean isTodayWeekend() {
         DayOfWeek today = LocalDate.now().getDayOfWeek();
         return today == DayOfWeek.SATURDAY || today == DayOfWeek.SUNDAY;

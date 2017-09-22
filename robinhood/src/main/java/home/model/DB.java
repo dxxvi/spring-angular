@@ -7,11 +7,13 @@ import org.springframework.core.env.Environment;
 import java.math.BigDecimal;
 import static java.util.Comparator.*;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -34,10 +36,10 @@ public class DB {
     private final ConcurrentHashMap<String, Set<BuySellOrder>> patientBuySellOrders = new ConcurrentHashMap<>();
     private final ConcurrentSkipListSet<BuySellOrder> buySellOrdersNeedFlipped;
 
-    private final TreeSet<Stock> stocks;
+    private final ConcurrentSkipListSet<Stock> stocks;
 
     public DB() {
-        this.stocks = new TreeSet<>(comparing(Stock::getSymbol));
+        this.stocks = new ConcurrentSkipListSet<>(comparing(Stock::getSymbol));
         this.buySellOrdersNeedFlipped = new ConcurrentSkipListSet<>(comparing(BuySellOrder::getId));
     }
 
@@ -83,6 +85,13 @@ public class DB {
         }
         stocks.add(stock);
         return stock;
+    }
+
+    public boolean removeStock(String symbol) {
+        Stock fake = new Stock(symbol, null);
+        Stock ceiling = stocks.ceiling(fake);
+        Stock floor   = stocks.floor(fake);
+        return (ceiling == floor) && stocks.remove(fake);
     }
 
     public Stream<Tuple2<String, LinkedList<Quote>>> getStocksToDrawGraphs() {
