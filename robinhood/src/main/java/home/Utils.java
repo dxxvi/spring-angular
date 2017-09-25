@@ -27,10 +27,6 @@ public abstract class Utils {
     private static final Random random = new Random();
     private static int robinhoodAndMyTimeDifference = Integer.MIN_VALUE;
 
-    static byte[] drawGraph(int width, int height, LinkedList<Quote> _quotes) {
-        return new byte[] { 1 };
-    }
-
     static BigDecimal randomQuotePrice() {
         return new BigDecimal(random.nextInt(30) + 10 + "." + random.nextInt(100));
     }

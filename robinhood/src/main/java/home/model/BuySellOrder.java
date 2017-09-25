@@ -20,6 +20,7 @@ public class BuySellOrder {
     private boolean resell;
     private BigDecimal resellDelta;
     private boolean wait;
+    private boolean startAutoRun;
 
     public BuySellOrder() {
     }
@@ -135,6 +136,14 @@ public class BuySellOrder {
         this.wait = wait;
     }
 
+    public boolean isStartAutoRun() {
+        return startAutoRun;
+    }
+
+    public void setStartAutoRun(boolean startAutoRun) {
+        this.startAutoRun = startAutoRun;
+    }
+
     @Override
     public String toString() {
         return "BuySellOrder {" +
@@ -151,6 +160,7 @@ public class BuySellOrder {
                 ", resell=" + resell +
                 ", resellDelta=" + resellDelta +
                 ", wait=" + wait +
+                ", startAutoRun=" + startAutoRun +
                 '}';
     }
 

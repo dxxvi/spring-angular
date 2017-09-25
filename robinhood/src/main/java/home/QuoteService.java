@@ -77,56 +77,53 @@ public class QuoteService {
         }
 
         LocalTime _fetchedAt = LocalTime.now();
-        int sec = _fetchedAt.getSecond();
-/*
-        if (_fetchedAt.until(Main.OPEN, MINUTES) > 5 || _fetchedAt.until(Main.CLOSE, MINUTES) < 0) {
-            if ((4 < sec && sec < 30) || (34 < sec && sec < 59)) {
-                return;
-            }
-        }
-*/
 
         AtomicBoolean missingQuotesToday = new AtomicBoolean(false);
 
         Collection<Quote> quotes = httpService.quotes(wantedSymbols).stream().filter(Objects::nonNull).collect(toList());
 
-        quotes.forEach(q -> {
-            db.updateInstrumentSymbol(q.getInstrument(), q.getSymbol());
-            Stock stock = db.addStock(new Stock(q.getSymbol(), q.getInstrument()));
-            stock.addQuote(q);
+        quotes.stream()
+                .filter(q -> {
+                    LocalTime updatedAt = q.getUpdatedAt().toLocalTime();
+                    return updatedAt.isAfter(Main.OPEN) && updatedAt.isBefore(Main.CLOSE);
+                })
+                .forEach(q -> {
+                    db.updateInstrumentSymbol(q.getInstrument(), q.getSymbol());
+                    Stock stock = db.addStock(new Stock(q.getSymbol(), q.getInstrument()));
+                    stock.addQuote(q);
 
-            if (stock.getDay5Min() == null && db.hasHistoricalQuotes()) {
-                Tuple2<BigDecimal, BigDecimal> weekMinMax = db.getWeekMinMax(q.getSymbol());
-                if (weekMinMax != null) {
-                    stock.setDay5Min(weekMinMax._1());
-                    stock.setDay5Max(weekMinMax._2());
-                }
-            }
-
-            Quote firstQuote = stock.getFirstQuoteOfDay();
-            if (firstQuote != null
-                    && !missingQuotesToday.get()
-                    && !isTodayWeekend()
-                    && firstQuote.getUpdatedAt().toLocalTime().isAfter(LocalTime.of(9, 40, 0))) {
-                missingQuotesToday.set(true);
-            }
-
-            Set<BuySellOrder> patientBuySellOrders = db.gePatienttBuySellOrders(q.getSymbol());
-            patientBuySellOrders.forEach(bso -> {
-                if ("buy".equals(bso.getSide())) {
-                    if (Math.abs(stock.getPrice().subtract(bso.getPrice()).doubleValue()) < 0.04) {
-                        patientBuySellOrders.remove(bso);
-                        db.addBuySellOrder(bso);
+                    if (stock.getDay5Min() == null && db.hasHistoricalQuotes()) {
+                        Tuple2<BigDecimal, BigDecimal> weekMinMax = db.getWeekMinMax(q.getSymbol());
+                        if (weekMinMax != null) {
+                            stock.setDay5Min(weekMinMax._1());
+                            stock.setDay5Max(weekMinMax._2());
+                        }
                     }
-                }
-                else {
-                    if (Math.abs(bso.getPrice().subtract(stock.getPrice()).doubleValue()) < 0.04) {
-                        patientBuySellOrders.remove(bso);
-                        db.addBuySellOrder(bso);
+
+                    Quote firstQuote = stock.getFirstQuoteOfDay();
+                    if (firstQuote != null
+                            && !missingQuotesToday.get()
+                            && !isTodayWeekend()
+                            && firstQuote.getUpdatedAt().toLocalTime().isAfter(Main.OPEN.plusMinutes(10))) {
+                        missingQuotesToday.set(true);
                     }
-                }
-            });
-        });
+
+                    Set<BuySellOrder> patientBuySellOrders = db.gePatienttBuySellOrders(q.getSymbol());
+                    patientBuySellOrders.forEach(bso -> {
+                        if ("buy".equals(bso.getSide())) {
+                            if (Math.abs(stock.getPrice().subtract(bso.getPrice()).doubleValue()) < 0.04) {
+                                patientBuySellOrders.remove(bso);
+                                db.addBuySellOrder(bso);
+                            }
+                        }
+                        else {
+                            if (Math.abs(bso.getPrice().subtract(stock.getPrice()).doubleValue()) < 0.04) {
+                                patientBuySellOrders.remove(bso);
+                                db.addBuySellOrder(bso);
+                            }
+                        }
+                    });
+                });
 
 /*
         if (missingQuotesToday.get()) {  // fill up the missing quotes for today

@@ -14,15 +14,11 @@ public class QuotesReadyThread extends Thread {
     private final Logger logger = LoggerFactory.getLogger(QuotesReadyThread.class);
 
     private final DB db;
-    private final int width;
-    private final int height;
     private final WebSocketHandler wsh;
     private final ObjectMapper objectMapper;
 
-    public QuotesReadyThread(DB db, int width, int height, WebSocketHandler wsh, ObjectMapper objectMapper) {
+    public QuotesReadyThread(DB db, WebSocketHandler wsh, ObjectMapper objectMapper) {
         this.db = db;
-        this.width = width;
-        this.height = height;
         this.wsh = wsh;
         this.objectMapper = objectMapper;
     }
@@ -48,13 +44,6 @@ public class QuotesReadyThread extends Thread {
             }
             catch (JsonProcessingException jpex) {
                 logger.error("Fix me.", jpex);
-            }
-
-            if (createGraph) {
-                db.getStocksToDrawGraphs().forEach(t -> {
-                    db.addGraph(t._1(), Utils.drawGraph(width, height, t._2()));
-                });
-                wsh.send("GRAPHS: ");
             }
         }
     }

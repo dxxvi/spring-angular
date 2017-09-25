@@ -4,6 +4,7 @@ import { LogLevel, Message } from './model2';
 import { WebsocketService } from './websocket.service';
 import * as Highcharts from 'highcharts';
 import {Gradient} from "highcharts";
+import {start} from "repl";
 
 @Component({
   selector: 'stock',
@@ -29,6 +30,7 @@ export class StockComponent implements OnInit {
   wait = false;
   graphKeepingDuration: number;        // in milliseconds
   @Input() i: number;                  // to get different colors for different stocks
+  startAutoRun = false;
 
   private dayChart: any;
   private minuteChart: any;
@@ -77,6 +79,12 @@ export class StockComponent implements OnInit {
       return;
     }
 
+    if (this.startAutoRun) {
+      this.resell = false;
+      this.resellDelta = 0;
+      this.wait = false;
+    }
+
     this.buySellOrder.emit({
       symbol: this.stock.symbol,
       instrument: this.stock.instrument,
@@ -85,7 +93,8 @@ export class StockComponent implements OnInit {
       side: 'buy',
       resell: this.resell,
       resellDelta: this.resellDelta,
-      wait: this.wait
+      wait: this.wait,
+      startAutoRun: this.startAutoRun
     });
   }
 
@@ -104,7 +113,8 @@ export class StockComponent implements OnInit {
       side: 'sell',
       resell: this.resell,
       resellDelta: this.resellDelta,
-      wait: this.wait
+      wait: this.wait,
+      startAutoRun: false
     });
   }
 

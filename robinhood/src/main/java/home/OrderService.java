@@ -105,7 +105,8 @@ public class OrderService {
             List<Order> patientOrders = db.gePatienttBuySellOrders(symbol).stream()
                     .map(bso ->
                             new Order(bso.getId(), bso.getQuantity(), bso.getPrice(),
-                                "patient", bso.getSide(), LocalDateTime.now()).setSymbol(symbol)
+                                "patient", bso.getSide(), LocalDateTime.now(), LocalDateTime.now())
+                                    .setSymbol(symbol)
                     )
                     .collect(toList());
             orders.addAll(patientOrders);

@@ -29,21 +29,6 @@ import java.util.stream.Stream;
 import static java.util.stream.Collectors.groupingBy;
 
 public class UtilsTest {
-    @Test public void drawGraph() throws IOException {
-        Random random = new Random();
-        LinkedList<Quote> quotes = new LinkedList<>();
-        quotes.add(new Quote(null, new BigDecimal(8.23), of(2017, 9, 1, 15, 16, 0), null));
-        quotes.add(new Quote(null, new BigDecimal(8.235), of(2017, 9, 1, 15, 16, 4), null));
-        quotes.add(new Quote(null, new BigDecimal(8.235), of(2017, 9, 1, 15, 16, 11), null));
-        quotes.add(new Quote(null, new BigDecimal(8.235), of(2017, 9, 1, 15, 16, 17), null));
-        quotes.add(new Quote(null, new BigDecimal(8.235), of(2017, 9, 1, 15, 16, 23), null));
-        quotes.add(new Quote(null, new BigDecimal(8.24), of(2017, 9, 1, 15, 16, 31), null));
-        quotes.add(new Quote(null, new BigDecimal(8.235), of(2017, 9, 1, 15, 16, 36), null));
-
-        byte[] bytes = Utils.drawGraph((int)Main.graphWidth, Main.graphHeight, quotes);
-        Files.write(Paths.get("/dev/shm/test.png"), bytes, CREATE, TRUNCATE_EXISTING);
-    }
-
     @Test public void f() {
         LocalDateTime now = LocalDateTime.now();
 

@@ -18,16 +18,21 @@ public class Order implements Serializable {
     @JsonSerialize(using = RobinhoodDateTimeSerializer.ForOrder.class)
     private LocalDateTime createdAt;
 
+    @JsonSerialize(using = RobinhoodDateTimeSerializer.ForOrder.class)
+    private LocalDateTime updatedAt;
+
     public Order() {
     }
 
-    public Order(String id, int quantity, BigDecimal price, String state, String side, LocalDateTime createdAt) {
+    public Order(String id, int quantity, BigDecimal price, String state, String side, LocalDateTime createdAt,
+                 LocalDateTime updatedAt) {
         this.id = id;
         this.quantity = quantity;
         this.price = price;
         this.state = state;
         this.side = side;
         this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
     }
 
     public String getId() {
@@ -85,5 +90,9 @@ public class Order implements Serializable {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
     }
 }

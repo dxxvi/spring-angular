@@ -164,6 +164,7 @@ export class MainComponent implements OnInit {
         oldStock.last5minsMin = stock.last5minsMin;
         oldStock.last5minsMax = stock.last5minsMax;
         oldStock.updatedAt = stock.updatedAt;
+        oldStock.autoRun = stock.autoRun;
       }
     });
   }

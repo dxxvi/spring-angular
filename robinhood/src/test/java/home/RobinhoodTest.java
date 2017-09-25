@@ -17,9 +17,11 @@ import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.function.Consumer;
+import java.util.stream.IntStream;
 
 public class RobinhoodTest {
     @Ignore
@@ -78,5 +80,25 @@ public class RobinhoodTest {
         order.setState("filled");
         order.setSide("buy");
         System.out.println(objectMapper.writeValueAsString(order));
+    }
+
+    @Test public void f() {
+        int N = 1500;
+        int[] amounts = new int[] { 2,  0,  0,  0,  0,  0,  0,  0,  0 };
+        int[] prices  = new int[] { 0, -1, -3, -5, -7, -9, -11, -13, -15 };
+        int[] profits = new int[] { 0, 10,  3,  3,  3,  3,  3,  3,  3 };
+
+        for (int i = 1; i < amounts.length; i++) {
+            int moneySpent = 0;
+            int shares = 0;
+            for (int j = 0; j < i; j++) {
+                moneySpent += amounts[j] * (N + prices[j]);
+                shares += amounts[j];
+            }
+            amounts[i] = moneySpent + profits[i] - shares * (N + prices[i] + 1);
+        }
+        System.out.println(Arrays.toString(amounts) + " " + IntStream.of(amounts).sum() + " shares");
+        System.out.println(Arrays.toString(prices));
+        System.out.println(Arrays.toString(profits));
     }
 }

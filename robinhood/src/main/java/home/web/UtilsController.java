@@ -69,4 +69,14 @@ public class UtilsController {
         }
         return false;
     }
+
+    @GetMapping(path = "/remove-autorun")
+    public String removeAutoRun(@RequestParam String symbol) {
+        Stock stock = db.getStock(symbol);
+        if (stock == null) {
+            return "Unable to find stock for symbol " + symbol;
+        }
+        stock.setAutoRun(false);
+        return "Removed autoRun for " + symbol;
+    }
 }

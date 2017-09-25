@@ -44,7 +44,6 @@
       </td>
       <td class="graph">
         <div style="position: relative;">
-          <!--div class="highchart whole-day"></div-->
           <div class="highchart last-minutes"></div>
           <div class="top-right"><p class="price">{{ stock.price }}</p></div>
           <div class="top-left">
@@ -52,7 +51,7 @@
               <table class="table">
                 <tr>
                   <td>
-                    <button class="btn btn-warning" (click)="buy()">Buy</button>
+                    <button class="btn btn-warning" (click)="buy()" [disabled]="stock.autoRun">Buy</button>
                     <input class="form-control input-sm" style="width: 3em; text-align: center; display: inline-block;"
                            [(ngModel)]="numberOfSharesToTrade" [ngModelOptions]="{standalone: true}"/>
                   </td>
@@ -64,9 +63,9 @@
                   <td><button class="btn btn-primary" (click)="sell()">Sell</button></td>
                   <td><label>Wait?</label></td>
                 </tr>
-                <tr>
+                <tr *ngIf="!startAutoRun">
                   <td>
-                    <label>Re-sell/buy?</label>
+                    <label>Flip?</label>
                     <input type="checkbox" [(ngModel)]="resell" [ngModelOptions]="{standalone: true}">
                   </td>
                   <td style="text-align: right;">
@@ -78,6 +77,13 @@
                   </td>
                   <td></td>
                   <td><input type="checkbox" [(ngModel)]="wait" [ngModelOptions]="{standalone: true}"/></td>
+                </tr>
+                <tr *ngIf="!stock.autoRun">
+                  <td><label>Start autoRun?</label></td>
+                  <td><input type="checkbox" [(ngModel)]="startAutoRun" [ngModelOptions]="{standalone: true}"></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
                 </tr>
               </table>
             </form>

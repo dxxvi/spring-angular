@@ -16,6 +16,7 @@ export interface StockDO {
   last5minsMin: number;
   last5minsMax: number;
   updatedAt: number[];
+  autoRun: boolean;
 }
 
 export interface Order {
@@ -25,6 +26,7 @@ export interface Order {
   state: string;
   side: string;
   createdAt: string;
+  updatedAt: string;
   justRemoved: boolean;                // true means I just clicked the blue X to not see this order on browser
   justCancelled: boolean;              // true means I just clicked the pink X to cancel this order
 }
@@ -38,4 +40,5 @@ export interface BuySellOrder {
   resell: boolean;
   resellDelta: number;
   wait: boolean;
+  startAutoRun: boolean;
 }

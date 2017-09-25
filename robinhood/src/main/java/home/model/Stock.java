@@ -101,7 +101,8 @@ public class Stock extends StockDO {
         LocalDateTime ua = latestQuote.getUpdatedAt();
         return new StockDO(symbol, instrument, latestQuote.getPrice(), dayMin, dayMax, day5Min, day5Max, orders,
                 getDayPercentage(), last5minsMin, last5minsMax,
-                ua.getYear(), ua.getMonthValue(), ua.getDayOfMonth(), ua.getHour(), ua.getMinute(), ua.getSecond());
+                ua.getYear(), ua.getMonthValue(), ua.getDayOfMonth(), ua.getHour(), ua.getMinute(), ua.getSecond())
+                .setAutoRun(isAutoRun());
     }
 
     private Tuple2<BigDecimal, BigDecimal> getMinMaxLast15Mins() {
