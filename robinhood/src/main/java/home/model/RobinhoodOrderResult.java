@@ -163,6 +163,6 @@ public class RobinhoodOrderResult {
     }
 
     public Order toOrder() {
-        return new Order(id, quantity.intValue(), price, state, side, createdAt);
+        return new Order(id, quantity.intValue(), price, state, side, createdAt, updatedAt);
     }
 }

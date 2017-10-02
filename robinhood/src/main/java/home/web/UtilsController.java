@@ -1,6 +1,7 @@
 package home.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import home.HttpService;
 import home.OrderService;
 import home.model.DB;
 import home.model.Stock;
@@ -17,6 +18,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import static java.nio.file.StandardOpenOption.*;
+
+import java.util.Collections;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -27,14 +31,19 @@ public class UtilsController {
     private final OrderService orderService;
     private final ObjectMapper objectMapper;
     private final WebSocketHandler wsh;
+    private final HttpService httpService;
 
+    @Value("${username}") private String username;
+    @Value("${password}") private String password;
     @Value("${path-to-memory}") private String pathToMemory;
 
-    public UtilsController(DB db, OrderService orderService, ObjectMapper objectMapper, WebSocketHandler wsh) {
+    public UtilsController(DB db, OrderService orderService, ObjectMapper objectMapper, WebSocketHandler wsh,
+                           HttpService httpService) {
         this.db = db;
         this.orderService = orderService;
         this.objectMapper = objectMapper;
         this.wsh = wsh;
+        this.httpService = httpService;
     }
 
     @GetMapping(path = "/clear-hidden-order-ids")
@@ -78,5 +87,10 @@ public class UtilsController {
         }
         stock.setAutoRun(false);
         return "Removed autoRun for " + symbol;
+    }
+
+    @GetMapping(path = "/authentication-token")
+    public Map<String, String> authenticationToken() {
+        return Collections.singletonMap("token", httpService.login(username, password));
     }
 }

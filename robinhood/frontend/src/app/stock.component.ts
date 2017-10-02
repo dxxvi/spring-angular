@@ -3,8 +3,7 @@ import { BuySellOrder, Order, StockDO } from './model';
 import { LogLevel, Message } from './model2';
 import { WebsocketService } from './websocket.service';
 import * as Highcharts from 'highcharts';
-import {Gradient} from "highcharts";
-import {start} from "repl";
+import { Gradient } from 'highcharts';
 
 @Component({
   selector: 'stock',

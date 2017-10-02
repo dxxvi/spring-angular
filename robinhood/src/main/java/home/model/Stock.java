@@ -7,10 +7,14 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static java.util.stream.Collectors.joining;
@@ -55,6 +59,18 @@ public class Stock extends StockDO {
         }
 
         recalculateDayMinMax(q);
+    }
+
+    public void addQuotes(Collection<Quote> newQuotes) {
+        if (quotes == null) {
+            quotes = new ConcurrentLinkedQueue<>();
+        }
+
+        SortedSet<Quote> set = new TreeSet<>(Comparator.comparing(Quote::getUpdatedAt));
+        set.addAll(newQuotes);
+        set.addAll(quotes);
+        quotes.clear();
+        quotes.addAll(set);
     }
 
     private void recalculateDayMinMax(Quote q) {

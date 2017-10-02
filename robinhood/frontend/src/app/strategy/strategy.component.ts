@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs/Rx';
 
 @Component({
   selector: 'app-strategy',
@@ -6,16 +8,23 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./strategy.component.css']
 })
 export class StrategyComponent implements OnInit {
-  amounts = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-  prices  = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-  profits = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+  authenticationToken: string;
 
-  constructor() { }
+  constructor(private http: HttpClient) { }
 
   ngOnInit() {
   }
 
-  debug() {
-    console.log(this.profits);
+  getAuthenticationToken() {
+    this.http.get('/utils/authentication-token').subscribe(
+      data => {
+        this.authenticationToken = data['token'];
+        Observable.interval(9 * 60 * 1000).take(1).subscribe(
+          () => {
+            this.authenticationToken = null;
+          }
+        );
+      }
+    );
   }
 }
