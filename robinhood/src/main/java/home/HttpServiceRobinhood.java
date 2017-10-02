@@ -25,6 +25,7 @@ import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.File;
+import java.math.BigDecimal;
 import java.net.URI;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -350,11 +351,25 @@ public class HttpServiceRobinhood implements HttpService {
         return null;
     }
 
-    private void sleep(long t) {
+    @Override public BigDecimal extendedHoursEquity() {
+        RestTemplate restTemplate = new RestTemplate();
         try {
-            Thread.sleep(t);
+            RequestEntity<Void> request = RequestEntity
+                    .get(new URI("https://api.robinhood.com/portfolios/"))
+                    .header("Authorization", "Token " + loginToken)
+                    .build();
+            ResponseEntity<String> response = restTemplate.exchange(request, String.class);
+            if (response.getStatusCode() == HttpStatus.OK) {
+
+            }
+            else {
+                throw new RuntimeException("statusCode: " + response.getStatusCode().name());
+            }
         }
-        catch (InterruptedException iex) { /* who cares */ }
+        catch (Exception ex) {
+            wsh.send("FIX ME: HttpService.extendedHoursEquity|" + ex.getMessage());
+        }
+        return BigDecimal.ZERO;
     }
 }
 

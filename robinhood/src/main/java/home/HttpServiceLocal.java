@@ -11,6 +11,7 @@ import home.model.Tuple2;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.time.LocalTime;
 import java.util.Collection;
 import java.util.Collections;
@@ -88,5 +89,10 @@ public class HttpServiceLocal implements HttpService {
 
     @Override public RobinhoodOrderResult buySell(BuySellOrder buySellOrder, String loginToken) {
         return new RobinhoodOrderResult();
+    }
+
+    @Override
+    public BigDecimal extendedHoursEquity() {
+        return BigDecimal.ZERO;
     }
 }

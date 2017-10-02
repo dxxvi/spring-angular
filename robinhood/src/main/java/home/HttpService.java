@@ -8,6 +8,7 @@ import home.model.RobinhoodOrdersResult;
 import home.model.RobinhoodPositionResult;
 import home.model.Tuple2;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.List;
 
@@ -44,4 +45,6 @@ public interface HttpService {
      * @return the orderId and state of this order or null if errors
      */
     RobinhoodOrderResult buySell(BuySellOrder buySellOrder, String loginToken);
+
+    BigDecimal extendedHoursEquity();
 }
