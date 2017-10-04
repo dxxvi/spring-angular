@@ -69,14 +69,13 @@ public class QuoteService {
                         db.addHistoricalQuotes(
                                 rhqr.getSymbol(),
                                 rhqr.getHistoricals().stream()
-                                        .flatMap(h -> Stream.of(h.getLowPrice(), h.getHighPrice()))
+                                        .flatMap(h -> Stream.of(h.getLowPrice(), h.getHighPrice(), h.getOpenPrice(),
+                                                h.getClosePrice()))
                                         .mapToDouble(BigDecimal::doubleValue)
                                         .toArray()
                         );
                     });
         }
-
-        LocalTime _fetchedAt = LocalTime.now();
 
         AtomicBoolean missingQuotesToday = new AtomicBoolean(false);
 

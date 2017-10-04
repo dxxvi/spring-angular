@@ -129,6 +129,13 @@ export class MainComponent implements OnInit {
             timeout: 9876
           });
         }
+        else if (data.indexOf('PORTFOLIO: ') === 0) {
+          const equity = data.replace('PORTFOLIO: ', '$');
+          this.toastyService.info({
+            title: equity,
+            timeout: 4567
+          });
+        }
       },
       error => {
         console.log('Error channel:');

@@ -10,6 +10,7 @@ import home.model.Quote;
 import home.model.RobinhoodHistoricalQuoteResult;
 import home.model.RobinhoodOrderResult;
 import home.model.RobinhoodOrdersResult;
+import home.model.RobinhoodPortfolioResult;
 import home.model.RobinhoodPositionResult;
 import home.model.RobinhoodPositionsResult;
 import home.model.Tuple2;
@@ -94,6 +95,7 @@ public class HttpServiceRobinhood implements HttpService {
                             q.setUpdatedAt(q.getUpdatedAt().plusHours(Utils.robinhoodAndMyTimeDifference()));
                         });
                     }
+
                     return quotes;
                 }
                 else {
@@ -351,7 +353,7 @@ public class HttpServiceRobinhood implements HttpService {
         return null;
     }
 
-    @Override public BigDecimal extendedHoursEquity() {
+    @Override public BigDecimal extendedHoursEquity(String loginToken) {
         RestTemplate restTemplate = new RestTemplate();
         try {
             RequestEntity<Void> request = RequestEntity
@@ -360,7 +362,16 @@ public class HttpServiceRobinhood implements HttpService {
                     .build();
             ResponseEntity<String> response = restTemplate.exchange(request, String.class);
             if (response.getStatusCode() == HttpStatus.OK) {
-
+                JsonNode jsonNode = objectMapper.readTree(response.getBody()).findValue("results");
+                if (jsonNode == null) {
+                    throw new RuntimeException("Unable to find the field results in " + response.getBody());
+                }
+                List<RobinhoodPortfolioResult> rprs = objectMapper.readValue(jsonNode.toString(),
+                        new TypeReference<List<RobinhoodPortfolioResult>>() {});
+                if (rprs == null || rprs.isEmpty()) {
+                    return BigDecimal.ZERO;
+                }
+                return rprs.get(0).getExtendedHoursEquity();
             }
             else {
                 throw new RuntimeException("statusCode: " + response.getStatusCode().name());

@@ -36,7 +36,6 @@ public class PositionService {
         this.objectMapper = objectMapper;
     }
 
-    @Scheduled(cron = "13/30 0/1 * * * *")
     public void positions() {
         String loginToken = httpService.login(username, password);
         if (loginToken == null) {

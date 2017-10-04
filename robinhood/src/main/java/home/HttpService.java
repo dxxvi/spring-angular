@@ -46,5 +46,5 @@ public interface HttpService {
      */
     RobinhoodOrderResult buySell(BuySellOrder buySellOrder, String loginToken);
 
-    BigDecimal extendedHoursEquity();
+    BigDecimal extendedHoursEquity(String loginToken);
 }

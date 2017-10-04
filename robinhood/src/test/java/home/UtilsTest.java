@@ -15,6 +15,7 @@ import static java.nio.file.StandardOpenOption.*;
 import static java.time.LocalDateTime.*;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ConcurrentSkipListSet;
@@ -46,14 +47,7 @@ public class UtilsTest {
     }
 
     @Test public void g() {
-        BuySellOrder bso1 = new BuySellOrder("1").setSide("side1");
-        BuySellOrder bso2 = new BuySellOrder("2").setSide("side2");
-        BuySellOrder bso3 = new BuySellOrder("3").setSide("side3");
-        SortedSet<BuySellOrder> set = new ConcurrentSkipListSet<>(Comparator.comparing(BuySellOrder::getId));
-        set.add(bso2);
-        set.add(bso3);
-        set.add(bso1);
-        set.remove(new BuySellOrder("3"));
-        set = null;
+        LocalDateTime ldt = LocalDateTime.ofEpochSecond(1504618200, 0, ZoneOffset.UTC);
+        System.out.println(ldt);
     }
 }

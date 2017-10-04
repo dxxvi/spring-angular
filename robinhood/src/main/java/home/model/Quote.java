@@ -11,6 +11,8 @@ import home.RobinhoodTimeSerializer;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Random;
+
 import static java.time.format.DateTimeFormatter.*;
 
 public class Quote {

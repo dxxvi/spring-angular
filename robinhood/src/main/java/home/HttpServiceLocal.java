@@ -91,8 +91,7 @@ public class HttpServiceLocal implements HttpService {
         return new RobinhoodOrderResult();
     }
 
-    @Override
-    public BigDecimal extendedHoursEquity() {
+    @Override public BigDecimal extendedHoursEquity(String loginToken) {
         return BigDecimal.ZERO;
     }
 }
