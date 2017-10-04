@@ -84,9 +84,9 @@ public class RobinhoodTest {
 
     @Test public void f() {
         int N = 1500;
-        int[] amounts = new int[] { 2,  0,  0,  0,  0,  0,  0,  0,  0 };
-        int[] prices  = new int[] { 0, -1, -3, -5, -7, -9, -11, -13, -15 };
-        int[] profits = new int[] { 0, 10,  3,  3,  3,  3,  3,  3,  3 };
+        int[] amounts = new int[] { 1,  0,  0,  0,  0,   0,   0 };
+        int[] prices  = new int[] { 0, -1, -2, -3, -5, -10, -11 };
+        int[] profits = new int[] { 0,  9, 14, 20, 60,   1,   1 };
 
         for (int i = 1; i < amounts.length; i++) {
             int moneySpent = 0;

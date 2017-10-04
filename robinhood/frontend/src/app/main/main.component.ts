@@ -19,6 +19,7 @@ export class MainComponent implements OnInit {
   utilsOpen = false;
   timestamp = 0;
   graphKeepingDuration = 30;  // in minutes
+  equity: string;
 
   constructor(private wsService: WebsocketService, private http: HttpClient,
               private toastyService: ToastyService, private toastyConfig: ToastyConfig) {
@@ -130,11 +131,7 @@ export class MainComponent implements OnInit {
           });
         }
         else if (data.indexOf('PORTFOLIO: ') === 0) {
-          const equity = data.replace('PORTFOLIO: ', '$');
-          this.toastyService.info({
-            title: equity,
-            timeout: 4567
-          });
+          this.equity = data.replace(/00$/, '').replace(/^PORTFOLIO: /, '$');
         }
       },
       error => {

@@ -354,6 +354,7 @@ public class HttpServiceRobinhood implements HttpService {
     }
 
     @Override public BigDecimal extendedHoursEquity(String loginToken) {
+        String responseBody = null;
         RestTemplate restTemplate = new RestTemplate();
         try {
             RequestEntity<Void> request = RequestEntity
@@ -361,6 +362,7 @@ public class HttpServiceRobinhood implements HttpService {
                     .header("Authorization", "Token " + loginToken)
                     .build();
             ResponseEntity<String> response = restTemplate.exchange(request, String.class);
+            responseBody = response.getBody();
             if (response.getStatusCode() == HttpStatus.OK) {
                 JsonNode jsonNode = objectMapper.readTree(response.getBody()).findValue("results");
                 if (jsonNode == null) {
@@ -371,7 +373,8 @@ public class HttpServiceRobinhood implements HttpService {
                 if (rprs == null || rprs.isEmpty()) {
                     return BigDecimal.ZERO;
                 }
-                return rprs.get(0).getExtendedHoursEquity();
+                RobinhoodPortfolioResult rpr = rprs.get(0);
+                return rpr.getExtendedHoursEquity() == null ? rpr.getEquity() : rpr.getExtendedHoursEquity();
             }
             else {
                 throw new RuntimeException("statusCode: " + response.getStatusCode().name());
@@ -379,6 +382,9 @@ public class HttpServiceRobinhood implements HttpService {
         }
         catch (Exception ex) {
             wsh.send("FIX ME: HttpService.extendedHoursEquity|" + ex.getMessage());
+            if (responseBody != null) {
+                logger.error("Response body: " + responseBody);
+            }
         }
         return BigDecimal.ZERO;
     }
