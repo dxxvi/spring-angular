@@ -23,8 +23,8 @@ import java.util.stream.Stream;
 public class Main {
     private final Logger logger = LoggerFactory.getLogger(Main.class);
 
-    static final LocalTime OPEN  = LocalTime.of(9, 30, 1);
-    static final LocalTime CLOSE = LocalTime.of(15, 59, 59);
+    static final LocalTime OPEN  = LocalTime.of(7, 0, 1);
+    static final LocalTime CLOSE = LocalTime.of(17, 59, 59);
 
     public static void main(String[] args) {
         if (Stream.of(args).noneMatch(a -> a.startsWith("--username="))

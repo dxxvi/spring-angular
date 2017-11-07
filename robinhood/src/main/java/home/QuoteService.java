@@ -7,6 +7,7 @@ import home.model.DB;
 import home.model.Quote;
 import home.model.RobinhoodHistoricalQuote;
 import home.model.RobinhoodHistoricalQuoteResult;
+import home.model.RobinhoodInstrumentsResult;
 import home.model.Stock;
 import home.model.Tuple2;
 import org.slf4j.Logger;
@@ -27,6 +28,8 @@ import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -58,7 +61,23 @@ public class QuoteService {
             stocks.forEach(db::addStock);
         }
         catch (Exception ex) {
-            logger.warn("Error in reading memory json", ex);
+            logger.warn("Error in reading memory json: {}", ex.getMessage());
+        }
+
+        try {
+            CompletableFuture.allOf(
+                    Stream.of(wantedSymbols.split("[ ]*,[ ]*"))
+                            .map(symbol -> CompletableFuture.runAsync(() -> {
+                                RobinhoodInstrumentsResult risr = httpService.getInstruments(symbol);
+                                if (risr.getResults() != null && !risr.getResults().isEmpty()) {
+                                    db.updateInstrumentSymbol(risr.getResults().get(0).getUrl(), symbol);
+                                }
+                            }))
+                            .toArray(CompletableFuture[]::new)
+            ).get();
+        }
+        catch (ExecutionException | InterruptedException ex) {
+            throw new RuntimeException("Exceptions in getting instruments.", ex);
         }
     }
 
@@ -87,7 +106,6 @@ public class QuoteService {
                     return updatedAt.isAfter(Main.OPEN) && updatedAt.isBefore(Main.CLOSE);
                 })
                 .forEach(q -> {
-                    db.updateInstrumentSymbol(q.getInstrument(), q.getSymbol());
                     Stock stock = db.addStock(new Stock(q.getSymbol(), q.getInstrument()));
                     stock.addQuote(q);
 

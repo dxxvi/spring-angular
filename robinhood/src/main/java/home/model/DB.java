@@ -27,19 +27,19 @@ public class DB {
     private final BlockingQueue<Boolean> quotesReady = new LinkedBlockingQueue<>();
     private final Map<String, byte[]> graphs         = new ConcurrentHashMap<>(32);
     // a translation from instrument url to symbol
-    private final Map<String, String> instrumentSymbolMap = new ConcurrentHashMap<>();
-    private final Set<String> hiddenOrderIds = new ConcurrentSkipListSet<>();
-    private final BlockingQueue<Order> cancelledOrders = new LinkedBlockingQueue<>();
+    private final Map<String, String>  instrumentSymbolMap = new ConcurrentHashMap<>();
+    private final Set<String>          hiddenOrderIds      = new ConcurrentSkipListSet<>();
+    private final BlockingQueue<Order> cancelledOrders     = new LinkedBlockingQueue<>();
     // keeps the historical quotes for a week
-    private final Map<String, double[]> symbolHistoricalQuoteMap = new ConcurrentHashMap<>(32);
-    private final BlockingQueue<BuySellOrder> buySellOrders = new LinkedBlockingQueue<>();
+    private final Map<String, double[]>       symbolHistoricalQuoteMap = new ConcurrentHashMap<>(32);
+    private final BlockingQueue<BuySellOrder> buySellOrders            = new LinkedBlockingQueue<>();
     private final ConcurrentHashMap<String, Set<BuySellOrder>> patientBuySellOrders = new ConcurrentHashMap<>();
-    private final ConcurrentSkipListSet<BuySellOrder> buySellOrdersNeedFlipped;
 
+    private final ConcurrentSkipListSet<BuySellOrder> buySellOrdersNeedFlipped;
     private final ConcurrentSkipListSet<Stock> stocks;
 
     public DB() {
-        this.stocks = new ConcurrentSkipListSet<>(comparing(Stock::getSymbol));
+        this.stocks                   = new ConcurrentSkipListSet<>(comparing(Stock::getSymbol));
         this.buySellOrdersNeedFlipped = new ConcurrentSkipListSet<>(comparing(BuySellOrder::getId));
     }
 

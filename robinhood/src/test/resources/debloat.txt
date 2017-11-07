@@ -18,7 +18,7 @@ CallLogBackup.apk package: name='com.android.calllogbackup' versionCode='23' ver
 CaptivePortalLogin.apk package: name='com.android.captiveportallogin' versionCode='23' versionName='6.0.1'
 CarrierConfig.apk package: name='com.android.carrierconfig' versionCode='1' versionName='1.0.0'
 CertInstaller.apk package: name='com.android.certinstaller' versionCode='23' versionName='6.0.1'
-ClockPackage_M_Mass.apk package: name='com.sec.android.app.clockpackage' versionCode='614900100' versionName='6.1.49'
+ClockPackage_M_Mass.apk package: name='com.sec.android.app.clockpackage' versionCode='614900100' versionName='6.1.49' (Samsung clock: need to remove)
 CMHProvider.apk package: name='com.samsung.cmh' versionCode='200900000' versionName='2.0.9'
 ColorBlind_M.apk package: name='com.samsung.android.app.colorblind' versionCode='232400120' versionName='2.3.24'
 ConfigUpdater.apk package: name='com.google.android.configupdater' versionCode='23' versionName='6.0.1'
@@ -113,7 +113,7 @@ secgba.apk package: name='com.samsung.authentication.gba' versionCode='1' versio
 SecHTMLViewer.apk package: name='com.android.htmlviewer' versionCode='111000000' versionName='1.1.10'
 SecLiveWallpapersPicker.apk package: name='com.android.wallpaper.livepicker' versionCode='23' versionName='6.0.1'
 SecMediaProvider.apk package: name='com.android.providers.media' versionCode='815' versionName='6.0.1'
-SecMemo3.apk package: name='com.samsung.android.app.memo' versionCode='1600000218' versionName='16.0.00-218'
+SecMemo3.apk package: name='com.samsung.android.app.memo' versionCode='1600000218' versionName='16.0.00-218' (Samsung Memo: need to remove)
 SecMms_Epic_Common.apk package: name='com.android.mms' versionCode='215931110' versionName='2.1.59'
 SecSettings2.apk package: name='com.android.settings' versionCode='23' versionName='6.0.1'
 SecSettingsProvider2.apk package: name='com.android.providers.settings' versionCode='23' versionName='6.0.1'

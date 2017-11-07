@@ -37,14 +37,10 @@ export class MainComponent implements OnInit {
           }
           this.timestamp = new Date().getTime();
         }
-        else if (data.indexOf('GRAPHS: ') === 0) {
-          const newTime = new Date().getTime();
-          this.stocks.forEach(stock =>
-            stock.graphUrl = '/graph/' + stock.symbol + '?' + newTime);
-        }
         else if (data.indexOf('ORDERS: ') === 0) {
           const symbolOrdersMap = JSON.parse(data.replace('ORDERS: ', ''));
           this.stocks.forEach(stock => {
+            console.log('The monkey A symbol: ' + stock.symbol);
             stock.orders = symbolOrdersMap[stock.symbol];
             if (stock.orders) {
               stock.orders.forEach(order => {

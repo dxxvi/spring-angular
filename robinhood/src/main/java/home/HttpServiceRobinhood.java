@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import home.model.BuySellOrder;
 import home.model.Quote;
 import home.model.RobinhoodHistoricalQuoteResult;
+import home.model.RobinhoodInstrumentsResult;
 import home.model.RobinhoodOrderResult;
 import home.model.RobinhoodOrdersResult;
 import home.model.RobinhoodPortfolioResult;
@@ -182,8 +183,7 @@ public class HttpServiceRobinhood implements HttpService {
         return nextOrders("https://api.robinhood.com/orders/", loginToken);
     }
 
-    @Override
-    public RobinhoodOrdersResult nextOrders(String url, String loginToken) {
+    @Override public RobinhoodOrdersResult nextOrders(String url, String loginToken) {
         RestTemplate restTemplate = new RestTemplate();
         try {
             RequestEntity<Void> request = RequestEntity
@@ -387,6 +387,21 @@ public class HttpServiceRobinhood implements HttpService {
             }
         }
         return BigDecimal.ZERO;
+    }
+
+    @Override public RobinhoodInstrumentsResult getInstruments(String symbol) {
+        RestTemplate restTemplate = new RestTemplate();
+        try {
+            RequestEntity<Void> request = RequestEntity
+                    .get(new URI("https://api.robinhood.com/instruments/?symbol=" + symbol))
+                    .accept(MediaType.APPLICATION_JSON)
+                    .build();
+            ResponseEntity<RobinhoodInstrumentsResult> response = restTemplate.exchange(request, RobinhoodInstrumentsResult.class);
+            return response.getBody();
+        }
+        catch (Exception ex) {
+            throw new RuntimeException("Fix me", ex);
+        }
     }
 }
 

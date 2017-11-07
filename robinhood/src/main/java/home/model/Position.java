@@ -21,8 +21,9 @@ public class Position {
         return symbol;
     }
 
-    public void setSymbol(String symbol) {
+    public Position setSymbol(String symbol) {
         this.symbol = symbol;
+        return this;
     }
 
     public int getHeldForSells() {

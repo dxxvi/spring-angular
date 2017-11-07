@@ -45,10 +45,6 @@ public class PositionService {
                 .map(rpr -> {
                     Position position = rpr.toPosition();
                     String symbol = db.getSymbolFromInstrument(rpr.getInstrument());
-                    if (symbol == null) {
-                        symbol = httpService.getSymbolFromInstrument(rpr.getInstrument());
-                        db.updateInstrumentSymbol(rpr.getInstrument(), symbol);
-                    }
                     position.setSymbol(symbol);
 
                     Stock stock = db.getStock(symbol);

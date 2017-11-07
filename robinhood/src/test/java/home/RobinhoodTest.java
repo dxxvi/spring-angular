@@ -2,8 +2,10 @@ package home;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import home.model.DB;
 import home.model.Order;
 import home.model.RobinhoodOrdersResult;
+import home.model.Tuple4;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -18,8 +20,12 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.stream.IntStream;
 
@@ -100,5 +106,44 @@ public class RobinhoodTest {
         System.out.println(Arrays.toString(amounts) + " " + IntStream.of(amounts).sum() + " shares");
         System.out.println(Arrays.toString(prices));
         System.out.println(Arrays.toString(profits));
+    }
+
+    /*
+     * Use CompletableFuture to get Orders
+     */
+    @Test public void g() {
+        RobinhoodOrdersResult rosr = new RobinhoodOrdersResult();
+        rosr.setResults(Collections.emptyList());
+        rosr.setNext("https://api.robinhood.com/orders/1");
+
+        String username = "u", password = "p";
+
+        BiFunction<Tuple4<DB, HttpService, RobinhoodOrdersResult, Integer>, Throwable, Tuple4<DB, HttpService, RobinhoodOrdersResult, Integer>> fn =
+                (t, throwable) -> {
+                    HttpService httpService =  t._2();
+                    String loginToken = httpService.login(username, password);
+                    String currentUrl = t._3().getNext();
+                    int i = currentUrl.lastIndexOf('/') + 1;
+                    String nextUrl = currentUrl.substring(0, i) + (Integer.parseInt(currentUrl.substring(i)) + 1);
+                    RobinhoodOrdersResult innerRosr = httpService.nextOrders(t._3().getNext(), loginToken);
+                    innerRosr.setNext(nextUrl);
+                    return new Tuple4<>(t._1(), t._2(), innerRosr, t._4());
+                };
+
+        CompletableFuture<Tuple4<DB, HttpService, RobinhoodOrdersResult, Integer>> cf =
+                CompletableFuture.completedFuture(new Tuple4<>(new DB(), new HttpServiceLocal(new ObjectMapper()), rosr, 194));
+        try {
+            while (cf.get()._3() != null) {
+                cf = cf.handle(fn);
+            }
+        }
+        catch (InterruptedException | ExecutionException ex) {
+            System.err.println("What to do with this:");
+            ex.printStackTrace();
+        }
+    }
+
+    @Test public void h() {
+        System.out.println(Utils.robinhoodAndMyTimeDifference());
     }
 }

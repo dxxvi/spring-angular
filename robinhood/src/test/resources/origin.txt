@@ -1,4 +1,3 @@
-find: No /system/lost+found: Permission denied
 /system/app/AASAservice/AASAservice.apk
 /system/app/AllshareFileShare/AllshareFileShare.apk
 /system/app/AllshareFileShareClient/AllshareFileShareClient.apk

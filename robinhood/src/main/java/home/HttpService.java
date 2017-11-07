@@ -3,6 +3,7 @@ package home;
 import home.model.BuySellOrder;
 import home.model.Quote;
 import home.model.RobinhoodHistoricalQuoteResult;
+import home.model.RobinhoodInstrumentsResult;
 import home.model.RobinhoodOrderResult;
 import home.model.RobinhoodOrdersResult;
 import home.model.RobinhoodPositionResult;
@@ -47,4 +48,6 @@ public interface HttpService {
     RobinhoodOrderResult buySell(BuySellOrder buySellOrder, String loginToken);
 
     BigDecimal extendedHoursEquity(String loginToken);
+
+    RobinhoodInstrumentsResult getInstruments(String symbol);
 }
