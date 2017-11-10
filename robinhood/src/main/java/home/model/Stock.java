@@ -22,6 +22,12 @@ import static java.util.stream.Collectors.joining;
 public class Stock extends StockDO {
     private transient final Logger logger = LoggerFactory.getLogger(Stock.class);
     private transient final DateTimeFormatter DTF = DateTimeFormatter.ofPattern("HH:mm:ss");
+
+    /*
+     * This _orders is not sent to browser for display, it's used for auto buy/sell
+     */
+    private transient SortedSet<Order> _orders;
+
     private ConcurrentLinkedQueue<Quote> quotes;
 
     private int heldForSells;
@@ -184,5 +190,13 @@ public class Stock extends StockDO {
     public Stock setAverageBuyPrice(BigDecimal averageBuyPrice) {
         this.averageBuyPrice = averageBuyPrice;
         return this;
+    }
+
+    public SortedSet<Order> get_orders() {
+        return _orders;
+    }
+
+    public void set_orders(SortedSet<Order> _orders) {
+        this._orders = _orders;
     }
 }

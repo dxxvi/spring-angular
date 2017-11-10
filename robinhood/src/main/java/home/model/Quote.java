@@ -16,6 +16,8 @@ import java.util.Random;
 import static java.time.format.DateTimeFormatter.*;
 
 public class Quote {
+    private static final Random random = new Random();
+
     @JsonProperty(value = "symbol") private String symbol;
     @JsonProperty(value = "last_trade_price") private BigDecimal price;
 
@@ -33,6 +35,18 @@ public class Quote {
         this.price = price;
         this.updatedAt = updatedAt;
         this.instrument = instrument;
+    }
+
+    /*
+     * If this app is run after 7pm or before 7am, fake the updatedAt and the price
+     */
+    public void random() {
+        LocalDateTime now = LocalDateTime.now();
+        if (now.getHour() >= 19 || now.getHour() < 7) {
+            BigDecimal delta = new BigDecimal((double)(random.nextInt(5) - 2) / 100d);
+            price = price.add(delta);
+            updatedAt = now.minusSeconds(random.nextInt(3));
+        }
     }
 
     public String getSymbol() {

@@ -7,7 +7,9 @@ import home.model.DB;
 import home.model.Order;
 import home.model.RobinhoodOrderResult;
 import home.model.RobinhoodOrdersResult;
+import home.model.Stock;
 import home.model.Tuple2;
+import home.model.Tuple4;
 import home.web.socket.handler.WebSocketHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,14 +21,17 @@ import java.util.*;
 
 import static java.util.Comparator.*;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import static java.util.stream.Collectors.*;
 
 public class OrderService {
-    private static final double DELTA_TO_CANCEL = 0.53;
+    private static final double DELTA_TO_CANCEL = 0.92;
     private final Logger logger = LoggerFactory.getLogger(OrderService.class);
     private final HttpService httpService;
     private final DB db;
@@ -38,14 +43,37 @@ public class OrderService {
     @Value("${password}") private String password;
     @Value("${far-back-for-orders}") private long farBackForOrders;
 
+    private final BiFunction<Tuple2<RobinhoodOrdersResult, Long>, Throwable, Tuple2<RobinhoodOrdersResult, Long>> fn;
+
     public OrderService(DB db, HttpService httpService, WebSocketHandler wsh, ObjectMapper objectMapper) {
         this.db = db;
         this.httpService = httpService;
         this.wsh = wsh;
         this.objectMapper = objectMapper;
+        this.fn = (t, throwable) -> {
+            if (throwable != null) {
+                logger.error("Got exception in fn", throwable);
+                t._1().setNext(null);
+                return t;
+            }
+            String loginToken = httpService.login(username, password);
+            if (t._1().getNext() == null) {
+                return t;
+            }
+            RobinhoodOrdersResult innerRosr = httpService.nextOrders(t._1().getNext(), loginToken);
+            t._1().getResults().addAll(innerRosr.getResults());
+
+            int n = innerRosr.getResults().size();
+            RobinhoodOrderResult ror = innerRosr.getResults().get(n - 1);
+            t._1().setNext(ror.getCreatedAt().plusHours(t._2()).isBefore(LocalDateTime.now()) ? null : innerRosr.getNext());
+            return t;
+        };
     }
 
-    public void orders() {
+    /*
+     * trigger sound, put orders into each stock to prepare for auto buy/sell
+     */
+    public RobinhoodOrdersResult orders() {
         String loginToken = httpService.login(username, password);
         if (loginToken == null) {
             throw new RuntimeException("Unable to get orders because the loginToken is null.");
@@ -92,44 +120,50 @@ public class OrderService {
                     db.removeBuySellOrderNeedsFlipped(filledId);
                 });
 
-        // add patient buy sell orders to symbolOrdersMap
+        symbolOrdersMap.forEach((symbol, orders) -> {
+            Stock stock = db.getStock(symbol);
+            if (stock != null) {
+                stock.set_orders(orders);
+            }
+        });
+
+        return robinhoodOrdersResult;
+    }
+
+    public void sendOrdersToBrowser(RobinhoodOrdersResult robinhoodOrdersResult) {
+        CompletableFuture<Tuple2<RobinhoodOrdersResult, Long>> cf =
+                CompletableFuture.completedFuture(new Tuple2<>(robinhoodOrdersResult, farBackForOrders));
+        try {
+            while (cf.get()._1().getNext() != null) {
+                cf = cf.handle(fn);
+            }
+            robinhoodOrdersResult = cf.get()._1();
+            Map<String, SortedSet<Order>> symbolOrdersMap = Utils.buildSymbolOrdersMap(robinhoodOrdersResult, db, httpService);
+            addPatientBuySellOrders(symbolOrdersMap);
+            try {
+                wsh.send("ORDERS: " + objectMapper.writeValueAsString(symbolOrdersMap));
+            }
+            catch (JsonProcessingException jpex) {
+                logger.error("Fix me", jpex);
+            }
+        }
+        catch (ExecutionException | InterruptedException ex) {
+            logger.error("Got this exception when doing the completableFuture: {}: {}",
+                    ex.getClass().getName(), ex.getMessage());
+        }
+    }
+
+    private void addPatientBuySellOrders(Map<String, SortedSet<Order>> symbolOrdersMap) {
         symbolOrdersMap.forEach((symbol, orders) -> {
             List<Order> patientOrders = db.gePatienttBuySellOrders(symbol).stream()
                     .map(bso ->
                             new Order(bso.getId(), bso.getQuantity(), bso.getPrice(),
-                                "patient", bso.getSide(), LocalDateTime.now(), LocalDateTime.now())
+                                    "patient", bso.getSide(), LocalDateTime.now(), LocalDateTime.now())
                                     .setSymbol(symbol)
                     )
                     .collect(toList());
             orders.addAll(patientOrders);
         });
-
-        try {
-            wsh.send("ORDERS: " + objectMapper.writeValueAsString(symbolOrdersMap));
-        }
-        catch (JsonProcessingException jpex) {
-            logger.error("Fix me.", jpex);
-        }
-
-/*
-        while (true) {
-            String nextUrl = robinhoodOrdersResult.getNext();
-            if (nextUrl != null && nextUrl.startsWith("https") && t1._2()) {
-                robinhoodOrdersResult = httpService.nextOrders(nextUrl, loginToken);
-                t1 = buildSymbolOrdersMap(robinhoodOrdersResult, farBackForOrders);
-                Map<String, SortedSet<Order>> m = t1._1();
-                symbolOrdersMap.forEach((symbol, tree) -> {
-                    SortedSet<Order> t = m.get(symbol);
-                    if (t != null) {
-                        tree.addAll(t);
-                    }
-                });
-            }
-            else {
-                break;
-            }
-        }
-*/
     }
 
     public RobinhoodOrderResult buySell(BuySellOrder buySellOrder) {

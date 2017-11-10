@@ -48,22 +48,11 @@ public class HttpServiceRobinhood implements HttpService {
     private long loginTokenAge;
     private String accountUrl;
 
-    private List<Quote> fakeQuotes;
     private int i = 0;
 
     public HttpServiceRobinhood(ObjectMapper objectMapper, WebSocketHandler wsh) {
         this.objectMapper = objectMapper;
         this.wsh = wsh;
-
-        try {
-            fakeQuotes = objectMapper.readValue(new File("/dev/shm/AMD.json"), new TypeReference<List<Quote>>() {});
-            LocalDateTime now = LocalDateTime.now();
-            long l = fakeQuotes.get(0).getUpdatedAt().until(now, ChronoUnit.SECONDS);
-            fakeQuotes.forEach(q -> {
-                q.setUpdatedAt(q.getUpdatedAt().plusSeconds(l));
-            });
-        }
-        catch (Exception ex) { /* we're running live */ }
     }
 
     @Override public Collection<Quote> quotes(String wantedSymbols) {
@@ -83,19 +72,10 @@ public class HttpServiceRobinhood implements HttpService {
                     List<Quote> quotes = objectMapper.readValue(
                             jsonNode.get("results").toString(), new TypeReference<List<Quote>>() {}
                     );
-                    if (fakeQuotes != null) {
-                        Quote fakeQuote = fakeQuotes.get(i);
-                        quotes.forEach(q -> {
-                            q.setUpdatedAt(fakeQuote.getUpdatedAt());
-                            q.setPrice(fakeQuote.getPrice());
-                        });
-                        i++;
-                    }
-                    else {
-                        quotes.forEach(q -> {
-                            q.setUpdatedAt(q.getUpdatedAt().plusHours(Utils.robinhoodAndMyTimeDifference()));
-                        });
-                    }
+                    quotes.forEach(q -> {
+                        q.setUpdatedAt(q.getUpdatedAt().plusHours(Utils.robinhoodAndMyTimeDifference()));
+                        q.random();
+                    });
 
                     return quotes;
                 }

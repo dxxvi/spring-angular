@@ -71,7 +71,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
                 session.sendMessage(new TextMessage(message));
             }
             catch (Exception ex) {
-                logger.warn("Unable to send message to client", ex);
+                logger.warn("Unable to send message to client: {}: {}", ex.getClass().getName(), ex.getMessage());
             }
         }
         else {

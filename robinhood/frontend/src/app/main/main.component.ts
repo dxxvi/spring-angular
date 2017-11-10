@@ -40,7 +40,6 @@ export class MainComponent implements OnInit {
         else if (data.indexOf('ORDERS: ') === 0) {
           const symbolOrdersMap = JSON.parse(data.replace('ORDERS: ', ''));
           this.stocks.forEach(stock => {
-            console.log('The monkey A symbol: ' + stock.symbol);
             stock.orders = symbolOrdersMap[stock.symbol];
             if (stock.orders) {
               stock.orders.forEach(order => {
@@ -206,6 +205,9 @@ export class MainComponent implements OnInit {
     this.farBackForOrders = parseInt('' + this.farBackForOrders);
     if (isNaN(this.farBackForOrders)) {
       this.farBackForOrders = 8;
+    }
+    else if (this.farBackForOrders > 720) {
+      this.farBackForOrders = 720;
     }
     this.http.get('/utils/far-back-for-orders?farBackForOrders=' + this.farBackForOrders)
       .subscribe(data => {

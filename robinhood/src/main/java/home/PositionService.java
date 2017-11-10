@@ -15,6 +15,7 @@ import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 
 import static java.util.stream.Collectors.*;
@@ -39,12 +40,15 @@ public class PositionService {
     public void positions() {
         String loginToken = httpService.login(username, password);
         if (loginToken == null) {
-            throw new RuntimeException("Unable to get orders because the loginToken is null.");
+            throw new RuntimeException("Unable to get positions because the loginToken is null.");
         }
         Map<String, Position> positionMap = httpService.positions(loginToken).stream()
                 .map(rpr -> {
                     Position position = rpr.toPosition();
                     String symbol = db.getSymbolFromInstrument(rpr.getInstrument());
+                    if (symbol == null) {
+                        return null;
+                    }
                     position.setSymbol(symbol);
 
                     Stock stock = db.getStock(symbol);
@@ -57,6 +61,7 @@ public class PositionService {
 
                     return position;
                 })
+                .filter(Objects::nonNull)
                 .collect(toMap(Position::getSymbol, Function.identity()));
 
         try {

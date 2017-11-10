@@ -23,7 +23,7 @@ import java.util.stream.Stream;
 public class Main {
     private final Logger logger = LoggerFactory.getLogger(Main.class);
 
-    static final LocalTime OPEN  = LocalTime.of(7, 0, 1);
+    static final LocalTime OPEN  = LocalTime.of(9, 0, 1);
     static final LocalTime CLOSE = LocalTime.of(17, 59, 59);
 
     public static void main(String[] args) {

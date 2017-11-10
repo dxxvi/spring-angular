@@ -101,10 +101,12 @@ public class QuoteService {
         Collection<Quote> quotes = httpService.quotes(wantedSymbols).stream().filter(Objects::nonNull).collect(toList());
 
         quotes.stream()
+/*
                 .filter(q -> {
                     LocalTime updatedAt = q.getUpdatedAt().toLocalTime();
                     return updatedAt.isAfter(Main.OPEN) && updatedAt.isBefore(Main.CLOSE);
                 })
+*/
                 .forEach(q -> {
                     Stock stock = db.addStock(new Stock(q.getSymbol(), q.getInstrument()));
                     stock.addQuote(q);

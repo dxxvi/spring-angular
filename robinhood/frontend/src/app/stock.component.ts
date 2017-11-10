@@ -288,4 +288,42 @@ export class StockComponent implements OnInit {
       this.graphKeepingDuration = a * 60 * 1000;
     }
   }
+
+  simplifyOrders() {
+    if (this.stock.orders && this.stock.orders.length > 1) {
+      const ignoredIndices: Array<number> = [];
+      for (let delta = 0.005; delta < 0.036; delta += 0.01) {
+        for (let i = this.stock.orders.length - 1; i > 0; i--) {
+          if (ignoredIndices.indexOf(i) < 0 && this.stock.orders[i].state === 'filled') {
+            const order1 = this.stock.orders[i];
+            const otherSide = order1.side === 'buy' ? 'sell' : 'buy';
+            for (let j = i - 1; j >= 0; j--) {
+              const order2 = this.stock.orders[j];
+              let buyOrder: Order;
+              let sellOrder: Order;
+              if (order1.side === 'buy') {
+                buyOrder = order1;
+                sellOrder = order2;
+              }
+              else {
+                buyOrder = order2;
+                sellOrder = order1;
+              }
+              if (ignoredIndices.indexOf(j) < 0 && order2.state === 'filled' && order2.side === otherSide &&
+                order1.quantity === order2.quantity && buyOrder.price <= sellOrder.price + 0.002 &&
+                buyOrder.price > sellOrder.price - delta) {
+                ignoredIndices.push(i);
+                ignoredIndices.push(j);
+                break;
+              }
+            }
+          }
+        }
+      }
+      ignoredIndices.forEach(i => {
+        console.log(JSON.stringify(this.stock.orders[i]));
+        this.hide(this.stock.orders[i]);
+      });
+    }
+  }
 }

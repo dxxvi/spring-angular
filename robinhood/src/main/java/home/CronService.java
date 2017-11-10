@@ -1,11 +1,15 @@
 package home;
 
+import home.model.RobinhoodOrdersResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 
+import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ForkJoinTask;
 
 public class CronService {
     private final Logger logger = LoggerFactory.getLogger(CronService.class);
@@ -35,22 +39,28 @@ public class CronService {
             }
             latch.countDown();
         };
-        Runnable orderTask = () -> {
+        Callable<RobinhoodOrdersResult> orderTask = () -> {
+            RobinhoodOrdersResult result = null;
             try {
-                orderService.orders();
+                result = orderService.orders();
             }
             catch (Exception ex) {
                 logger.error("Fix me", ex);
             }
             latch.countDown();
+            return result;
         };
         ForkJoinPool.commonPool().submit(quoteTask);
-        ForkJoinPool.commonPool().submit(orderTask);
+        ForkJoinTask<RobinhoodOrdersResult> fjt = ForkJoinPool.commonPool().submit(orderTask);
 
         try {
             latch.await();
+            orderService.sendOrdersToBrowser(fjt.get());
         }
         catch (InterruptedException iex) { /* who cares */ }
+        catch (ExecutionException eex) {
+            logger.error("Got exception from fjt.get: {}: {}", eex.getClass().getName(), eex.getMessage());
+        }
 
         Runnable positionTask  = positionService::positions;
         Runnable portfolioTask = portfolioService::portfolio;
