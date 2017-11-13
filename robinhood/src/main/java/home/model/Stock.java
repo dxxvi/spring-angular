@@ -207,4 +207,11 @@ public class Stock extends StockDO {
     public Order getLastAutoRunOrder() {
         return _orders[_ordersLength - 1];
     }
+
+    public void autoRunWhatToDo() {
+        if (!autoRun) {
+            throw new RuntimeException("Why do you call me when I'm not in autorun?");
+        }
+
+    }
 }

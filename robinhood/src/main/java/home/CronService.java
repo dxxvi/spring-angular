@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.SortedSet;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
@@ -66,7 +67,6 @@ public class CronService {
             latch.await();
 
             // TODO do the auto run here
-/*
             Map<String, SortedSet<Order>> symbolOrdersMap = Utils.buildSymbolOrdersMap(fjt.get(), db, httpService);
             symbolOrdersMap.forEach((symbol, orders) -> {
                 Stock stock = db.getStock(symbol);
@@ -74,8 +74,12 @@ public class CronService {
                     return;
                 }
                 Order lastOrder = stock.getLastAutoRunOrder();
+                orders.stream().filter(o -> o.getId().equals(lastOrder.getId())).findAny()
+                        .ifPresent(o -> {
+                            lastOrder.setState(o.getState());
+                            stock.getLatestQuote().getPrice();
+                        });
             });
-*/
 
             orderService.sendOrdersToBrowser(fjt.get());
         }
