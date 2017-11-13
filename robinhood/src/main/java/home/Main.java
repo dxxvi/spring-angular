@@ -90,9 +90,9 @@ public class Main {
         return new PositionService(db, httpService, wsh, objectMapper);
     }
 
-    @Bean CronService cronService(QuoteService quoteService, OrderService orderService,
-                                  PositionService positionService, PortfolioService portfolioService) {
-        return new CronService(quoteService, orderService, positionService, portfolioService);
+    @Bean CronService cronService(QuoteService quoteService, OrderService orderService, PositionService positionService,
+                                  PortfolioService portfolioService, DB db, HttpService httpService) {
+        return new CronService(quoteService, orderService, positionService, portfolioService, db, httpService);
     }
 
     @Bean PortfolioService portfolioService(HttpService httpService, WebSocketHandler wsh) {

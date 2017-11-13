@@ -40,11 +40,42 @@ export class MainComponent implements OnInit {
         else if (data.indexOf('ORDERS: ') === 0) {
           const symbolOrdersMap = JSON.parse(data.replace('ORDERS: ', ''));
           this.stocks.forEach(stock => {
-            stock.orders = symbolOrdersMap[stock.symbol];
+            if (stock.orders === null || stock.orders === undefined) {
+              stock.orders = symbolOrdersMap[stock.symbol];
+            }
+            else if (symbolOrdersMap[stock.symbol]) {
+              const tempOrders = stock.orders.slice(0);
+              symbolOrdersMap[stock.symbol].forEach(order => {
+                const or = tempOrders.find(o => o.id === order.id);
+                if (or !== undefined) {
+                  or.state = order.state;
+                  or.updatedAt = order.updatedAt;
+                }
+                else {
+                  tempOrders.push(order);
+                }
+              });
+              tempOrders.sort((a, b) => b.createdAtTimestamp - a.createdAtTimestamp);
+              stock.orders = tempOrders;
+            }
+
             if (stock.orders) {
               stock.orders.forEach(order => {
                 order.justRemoved = false;
                 order.justCancelled = false;
+              });
+            }
+          });
+        }
+        else if (data.indexOf('HIDDEN ORDER IDS: ') === 0) {
+          const hiddenOrderIds: Array<string> = JSON.parse(data.replace('HIDDEN ORDER IDS: ', ''));
+          this.stocks.forEach(stock => {
+            if (stock.orders) {
+              hiddenOrderIds.forEach(hiddenOrderId => {
+                const i = stock.orders.findIndex(o => o.id === hiddenOrderId);
+                if (i >= 0) {
+                  stock.orders.splice(i, 1);
+                }
               });
             }
           });
@@ -115,11 +146,14 @@ export class MainComponent implements OnInit {
             timeout: 9876
           });
         }
-        else if (data.indexOf('ERROR: ') === 0) {
-          const array = data.replace('ERROR: ', '').split('|');
-          const title = array.length > 1 ? array[0] : 'ERROR';
+        else if (data.indexOf('ERROR: ') === 0 || data.indexOf('WARNING: ') === 0) {
+          const isError: boolean = data.indexOf('ERROR: ') === 0;
+          const array = isError ? data.replace('ERROR: ', '').split('|') :
+            data.replace('WARNING: ', '').split('|');
+          const title = array.length > 1 ? array[0] : (isError ? 'ERROR' : 'WARNING');
           const msg   = array.length > 1 ? array[1] : array[0];
-          this.toastyService.error({
+          const fn = isError ? this.toastyService.error : this.toastyService.warning;
+          fn({
             title: title,
             msg: msg,
             timeout: 9876
@@ -206,8 +240,8 @@ export class MainComponent implements OnInit {
     if (isNaN(this.farBackForOrders)) {
       this.farBackForOrders = 8;
     }
-    else if (this.farBackForOrders > 720) {
-      this.farBackForOrders = 720;
+    else if (this.farBackForOrders > 960) {
+      this.farBackForOrders = 960;
     }
     this.http.get('/utils/far-back-for-orders?farBackForOrders=' + this.farBackForOrders)
       .subscribe(data => {

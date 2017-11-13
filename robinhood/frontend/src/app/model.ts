@@ -26,6 +26,7 @@ export interface Order {
   state: string;
   side: string;
   createdAt: string;
+  createdAtTimestamp: number;          // used to sort Orders by created time
   updatedAt: string;
   justRemoved: boolean;                // true means I just clicked the blue X to not see this order on browser
   justCancelled: boolean;              // true means I just clicked the pink X to cancel this order

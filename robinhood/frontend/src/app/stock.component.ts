@@ -225,7 +225,6 @@ export class StockComponent implements OnInit {
   }
   ngOnInit(): void {
     const colorIndex = this.i % Highcharts.getOptions().colors.length;
-    console.log(this.stock.symbol + ' colorIndex: ' + colorIndex);
     const hc1 = this.el.nativeElement.querySelector('div.highchart.whole-day');
     const hc2 = this.el.nativeElement.querySelector('div.highchart.last-minutes');
     if (hc2 != undefined) {
@@ -313,17 +312,15 @@ export class StockComponent implements OnInit {
                 order1.quantity === order2.quantity && buyOrder.price <= sellOrder.price + 0.002 &&
                 buyOrder.price > sellOrder.price - delta) {
                 ignoredIndices.push(i);
+                this.hide(this.stock.orders[i]);
                 ignoredIndices.push(j);
+                this.hide(this.stock.orders[j]);
                 break;
               }
             }
           }
         }
       }
-      ignoredIndices.forEach(i => {
-        console.log(JSON.stringify(this.stock.orders[i]));
-        this.hide(this.stock.orders[i]);
-      });
     }
   }
 }

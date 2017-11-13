@@ -69,25 +69,6 @@ public class RobinhoodTest {
         ImageIO.write(bi, "png", new File("/dev/shm/test.png"));
     }
 
-    @Test public void testReadingOrdersResult() throws IOException {
-        ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
-/*
-        try (InputStream is = HttpServiceLocal.class.getResourceAsStream("/orders.json")) {
-            RobinhoodOrdersResult o = objectMapper.readValue(is, RobinhoodOrdersResult.class);
-            o = null;
-        }
-*/
-        Order order = new Order();
-        order.setCreatedAt(LocalDateTime.now());
-        order.setId("123-ABC");
-        order.setQuantity(5);
-        order.setPrice(new BigDecimal("13.51"));
-        order.setSymbol("ON");
-        order.setState("filled");
-        order.setSide("buy");
-        System.out.println(objectMapper.writeValueAsString(order));
-    }
-
     @Test public void f() {
         int N = 1500;
         int[] amounts = new int[] { 1,  0,  0,  0,  0,   0,   0 };
@@ -144,6 +125,14 @@ public class RobinhoodTest {
     }
 
     @Test public void h() {
-        System.out.println(Utils.robinhoodAndMyTimeDifference());
+        final int N = 20;
+        double[] profits = new double[20];
+        int profitsLength = 0;
+        double[] shares = new double[N];
+        int sharesLength = 0;
+        Order[] orders = new Order[N];
+        int ordersLength = 0;
+
+
     }
 }

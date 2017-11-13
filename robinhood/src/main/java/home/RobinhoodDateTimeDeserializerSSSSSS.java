@@ -12,8 +12,7 @@ import java.time.format.DateTimeFormatter;
 public class RobinhoodDateTimeDeserializerSSSSSS extends JsonDeserializer<LocalDateTime> {
     private final DateTimeFormatter DTF = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'");
 
-    @Override public LocalDateTime deserialize(JsonParser jsonParser, DeserializationContext deserializationContext)
-            throws IOException, JsonProcessingException {
+    @Override public LocalDateTime deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) {
         try {
             return LocalDateTime.parse(jsonParser.getText(), DTF);
         }

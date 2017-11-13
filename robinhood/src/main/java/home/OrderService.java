@@ -64,8 +64,13 @@ public class OrderService {
             t._1().getResults().addAll(innerRosr.getResults());
 
             int n = innerRosr.getResults().size();
-            RobinhoodOrderResult ror = innerRosr.getResults().get(n - 1);
-            t._1().setNext(ror.getCreatedAt().plusHours(t._2()).isBefore(LocalDateTime.now()) ? null : innerRosr.getNext());
+            if (n == 0) {              // there's some error with robinhood, that's why the result is empty
+                t._1().setNext(null);
+            }
+            else {
+                RobinhoodOrderResult ror = innerRosr.getResults().get(n - 1);
+                t._1().setNext(ror.getCreatedAt().plusHours(t._2()).isBefore(LocalDateTime.now()) ? null : innerRosr.getNext());
+            }
             return t;
         };
     }
@@ -119,18 +124,22 @@ public class OrderService {
                     buySell(bso.flip());
                     db.removeBuySellOrderNeedsFlipped(filledId);
                 });
-
-        symbolOrdersMap.forEach((symbol, orders) -> {
-            Stock stock = db.getStock(symbol);
-            if (stock != null) {
-                stock.set_orders(orders);
-            }
-        });
-
+        sendOrdersToBrowser(symbolOrdersMap);
         return robinhoodOrdersResult;
     }
 
+    // this method is very costly
+    private long lastTimeDoCompletableFuture = System.currentTimeMillis();
+    public void clearLastTimeDoCompletableFuture() {
+        lastTimeDoCompletableFuture = 0;
+    }
     public void sendOrdersToBrowser(RobinhoodOrdersResult robinhoodOrdersResult) {
+        long l = 190482 - System.currentTimeMillis() + lastTimeDoCompletableFuture;
+        if (l > 0) {
+            logger.debug("{} seconds more to get a lot of orders", l / 1000);
+            return;
+        }
+        lastTimeDoCompletableFuture = System.currentTimeMillis();
         CompletableFuture<Tuple2<RobinhoodOrdersResult, Long>> cf =
                 CompletableFuture.completedFuture(new Tuple2<>(robinhoodOrdersResult, farBackForOrders));
         try {
@@ -140,16 +149,21 @@ public class OrderService {
             robinhoodOrdersResult = cf.get()._1();
             Map<String, SortedSet<Order>> symbolOrdersMap = Utils.buildSymbolOrdersMap(robinhoodOrdersResult, db, httpService);
             addPatientBuySellOrders(symbolOrdersMap);
-            try {
-                wsh.send("ORDERS: " + objectMapper.writeValueAsString(symbolOrdersMap));
-            }
-            catch (JsonProcessingException jpex) {
-                logger.error("Fix me", jpex);
-            }
+            sendOrdersToBrowser(symbolOrdersMap);
         }
         catch (ExecutionException | InterruptedException ex) {
             logger.error("Got this exception when doing the completableFuture: {}: {}",
                     ex.getClass().getName(), ex.getMessage());
+        }
+    }
+
+    private void sendOrdersToBrowser(Map<String, SortedSet<Order>> symbolOrdersMap) {
+        try {
+            wsh.send("ORDERS: " + objectMapper.writeValueAsString(symbolOrdersMap));
+            wsh.send("HIDDEN ORDER IDS: " + objectMapper.writeValueAsString(db.getHiddenOrderIds()));
+        }
+        catch (JsonProcessingException jpex) {
+            logger.error("Fix me", jpex);
         }
     }
 

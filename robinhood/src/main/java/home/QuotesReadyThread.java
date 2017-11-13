@@ -25,9 +25,8 @@ public class QuotesReadyThread extends Thread {
 
     @Override public void run() {
         while (true) {
-            Boolean createGraph = db.waitTillQuotesReady();
-
             try {
+                db.waitTillQuotesReady();
                 // send the quotes to browser
                 String s = objectMapper.writeValueAsString(
                         db.getStocksStream()
@@ -39,11 +38,13 @@ public class QuotesReadyThread extends Thread {
                                 })
                                 .collect(toList())
                 );
-                logger.debug("quotes -> browser ...");
                 wsh.send("QUOTES: " + s);
             }
             catch (JsonProcessingException jpex) {
                 logger.error("Fix me.", jpex);
+            }
+            catch (Exception ex) {
+                logger.warn("This exception is caught ", ex);
             }
         }
     }

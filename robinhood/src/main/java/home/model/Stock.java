@@ -20,13 +20,15 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import static java.util.stream.Collectors.joining;
 
 public class Stock extends StockDO {
+    private static final int N = 20;
     private transient final Logger logger = LoggerFactory.getLogger(Stock.class);
-    private transient final DateTimeFormatter DTF = DateTimeFormatter.ofPattern("HH:mm:ss");
 
-    /*
-     * This _orders is not sent to browser for display, it's used for auto buy/sell
-     */
-    private transient SortedSet<Order> _orders;
+    private transient double[] profits = new double[N];
+    private transient int profitsLength = 0;
+    private transient double[] shares = new double[N];
+    private transient int sharesLength = 0;
+    private transient Order[] _orders = new Order[N];
+    private transient int _ordersLength = 0;
 
     private ConcurrentLinkedQueue<Quote> quotes;
 
@@ -192,11 +194,17 @@ public class Stock extends StockDO {
         return this;
     }
 
-    public SortedSet<Order> get_orders() {
-        return _orders;
+    public void startAutorun(Order order) {
+        autoRun = true;
+        profitsLength = 1;
+        profits[profitsLength - 1] = 0;
+        sharesLength = 1;
+        shares[sharesLength - 1] = order.getQuantity();
+        _ordersLength = 1;
+        _orders[_ordersLength - 1] = order;
     }
 
-    public void set_orders(SortedSet<Order> _orders) {
-        this._orders = _orders;
+    public Order getLastAutoRunOrder() {
+        return _orders[_ordersLength - 1];
     }
 }

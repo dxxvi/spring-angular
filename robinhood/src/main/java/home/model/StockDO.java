@@ -17,7 +17,7 @@ public class StockDO {
     private BigDecimal last5minsMin;
     private BigDecimal last5minsMax;
     private int[] updatedAt = new int[6];
-    private boolean autoRun = false;
+    boolean autoRun = false;
 
     public StockDO() {}
     public StockDO(String symbol, String instrument) {

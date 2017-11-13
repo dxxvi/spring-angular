@@ -14,7 +14,6 @@ import home.model.RobinhoodOrdersResult;
 import home.model.RobinhoodPortfolioResult;
 import home.model.RobinhoodPositionResult;
 import home.model.RobinhoodPositionsResult;
-import home.model.Tuple2;
 import home.web.socket.handler.WebSocketHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,12 +25,8 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.File;
 import java.math.BigDecimal;
 import java.net.URI;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
@@ -184,7 +179,10 @@ public class HttpServiceRobinhood implements HttpService {
             return rosr;
         }
         catch (Exception ex) {
-            throw new RuntimeException("Unable to get orders", ex);
+            RobinhoodOrdersResult rosr = new RobinhoodOrdersResult();
+            rosr.setResults(Collections.emptyList());
+            logger.error("Unable to get orders " + url, ex);
+            return rosr;
         }
     }
 

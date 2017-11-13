@@ -127,6 +127,10 @@ public class DB {
         hiddenOrderIds.add(orderId);
     }
 
+    public Set<String> getHiddenOrderIds() {
+        return new HashSet<>(hiddenOrderIds);
+    }
+
     public boolean shouldBeHidden(String orderId) {
         return hiddenOrderIds.contains(orderId);
     }

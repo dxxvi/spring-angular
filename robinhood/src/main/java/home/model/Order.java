@@ -6,8 +6,11 @@ import home.RobinhoodDateTimeSerializer;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 public class Order implements Serializable {
+    private final static LocalDateTime LDT = LocalDateTime.now().plusDays(1);
+
     private String id;
     private int quantity;
     private BigDecimal price;
@@ -18,11 +21,10 @@ public class Order implements Serializable {
     @JsonSerialize(using = RobinhoodDateTimeSerializer.ForOrder.class)
     private LocalDateTime createdAt;
 
+    private long createdAtTimestamp;
+
     @JsonSerialize(using = RobinhoodDateTimeSerializer.ForOrder.class)
     private LocalDateTime updatedAt;
-
-    public Order() {
-    }
 
     public Order(String id, int quantity, BigDecimal price, String state, String side, LocalDateTime createdAt,
                  LocalDateTime updatedAt) {
@@ -32,6 +34,7 @@ public class Order implements Serializable {
         this.state = state;
         this.side = side;
         this.createdAt = createdAt;
+        this.createdAtTimestamp = createdAt.until(LDT, ChronoUnit.MILLIS);
         this.updatedAt = updatedAt;
     }
 
@@ -94,5 +97,9 @@ public class Order implements Serializable {
 
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
+    }
+
+    public long getCreatedAtTimestamp() {
+        return createdAtTimestamp;
     }
 }

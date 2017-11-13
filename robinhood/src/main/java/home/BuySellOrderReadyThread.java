@@ -39,8 +39,21 @@ public class BuySellOrderReadyThread extends Thread {
                     // for some reason, Robinhood didn't accept our request, then we retry it later.
                     // db.addBuySellOrder(buySellOrder);
                     wsh.send("ERROR: Robinhood DIDN'T ACCEPT YOUR ORDER|" + bso.humanBeingString());
-                } else if (bso.isResell()) {
-                    db.addBuySellOrderNeedsFlipped(bso.setId(ror.getId()));
+                }
+                else if (bso.isResell()) {
+                    if (!bso.isStartAutoRun()) {
+                        db.addBuySellOrderNeedsFlipped(bso.setId(ror.getId()));
+                    }
+                    else if ("buy".equals(bso.getSide())) {
+                        wsh.send("WARNING: START AUTO RUN|Therefore, no FLIP.");
+                        stock.startAutorun(ror.toOrder());
+                    }
+                    else {
+                        wsh.send("WARNING: SELL ORDER IGNORED|Because AUTO RUN is set.");
+                    }
+                }
+                else if (bso.isStartAutoRun()) {
+                    stock.startAutorun(ror.toOrder());
                 }
             }
             catch (Exception ex) {

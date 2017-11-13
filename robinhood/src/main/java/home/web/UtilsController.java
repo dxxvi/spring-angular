@@ -49,7 +49,7 @@ public class UtilsController {
     @GetMapping(path = "/clear-hidden-order-ids")
     public String clearHiddenOrderIds() throws IOException {
         db.clearHiddenOrderIds();
-        return "Clear hidden order ids: done.";
+        return "{\"Clear hidden order ids\":\"done.\"}";
     }
 
     @GetMapping(path = "/write-db-to-json")
@@ -67,7 +67,8 @@ public class UtilsController {
     @GetMapping(path = "/far-back-for-orders")
     public String farBackForOrders(@RequestParam(name = "farBackForOrders") long farBackForOrders) {
         orderService.setFarBackForOrders(farBackForOrders);
-        return "far-back-for-orders: done.";
+        orderService.clearLastTimeDoCompletableFuture();
+        return "{\"far-back-for-orders\":\"done.\"}";
     }
 
     @GetMapping(path = "/remove-symbol")
