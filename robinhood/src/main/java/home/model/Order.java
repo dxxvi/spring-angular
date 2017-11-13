@@ -26,6 +26,7 @@ public class Order implements Serializable {
     @JsonSerialize(using = RobinhoodDateTimeSerializer.ForOrder.class)
     private LocalDateTime updatedAt;
 
+    public Order() {}                  // needed for deserialization
     public Order(String id, int quantity, BigDecimal price, String state, String side, LocalDateTime createdAt,
                  LocalDateTime updatedAt) {
         this.id = id;
