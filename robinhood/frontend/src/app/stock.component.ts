@@ -187,7 +187,7 @@ export class StockComponent implements OnInit {
       return u;
     }
 
-    if (this.priceToTrade > this.stock.price) {
+    if (this.priceToTrade > this.stock.price + 0.008) {
       return {
         logLevel: LogLevel.error,
         title: 'Your mistake',
@@ -204,7 +204,7 @@ export class StockComponent implements OnInit {
       return u;
     }
 
-    if (this.priceToTrade < this.stock.price) {
+    if (this.priceToTrade < this.stock.price - 0.008) {
       return {
         logLevel: LogLevel.error,
         title: 'Your mistake',

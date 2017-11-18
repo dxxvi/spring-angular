@@ -241,7 +241,7 @@ public class HttpServiceRobinhood implements HttpService {
                     response.getBody());
         }
         catch (Exception ex) {
-            logger.warn("Fix me", ex);
+            logger.warn("Fix me in cancelOrder", ex);
         }
     }
 
@@ -294,11 +294,12 @@ public class HttpServiceRobinhood implements HttpService {
             bodyData.put("instrument", buySellOrder.getInstrument());
             bodyData.put("symbol", buySellOrder.getSymbol());
             bodyData.put("type", "limit");
-            bodyData.put("time_in_force", "gfd");
+            bodyData.put("time_in_force", "gfd"/* "gtc"*/);
             bodyData.put("trigger", "immediate");
             bodyData.put("price", buySellOrder.getPrice());
             bodyData.put("quantity", buySellOrder.getQuantity());
             bodyData.put("side", buySellOrder.getSide());
+            bodyData.put("extended_hours", true);
             bodyDataString = objectMapper.writeValueAsString(bodyData);
 
             RequestEntity<String> request = RequestEntity

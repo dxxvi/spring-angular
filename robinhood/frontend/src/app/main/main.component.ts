@@ -46,12 +46,17 @@ export class MainComponent implements OnInit {
             else if (symbolOrdersMap[stock.symbol]) {
               const tempOrders = stock.orders.slice(0);
               symbolOrdersMap[stock.symbol].forEach(order => {
-                const or = tempOrders.find(o => o.id === order.id);
-                if (or !== undefined) {
-                  or.state = order.state;
-                  or.updatedAt = order.updatedAt;
+                const i = tempOrders.findIndex(o => o.id === order.id);
+                if (i > -1) {
+                  if (order.state === 'cancelled') {
+                    tempOrders.splice(i, 1);
+                  }
+                  else {
+                    tempOrders[i].state = order.state;
+                    tempOrders[i].updatedAt = order.updatedAt;
+                  }
                 }
-                else {
+                else if (order.state !== 'cancelled') {
                   tempOrders.push(order);
                 }
               });

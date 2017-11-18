@@ -69,7 +69,7 @@ public abstract class Utils {
                         ror.setQuantity(ror.getCumQuantity());
                     }
                 })
-                .filter(ror -> !"cancelled".equals(ror.getState()) && !"failed".equals(ror.getState()))
+                .filter(ror -> /* !"cancelled".equals(ror.getState()) && */ !"failed".equals(ror.getState()))
                 .filter(ror -> !db.shouldBeHidden(ror.getId()))
                 .map(ror -> {
                     Order order = toOrder(ror, db, httpService);
@@ -88,5 +88,29 @@ public abstract class Utils {
                                 toCollection(() -> new ConcurrentSkipListSet<>(comparing(Order::getCreatedAt)))
                         )
                 ));
+    }
+
+    static double roundDown2(double d) {
+        if (d <= 0) {
+            throw new IllegalArgumentException("argument must > 0");
+        }
+        double x = (int)(d * 100);
+        return x / 100d;
+    }
+
+    static BigDecimal roundDown2(BigDecimal bd) {
+        return new BigDecimal(bd.doubleValue());
+    }
+
+    static double roundUp2(double d) {
+        if (d <= 0) {
+            throw new IllegalArgumentException("argument must > 0");
+        }
+        double x = (int)(d * 100) + 1;
+        return x / 100d;
+    }
+
+    static BigDecimal roundUp2(BigDecimal bd) {
+        return new BigDecimal(bd.doubleValue());
     }
 }

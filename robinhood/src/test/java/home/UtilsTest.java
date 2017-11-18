@@ -7,7 +7,14 @@ import java.time.ZoneOffset;
 
 public class UtilsTest {
     @Test public void g() {
-        LocalDateTime ldt = LocalDateTime.ofEpochSecond(1504618200, 0, ZoneOffset.UTC);
-        System.out.println(ldt);
+        double d = 6.0123;
+        double x = (int)(d*100);
+        d = x / 100d;
+        System.out.println(d);
+
+        d = 6.0193;
+        x = (int)(d*100) + 1;
+        d = x / 100d;
+        System.out.println(d);
     }
 }

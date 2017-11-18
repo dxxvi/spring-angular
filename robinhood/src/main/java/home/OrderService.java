@@ -136,7 +136,7 @@ public class OrderService {
     public void sendOrdersToBrowser(RobinhoodOrdersResult robinhoodOrdersResult) {
         long l = 190482 - System.currentTimeMillis() + lastTimeDoCompletableFuture;
         if (l > 0) {
-            logger.debug("{} seconds more to get a lot of orders", l / 1000);
+            if (l < 6000) logger.debug("{} seconds more to get a lot of orders", l / 1000);
             return;
         }
         lastTimeDoCompletableFuture = System.currentTimeMillis();

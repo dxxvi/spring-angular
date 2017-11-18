@@ -13,9 +13,12 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.function.IntBinaryOperator;
+import java.util.stream.IntStream;
 
 import static java.util.stream.Collectors.joining;
 
@@ -25,10 +28,9 @@ public class Stock extends StockDO {
 
     private transient double[] profits = new double[N];
     private transient int profitsLength = 0;
-    private transient double[] shares = new double[N];
-    private transient int sharesLength = 0;
     private transient Order[] _orders = new Order[N];
     private transient int _ordersLength = 0;
+    private transient Order autoRunSell;
 
     private ConcurrentLinkedQueue<Quote> quotes;
 
@@ -198,8 +200,6 @@ public class Stock extends StockDO {
         autoRun = true;
         profitsLength = 1;
         profits[profitsLength - 1] = 0;
-        sharesLength = 1;
-        shares[sharesLength - 1] = order.getQuantity();
         _ordersLength = 1;
         _orders[_ordersLength - 1] = order;
     }
@@ -208,10 +208,97 @@ public class Stock extends StockDO {
         return _orders[_ordersLength - 1];
     }
 
-    public void autoRunWhatToDo() {
-        if (!autoRun) {
-            throw new RuntimeException("Why do you call me when I'm not in autorun?");
-        }
+    public Order getAutoRunSellOrder() {
+        return autoRunSell;
+    }
 
+    public void setAutoRunSellOrder(Order o) {
+        autoRunSell = o;
+    }
+
+    public void addAutoRunBuyOrder(Order o) {
+        _ordersLength ++;
+        _orders[_ordersLength - 1] = o;
+    }
+
+    public void cancelAutoRun() {
+        autoRun = false;
+        autoRunSell = null;
+        profitsLength = 0;
+        _ordersLength = 0;
+    }
+
+    public Tuple2<Integer, Double> calculateQuantityAndPrice() {
+        double cost = 0;
+        int quantity = 0;
+        for (int i = 0; i < _ordersLength && "filled".equals(_orders[i].getState()); i++) {
+            quantity += _orders[i].getQuantity();
+            cost += (double)_orders[i].getQuantity() * _orders[i].getPrice().doubleValue();
+        }
+        return new Tuple2<>(quantity, cost);
+    }
+
+    // why BuySellOrder? because we'll use HttpService.buySell.
+    public BuySellOrder createAutoRunSellOrder(int quantity) {
+        BuySellOrder bso = new BuySellOrder();
+        bso.setInstrument(getInstrument());
+        bso.setSymbol(getSymbol());
+        bso.setQuantity(quantity);
+        bso.setSide("sell");
+        bso.setPrice(_orders[0].getPrice());
+        getLastFilledOrder().ifPresent(o -> {
+            if (quantity < 5) {
+                bso.setPrice(o.getPrice().add(new BigDecimal(0.1)));
+            }
+            else if (quantity < 20) {
+                bso.setPrice(o.getPrice().add(new BigDecimal(0.08)));
+            }
+            else if (quantity < 100) {
+                bso.setPrice(o.getPrice().add(new BigDecimal(0.05)));
+            }
+            else if (quantity < 500) {
+                bso.setPrice(o.getPrice().add(new BigDecimal(0.03)));
+            }
+            else {
+                bso.setPrice(o.getPrice().add(new BigDecimal(0.02)));
+            }
+        });
+        return bso;
+    }
+
+    // calculate the price for the autoRun buy order
+    public double calculatePriceForNextAutoRunBuyOrder() {
+        Order lastAutoRunOrder = getLastAutoRunOrder();
+        if (_ordersLength == 1) {
+            return lastAutoRunOrder.getPrice().doubleValue() - 0.04;
+        }
+        else if (_ordersLength == 2) {
+            return lastAutoRunOrder.getPrice().doubleValue() - 0.03;
+        }
+        else if (_ordersLength == 3) {
+            return lastAutoRunOrder.getPrice().doubleValue() - 0.03;
+        }
+        else {
+            return lastAutoRunOrder.getPrice().doubleValue() - 0.03;
+        }
+    }
+
+    public BuySellOrder createAutoRunBuyOrder(int quantity, double price) {
+        BuySellOrder bso = new BuySellOrder();
+        bso.setInstrument(getInstrument());
+        bso.setSymbol(getSymbol());
+        bso.setQuantity(quantity);
+        bso.setSide("buy");
+        bso.setPrice(new BigDecimal(price));
+        return bso;
+    }
+
+    private Optional<Order> getLastFilledOrder() {
+        for (int i = _ordersLength - 1; i >= 0; i--) {
+            if ("filled".equals(_orders[i].getState())) {
+                return Optional.of(_orders[i]);
+            }
+        }
+        return Optional.empty();
     }
 }
