@@ -21,6 +21,29 @@ export class MainComponent implements OnInit {
   graphKeepingDuration = 30;  // in minutes
   equity: string;
 
+  // s variables hold the number of shares
+  s1 = 0;
+  s2 = 0;
+  s3 = 0;
+  s4 = 0;
+  s5 = 0;
+  s6 = 0;
+  s7 = 0;
+  s8 = 0;
+  s9 = 0;
+  s10 = 0;
+  // p variables hold the price (0 means current price, -1 means current price - 1, ...)
+  p1 = 0;
+  p2 = 0;
+  p3 = 0;
+  p4 = 0;
+  p5 = 0;
+  p6 = 0;
+  p7 = 0;
+  p8 = 0;
+  p9 = 0;
+  p10 = 0;
+
   constructor(private wsService: WebsocketService, private http: HttpClient,
               private toastyService: ToastyService, private toastyConfig: ToastyConfig) {
     const url = new URL(location.href);

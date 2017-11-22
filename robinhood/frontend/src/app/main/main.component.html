@@ -15,40 +15,65 @@
     <i class="fa fa-caret-up"   [style.display]="utilsOpen ? 'block' : 'none'"  (click)="utilsOpen = !utilsOpen"></i>
   </div>
   <div class="row" [style.display]="utilsOpen ? 'flex' : 'none'">
-    <div class="col-sm-2 col-md-1"><label>Test Sound</label></div>
-    <div class="col-sm-2 col-md-1">
-      <button class="btn btn-default" (click)="play('buy')">Play buy</button>
-    </div>
-    <div class="col-sm-2 col-md-1">
-      <button class="btn btn-default" (click)="play('sell')">Play sell</button>
-    </div>
-    <div class="col-sm-2 col-md-1 form-inline">
-      <label for="nosound">No sound &nbsp;</label>
+    <div class="col-md-2 form-inline">
+      <label for="nosound">Test Sound?</label>
+      &nbsp;
       <input type="checkbox" id="nosound" [(ngModel)]="nosound" [ngModelOptions]="{standalone: true}"
              class="form-control" style="width: auto;"/>
     </div>
-  </div>
-  <div class="row" [style.display]="utilsOpen ? 'flex' : 'none'">
-    <div class="col-sm-4 col-md-3 col-lg-2">
-      <button class="btn btn-default" (click)="clearHiddenOrderIds()">Clear hidden Order ID's</button>
+    <div class="col-md-1">
+      <button class="btn btn-default btn-sm" (click)="play('buy')">Play buy</button>
     </div>
-    <div class="col-sm-8 form-inline">
-      <label>Far back for Orders &nbsp;</label>
+    <div class="col-md-1">
+      <button class="btn btn-default btn-sm" (click)="play('sell')">Play sell</button>
+    </div>
+    <div class="col-md-2">
+      <button class="btn btn-default btn-sm" (click)="clearHiddenOrderIds()">Clear hidden Order ID's</button>
+    </div>
+    <div class="col-md-5 form-inline">
+      <label>Far back for Orders</label>
+      &nbsp;
       <input type="number" [(ngModel)]="farBackForOrders" [ngModelOptions]="{standalone: true}"
              class="form-control" style="width: 5.2em;">
       &nbsp;
-      <button class="btn btn-default" (click)="setFarBackForOrders()">Send</button>
+      <button class="btn btn-default btn-sm" (click)="setFarBackForOrders()">Send</button>
+    </div>
+    <div class="col-md-1">
+      <button class="btn btn-default btn-sm" (click)="writeDbToJson()">Stop</button>
     </div>
   </div>
   <div class="row" [style.display]="utilsOpen ? 'flex' : 'none'">
-    <div class="col-sm-11 form-inline">
-      <label>Keep the graphs for the last {{ graphKeepingDuration }} minutes &nbsp;</label>
+    <div class="col-md-11 form-inline">
+      <label>Keep graph data for the last {{ graphKeepingDuration }} minutes &nbsp;</label>
       <input type="number" [(ngModel)]="graphKeepingDuration" [ngModelOptions]="{standalone: true}"
              class="form-control" style="width: 4.2em;">
     </div>
-    <div class="col-sm-1">
-      <button class="btn btn-default" (click)="writeDbToJson()">Stop</button>
-    </div>
+  </div>
+  <div class="row" [style.display]="utilsOpen ? 'flex' : 'none'">
+    <div class="col-md-1"># of shares</div>
+    <div class="col-md-1"><input type="number" class="form-control" [(ngModel)]="s1" [ngModelOptions]="{standalone: true}" min="0"></div>
+    <div class="col-md-1"><input type="number" class="form-control" [ngModel]="s2" [ngModelOptions]="{standalone: true}" readonly></div>
+    <div class="col-md-1"><input type="number" class="form-control" [ngModel]="s3" [ngModelOptions]="{standalone: true}" readonly></div>
+    <div class="col-md-1"><input type="number" class="form-control" readonly></div>
+    <div class="col-md-1"><input type="number" class="form-control" readonly></div>
+    <div class="col-md-1"><input type="number" class="form-control" readonly></div>
+    <div class="col-md-1"><input type="number" class="form-control" readonly></div>
+    <div class="col-md-1"><input type="number" class="form-control" readonly></div>
+    <div class="col-md-1"><input type="number" class="form-control" readonly></div>
+    <div class="col-md-1"><input type="number" class="form-control" readonly></div>
+  </div>
+  <div class="row" [style.display]="utilsOpen ? 'flex' : 'none'">
+    <div class="col-md-1">price (in $)</div>
+    <div class="col-md-1"><input type="number" class="form-control" max="0" step="0.01"></div>
+    <div class="col-md-1"><input type="number" class="form-control" max="0" step="0.01"></div>
+    <div class="col-md-1"><input type="number" class="form-control" max="0" step="0.01"></div>
+    <div class="col-md-1"><input type="number" class="form-control" max="0" step="0.01"></div>
+    <div class="col-md-1"><input type="number" class="form-control" max="0" step="0.01"></div>
+    <div class="col-md-1"><input type="number" class="form-control" max="0" step="0.01"></div>
+    <div class="col-md-1"><input type="number" class="form-control" max="0" step="0.01"></div>
+    <div class="col-md-1"><input type="number" class="form-control" max="0" step="0.01"></div>
+    <div class="col-md-1"><input type="number" class="form-control" max="0" step="0.01"></div>
+    <div class="col-md-1"><input type="number" class="form-control" max="0" step="0.01"></div>
   </div>
 </div>
 
