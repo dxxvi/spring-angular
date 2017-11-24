@@ -248,19 +248,19 @@ public class Stock extends StockDO {
         bso.setPrice(_orders[0].getPrice());
         getLastFilledOrder().ifPresent(o -> {
             if (quantity < 5) {
-                bso.setPrice(o.getPrice().add(new BigDecimal(0.1)));
+                bso.setPrice(o.getPrice().add(new BigDecimal(0.08)));
             }
             else if (quantity < 20) {
-                bso.setPrice(o.getPrice().add(new BigDecimal(0.08)));
+                bso.setPrice(o.getPrice().add(new BigDecimal(0.07)));
             }
             else if (quantity < 100) {
                 bso.setPrice(o.getPrice().add(new BigDecimal(0.05)));
             }
             else if (quantity < 500) {
-                bso.setPrice(o.getPrice().add(new BigDecimal(0.03)));
+                bso.setPrice(o.getPrice().add(new BigDecimal(0.04)));
             }
             else {
-                bso.setPrice(o.getPrice().add(new BigDecimal(0.02)));
+                bso.setPrice(o.getPrice().add(new BigDecimal(0.03)));
             }
         });
         return bso;

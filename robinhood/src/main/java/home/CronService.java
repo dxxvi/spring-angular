@@ -73,7 +73,7 @@ public class CronService {
         try {
             latch.await();
 
-            // TODO do the auto run here
+            // do the auto run here
             Map<String, SortedSet<Order>> symbolOrdersMap = Utils.buildSymbolOrdersMap(fjt.get(), db, httpService);
             symbolOrdersMap.forEach((symbol, orders) -> {
                 Stock stock = db.getStock(symbol);
@@ -126,12 +126,14 @@ public class CronService {
             logger.debug("No auto run sell order yet.");
             Tuple2<Integer, Double> t = stock.calculateQuantityAndPrice();
             if (t._1() == 0) {
-                logger.debug("We haven't bought any share of yet. So do nothing and wait for the next quote.");
+                logger.debug("We haven't bought any {} share yet. So do nothing and wait for the next quote.",
+                        stock.getSymbol());
                 return;
             }
             RobinhoodOrderResult ror = httpService.buySell(stock.createAutoRunSellOrder(t._1()), loginToken);
             stock.setAutoRunSellOrder(ror.toOrder());
-            logger.debug("Just created an auto run sell order {}@${}.", ror.getQuantity(), ror.getPrice());
+            logger.debug("Already bought {} shares, now creat an auto run sell order {}@${}.",
+                    t._1(), ror.getQuantity(), ror.getPrice());
         }
 
         autoRunSellOrder = stock.getAutoRunSellOrder();
@@ -169,15 +171,15 @@ public class CronService {
             int quantity = t._1();
             if (autoRunSellOrder.getQuantity() != quantity) {
                 httpService.cancelOrder(autoRunSellOrder.getId(), loginToken);
-                logger.debug("The auto run sell order is obsolete because its quantity is only {}. So cancel it.",
-                        autoRunSellOrder.getQuantity());
+                logger.debug("The auto run sell order is obsolete (its quantity {} != {}). So cancel it.",
+                        autoRunSellOrder.getQuantity(), quantity);
                 RobinhoodOrderResult ror = httpService.buySell(stock.createAutoRunSellOrder(quantity), loginToken);
                 stock.setAutoRunSellOrder(ror.toOrder());
                 logger.debug("Create a new auto run sell order {} @ ${}.", ror.getQuantity(), ror.getPrice());
             }
             Quote latestQuote = stock.getLatestQuote();
             if (latestQuote.getPrice().doubleValue() < stock.calculatePriceForNextAutoRunBuyOrder()) {
-                logger.debug("Stock price keeps going down. Last buy {} now {}.",
+                logger.debug("{} price keeps going down. Last buy {} now {}.", stock.getSymbol(),
                         lastAutoRunOrder.getPrice(), latestQuote.getPrice());
                 double price = Utils.roundUp2(latestQuote.getPrice().doubleValue());
                 int q = (int)((t._2() - quantity*price + calculateProfit()) * 100 - quantity + 1);

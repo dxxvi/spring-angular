@@ -21,28 +21,11 @@ export class MainComponent implements OnInit {
   graphKeepingDuration = 30;  // in minutes
   equity: string;
 
+  d = [0, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01];
   // s variables hold the number of shares
-  s1 = 0;
-  s2 = 0;
-  s3 = 0;
-  s4 = 0;
-  s5 = 0;
-  s6 = 0;
-  s7 = 0;
-  s8 = 0;
-  s9 = 0;
-  s10 = 0;
-  // p variables hold the price (0 means current price, -1 means current price - 1, ...)
-  p1 = 0;
-  p2 = 0;
-  p3 = 0;
-  p4 = 0;
-  p5 = 0;
-  p6 = 0;
-  p7 = 0;
-  p8 = 0;
-  p9 = 0;
-  p10 = 0;
+  s = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  // p variables hold the price (0 means current price, -0.01 means current price - 0.01, ...)
+  p = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
   constructor(private wsService: WebsocketService, private http: HttpClient,
               private toastyService: ToastyService, private toastyConfig: ToastyConfig) {
@@ -252,6 +235,34 @@ export class MainComponent implements OnInit {
     this.toastyService.info(toastOptions);
 
     this.wsService.sendMessage('BUY SELL: ' + JSON.stringify(buySellOrder));
+  }
+
+  calculateNumbersOfShares() {
+    for (let i = 1; i < this.s.length; i++) {
+      if (this.p[i] >= this.p[i-1]) {
+        for (let j = i; j < this.s.length; j++) {
+          this.s[j] = 0;
+          this.p[j] = 0;
+        }
+        return;
+      }
+      this.s[i] = Math.round(100 * (this.calculateCost(i) - (this.p[i] + this.d[i])*this.calculateShares(i)) + 0.01);
+    }
+  }
+
+  private calculateCost(k: number): number {
+    let result = 0;
+    for (let i = 0; i < k; i++) {
+      result += this.s[i] * this.p[i];
+    }
+    return result;
+  }
+  private calculateShares(k: number): number {
+    let result = 0;
+    for (let i = 0; i < k; i++) {
+      result += this.s[i];
+    }
+    return result;
   }
 
   private play(word: string) {
