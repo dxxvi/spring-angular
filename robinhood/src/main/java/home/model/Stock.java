@@ -10,11 +10,13 @@ import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.EmptyStackException;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.SortedSet;
+import java.util.Stack;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.IntBinaryOperator;
@@ -163,7 +165,7 @@ public class Stock extends StockDO {
                 '}';
     }
 
-    public Stock clone() {             // to remove the orders
+    public Stock clone() {             // to remove the orders to write quotes to file
         Stock replica = new Stock(symbol, instrument);
         quotes.forEach(replica::addQuote);
         return replica;
@@ -194,6 +196,35 @@ public class Stock extends StockDO {
     public Stock setAverageBuyPrice(BigDecimal averageBuyPrice) {
         this.averageBuyPrice = averageBuyPrice;
         return this;
+    }
+
+    public boolean justGoUp() {
+        if (quotes == null || quotes.size() < 3) {
+            return false;
+        }
+        Stack<Quote> stack = new Stack<>();
+        stack.addAll(quotes);
+        Quote q1 = stack.pop();
+        Quote q2 = stack.pop();
+        if (q1.getPrice().doubleValue() <= q2.getPrice().doubleValue()) {
+            return false;
+        }
+        try {
+            while (true) {
+                Quote q3 = stack.pop();
+                if (q3.getPrice().doubleValue() < q2.getPrice().doubleValue()) {
+                    return false;
+                }
+                if (q3.getPrice().doubleValue() > q2.getPrice().doubleValue()) {
+                    logger.debug("{}: {} {} downto {} {} upto {} {}", symbol, q3.getUpdatedAt(), q3.getPrice(),
+                            q2.getUpdatedAt(), q2.getPrice(), q1.getUpdatedAt(), q1.getPrice());
+                    return true;
+                }
+            }
+        }
+        catch (EmptyStackException esex) {
+            return false;
+        }
     }
 
     public void startAutorun(Order order) {

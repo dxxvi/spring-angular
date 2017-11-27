@@ -4,17 +4,20 @@ import org.junit.Test;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.Stack;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class UtilsTest {
     @Test public void g() {
-        double d = 6.0123;
-        double x = (int)(d*100);
-        d = x / 100d;
-        System.out.println(d);
+        ConcurrentLinkedQueue<String> quotes = new ConcurrentLinkedQueue<>();
+        quotes.add("A");
+        quotes.add("B");
+        quotes.add("C");
 
-        d = 6.0193;
-        x = (int)(d*100) + 1;
-        d = x / 100d;
-        System.out.println(d);
+        System.out.println(quotes.peek());
+
+        Stack<String> stack = new Stack<>();
+        stack.addAll(quotes);
+        System.out.printf("%s %s %s\n", stack.pop(), stack.pop(), stack.pop());
     }
 }

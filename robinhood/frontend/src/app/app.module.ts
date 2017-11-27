@@ -11,13 +11,15 @@ import { WebsocketService } from './websocket.service';
 import { ToastyModule } from 'ng2-toasty';
 import { StrategyComponent } from './strategy/strategy.component';
 import { MainComponent } from './main/main.component';
+import { AutorunComponent } from './autorun/autorun.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     StockComponent,
     StrategyComponent,
-    MainComponent
+    MainComponent,
+    AutorunComponent
   ],
   imports: [
     BrowserModule,

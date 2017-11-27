@@ -61,7 +61,7 @@ public class UtilsController {
         catch (Exception ex) {
             logger.error("Unable to export to file", ex);
         }
-        return "Check the json string.";
+        return "{\"message\":\"check the output json file\"}";
     }
 
     @GetMapping(path = "/far-back-for-orders")

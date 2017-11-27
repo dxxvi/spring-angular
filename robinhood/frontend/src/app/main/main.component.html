@@ -49,46 +49,7 @@
              class="form-control" style="width: 4.2em;">
     </div>
   </div>
-  <div class="row" [style.display]="utilsOpen ? 'flex' : 'none'">
-    <div class="col-md-1">sell back</div>
-    <div class="col-md-1"></div>
-    <div class="col-md-1"><input type="number" class="form-control" [(ngModel)]="d[1]" [ngModelOptions]="{standalone: true}" min="0.01" step="0.01"></div>
-    <div class="col-md-1"><input type="number" class="form-control" [(ngModel)]="d[2]" [ngModelOptions]="{standalone: true}" min="0.01" step="0.01"></div>
-    <div class="col-md-1"><input type="number" class="form-control" [(ngModel)]="d[3]" [ngModelOptions]="{standalone: true}" min="0.01" step="0.01"></div>
-    <div class="col-md-1"><input type="number" class="form-control" [(ngModel)]="d[4]" [ngModelOptions]="{standalone: true}" min="0.01" step="0.01"></div>
-    <div class="col-md-1"><input type="number" class="form-control" [(ngModel)]="d[5]" [ngModelOptions]="{standalone: true}" min="0.01" step="0.01"></div>
-    <div class="col-md-1"><input type="number" class="form-control" [(ngModel)]="d[6]" [ngModelOptions]="{standalone: true}" min="0.01" step="0.01"></div>
-    <div class="col-md-1"><input type="number" class="form-control" [(ngModel)]="d[7]" [ngModelOptions]="{standalone: true}" min="0.01" step="0.01"></div>
-    <div class="col-md-1"><input type="number" class="form-control" [(ngModel)]="d[8]" [ngModelOptions]="{standalone: true}" min="0.01" step="0.01"></div>
-    <div class="col-md-1"><input type="number" class="form-control" [(ngModel)]="d[9]" [ngModelOptions]="{standalone: true}" min="0.01" step="0.01"></div>
-  </div>
-  <div class="row" [style.display]="utilsOpen ? 'flex' : 'none'">
-    <div class="col-md-1"># of shares</div>
-    <div class="col-md-1"><input type="number" class="form-control" [(ngModel)]="s[0]" [ngModelOptions]="{standalone: true}" min="0"></div>
-    <div class="col-md-1"><input type="number" class="form-control" [ngModel]="s[1]" [ngModelOptions]="{standalone: true}" readonly></div>
-    <div class="col-md-1"><input type="number" class="form-control" [ngModel]="s[2]" [ngModelOptions]="{standalone: true}" readonly></div>
-    <div class="col-md-1"><input type="number" class="form-control" [ngModel]="s[3]" [ngModelOptions]="{standalone: true}" readonly></div>
-    <div class="col-md-1"><input type="number" class="form-control" [ngModel]="s[4]" [ngModelOptions]="{standalone: true}" readonly></div>
-    <div class="col-md-1"><input type="number" class="form-control" [ngModel]="s[5]" [ngModelOptions]="{standalone: true}" readonly></div>
-    <div class="col-md-1"><input type="number" class="form-control" [ngModel]="s[6]" [ngModelOptions]="{standalone: true}" readonly></div>
-    <div class="col-md-1"><input type="number" class="form-control" [ngModel]="s[7]" [ngModelOptions]="{standalone: true}" readonly></div>
-    <div class="col-md-1"><input type="number" class="form-control" [ngModel]="s[8]" [ngModelOptions]="{standalone: true}" readonly></div>
-    <div class="col-md-1"><input type="number" class="form-control" [ngModel]="s[9]" [ngModelOptions]="{standalone: true}" readonly></div>
-  </div>
-  <div class="row" [style.display]="utilsOpen ? 'flex' : 'none'">
-    <div class="col-md-1">price (in $)</div>
-    <div class="col-md-1"><input type="number" class="form-control" [(ngModel)]="p[0]" [ngModelOptions]="{standalone: true}" max="0" step="0.01"></div>
-    <div class="col-md-1"><input type="number" class="form-control" [(ngModel)]="p[1]" [ngModelOptions]="{standalone: true}" max="0" step="0.01"></div>
-    <div class="col-md-1"><input type="number" class="form-control" [(ngModel)]="p[2]" [ngModelOptions]="{standalone: true}" max="0" step="0.01"></div>
-    <div class="col-md-1"><input type="number" class="form-control" [(ngModel)]="p[3]" [ngModelOptions]="{standalone: true}" max="0" step="0.01"></div>
-    <div class="col-md-1"><input type="number" class="form-control" [(ngModel)]="p[4]" [ngModelOptions]="{standalone: true}" max="0" step="0.01"></div>
-    <div class="col-md-1"><input type="number" class="form-control" [(ngModel)]="p[5]" [ngModelOptions]="{standalone: true}" max="0" step="0.01"></div>
-    <div class="col-md-1"><input type="number" class="form-control" [(ngModel)]="p[6]" [ngModelOptions]="{standalone: true}" max="0" step="0.01"></div>
-    <div class="col-md-1"><input type="number" class="form-control" [(ngModel)]="p[7]" [ngModelOptions]="{standalone: true}" max="0" step="0.01"></div>
-    <div class="col-md-1"><input type="number" class="form-control" [(ngModel)]="p[8]" [ngModelOptions]="{standalone: true}" max="0" step="0.01"></div>
-    <div class="col-md-1"><input type="number" class="form-control" [(ngModel)]="p[9]" [ngModelOptions]="{standalone: true}" max="0" step="0.01"></div>
-    <div class="col-md-1"><button class="btn btn-default" (click)="calculateNumbersOfShares()">Run</button></div>
-  </div>
+  <div [style.display]="utilsOpen ? 'block': 'none'"><app-autorun></app-autorun></div>
 </div>
 
 <div class="portfolio">{{ equity }}</div>

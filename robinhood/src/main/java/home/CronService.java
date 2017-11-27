@@ -80,6 +80,10 @@ public class CronService {
                 if (stock == null || !stock.isAutoRun()) {
                     return;
                 }
+
+                // TODO check if we should buy when it just goes up after going down
+                stock.justGoUp();
+
                 Order lastOrder = stock.getLastAutoRunOrder();
                 Order autoRunSellOrder = stock.getAutoRunSellOrder();
                 orders.forEach(o -> {
