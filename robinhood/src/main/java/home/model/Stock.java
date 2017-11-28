@@ -35,8 +35,10 @@ public class Stock extends StockDO {
     private transient int _ordersLength = 0;
     private transient Order autoRunSell;
     private transient double[] buyQuotes = new double[M];
+    private transient int previousBuyIndex = -1;
     private transient int buyIndex = -1;
     private transient double[] sellQuotes = new double[M];
+    private transient int previousSellIndex = -1;
     private transient int sellIndex = -1;
 
     private ConcurrentLinkedQueue<Quote> quotes;
@@ -217,6 +219,10 @@ public class Stock extends StockDO {
     }
 
     public boolean justGoUp() {        // only used to auto buy
+        if (previousBuyIndex == buyIndex) {
+            return false;
+        }
+        previousBuyIndex = buyIndex;
         boolean b = buyIndex >= 2 &&
                 buyQuotes[buyIndex - 2] > buyQuotes[buyIndex - 1] && buyQuotes[buyIndex - 1] < buyQuotes[buyIndex];
         if (b) {
@@ -227,6 +233,10 @@ public class Stock extends StockDO {
     }
 
     public boolean justGoDown() {      // only used to auto sell
+        if (previousSellIndex == sellIndex) {
+            return false;
+        }
+        previousSellIndex = sellIndex;
         boolean b = sellIndex >= 2 &&
                 sellQuotes[sellIndex-2] < sellQuotes[sellIndex-1] && sellQuotes[sellIndex-1] > sellQuotes[sellIndex];
         if (b) {
