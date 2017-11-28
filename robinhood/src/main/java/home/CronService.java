@@ -77,12 +77,17 @@ public class CronService {
             Map<String, SortedSet<Order>> symbolOrdersMap = Utils.buildSymbolOrdersMap(fjt.get(), db, httpService);
             symbolOrdersMap.forEach((symbol, orders) -> {
                 Stock stock = db.getStock(symbol);
-                if (stock == null || !stock.isAutoRun()) {
+                if (stock == null) {
                     return;
                 }
 
                 // TODO check if we should buy when it just goes up after going down
                 stock.justGoUp();
+                stock.justGoDown();
+
+                if (!stock.isAutoRun()) {
+                    return;
+                }
 
                 Order lastOrder = stock.getLastAutoRunOrder();
                 Order autoRunSellOrder = stock.getAutoRunSellOrder();

@@ -26,6 +26,7 @@ import static java.util.stream.Collectors.joining;
 
 public class Stock extends StockDO {
     private static final int N = 20;
+    private static final int M = 8999;
     private transient final Logger logger = LoggerFactory.getLogger(Stock.class);
 
     private transient double[] profits = new double[N];
@@ -33,6 +34,10 @@ public class Stock extends StockDO {
     private transient Order[] _orders = new Order[N];
     private transient int _ordersLength = 0;
     private transient Order autoRunSell;
+    private transient double[] buyQuotes = new double[M];
+    private transient int buyIndex = -1;
+    private transient double[] sellQuotes = new double[M];
+    private transient int sellIndex = -1;
 
     private ConcurrentLinkedQueue<Quote> quotes;
 
@@ -55,6 +60,9 @@ public class Stock extends StockDO {
     public void addQuote(Quote q) {
         if (quotes == null || quotes.isEmpty()) {
             quotes = new ConcurrentLinkedQueue<>(Collections.singleton(q));
+
+            buyQuotes[++buyIndex] = calculateBuyQuote(q.getPrice());
+            sellQuotes[++sellIndex] = calculateSellQuote(q.getPrice());
         }
         else {
             Quote lastQ = new LinkedList<>(quotes).getLast();
@@ -67,6 +75,16 @@ public class Stock extends StockDO {
             if (h1 != h2 || m1 != m2 || s1 != s2) {
                 quotes.add(q);
                 price = q.getPrice();
+
+                double buyQuote = calculateBuyQuote(price);
+                if (buyQuote != buyQuotes[buyIndex] && !isNoiseInBuy(price.doubleValue())) {
+                    buyQuotes[++buyIndex] = buyQuote;
+                }
+
+                double sellQuote = calculateSellQuote(price);
+                if (sellQuote != sellQuotes[sellIndex] && !isNoiseInSell(price.doubleValue())) {
+                    sellQuotes[++sellIndex] = sellQuote;
+                }
             }
         }
 
@@ -198,33 +216,24 @@ public class Stock extends StockDO {
         return this;
     }
 
-    public boolean justGoUp() {
-        if (quotes == null || quotes.size() < 3) {
-            return false;
+    public boolean justGoUp() {        // only used to auto buy
+        boolean b = buyIndex >= 2 &&
+                buyQuotes[buyIndex - 2] > buyQuotes[buyIndex - 1] && buyQuotes[buyIndex - 1] < buyQuotes[buyIndex];
+        if (b) {
+            logger.debug("{} just goes up {} {} {}", symbol,
+                    buyQuotes[buyIndex - 2], buyQuotes[buyIndex - 1], buyQuotes[buyIndex]);
         }
-        Stack<Quote> stack = new Stack<>();
-        stack.addAll(quotes);
-        Quote q1 = stack.pop();
-        Quote q2 = stack.pop();
-        if (q1.getPrice().doubleValue() <= q2.getPrice().doubleValue()) {
-            return false;
+        return b;
+    }
+
+    public boolean justGoDown() {      // only used to auto sell
+        boolean b = sellIndex >= 2 &&
+                sellQuotes[sellIndex-2] < sellQuotes[sellIndex-1] && sellQuotes[sellIndex-1] > sellQuotes[sellIndex];
+        if (b) {
+            logger.debug("{} just goes down {} {} {}", symbol,
+                    sellQuotes[sellIndex-2], sellQuotes[sellIndex-1], sellQuotes[sellIndex]);
         }
-        try {
-            while (true) {
-                Quote q3 = stack.pop();
-                if (q3.getPrice().doubleValue() < q2.getPrice().doubleValue()) {
-                    return false;
-                }
-                if (q3.getPrice().doubleValue() > q2.getPrice().doubleValue()) {
-                    logger.debug("{}: {} {} downto {} {} upto {} {}", symbol, q3.getUpdatedAt(), q3.getPrice(),
-                            q2.getUpdatedAt(), q2.getPrice(), q1.getUpdatedAt(), q1.getPrice());
-                    return true;
-                }
-            }
-        }
-        catch (EmptyStackException esex) {
-            return false;
-        }
+        return b;
     }
 
     public void startAutorun(Order order) {
@@ -331,5 +340,25 @@ public class Stock extends StockDO {
             }
         }
         return Optional.empty();
+    }
+
+    private double calculateBuyQuote(BigDecimal bd) {
+        double a = (int)(bd.doubleValue()*100 + 0.99);
+        return a / 100;
+    }
+
+    private double calculateSellQuote(BigDecimal bd) {
+        double a = (int)(bd.doubleValue()*100);
+        return a / 100;
+    }
+
+    // if d is xxx.xx93, xxx.xx94, ... xxx.xx99 and we are building the sellQuotes, ignore it
+    private boolean isNoiseInSell(double d) {
+        return (int)(d * 100) < (int)((d + 0.0007) * 100);
+    }
+
+    // if d is xxx.xx01, xxx.xx02, ... xxx.xx07 and we are building the buyQuotes, ignore it
+    private boolean isNoiseInBuy(double d) {
+        return (int)(d * 100) > (int)((d - 0.0007) * 100);
     }
 }
