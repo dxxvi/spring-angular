@@ -29,7 +29,7 @@ public class BuySellOrderReadyThread extends Thread {
                 if (stock == null) {
                     throw new RuntimeException("Why no stock " + symbol + " in db?");
                 }
-                if (stock.isAutoRun()) {
+                if (stock.getAutoRun() != 0) {
                     wsh.send("ERROR: " + symbol + " is currently in AUTO RUN mode|So no manual BUY nor SELL.");
                     continue;
                 }
@@ -41,19 +41,18 @@ public class BuySellOrderReadyThread extends Thread {
                     wsh.send("ERROR: Robinhood DIDN'T ACCEPT YOUR ORDER|" + bso.humanBeingString());
                 }
                 else if (bso.isResell()) {
-                    if (!bso.isStartAutoRun()) {
+                    if (bso.getStartAutoRun() == 0) {
                         db.addBuySellOrderNeedsFlipped(bso.setId(ror.getId()));
                     }
-                    else if ("buy".equals(bso.getSide())) {
-                        wsh.send("WARNING: START AUTO RUN|Therefore, no FLIP.");
-                        stock.startAutorun(ror.toOrder());
-                    }
                     else {
-                        wsh.send("WARNING: SELL ORDER IGNORED|Because AUTO RUN is set.");
+                        wsh.send("WARNING: THIS ORDER IGNORED|Because AUTO RUN is set.");
                     }
                 }
-                else if (bso.isStartAutoRun()) {
+                else if (bso.getStartAutoRun() == -1) {
                     stock.startAutorun(ror.toOrder());
+                }
+                else if (bso.getStartAutoRun() == 1) {
+                    stock.startAutorunSell(ror.toOrder());
                 }
             }
             catch (Exception ex) {

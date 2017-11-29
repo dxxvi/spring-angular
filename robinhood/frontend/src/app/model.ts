@@ -41,5 +41,5 @@ export interface BuySellOrder {
   resell: boolean;
   resellDelta: number;
   wait: boolean;
-  startAutoRun: boolean;
+  startAutoRun: number;                // 0: no auto run, 1: auto sell, -1: auto buy
 }

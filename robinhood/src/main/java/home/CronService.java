@@ -85,7 +85,7 @@ public class CronService {
                 stock.justGoUp();
                 stock.justGoDown();
 
-                if (!stock.isAutoRun()) {
+                if (stock.getAutoRun() == 0) {
                     return;
                 }
 

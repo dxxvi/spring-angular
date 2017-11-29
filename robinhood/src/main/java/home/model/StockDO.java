@@ -17,7 +17,7 @@ public class StockDO {
     private BigDecimal last5minsMin;
     private BigDecimal last5minsMax;
     private int[] updatedAt = new int[6];
-    boolean autoRun = false;
+    int autoRun = 0;                   // 0: no auto run, 1: auto sell, -1: auto buy
 
     public StockDO() {}
     public StockDO(String symbol, String instrument) {
@@ -145,11 +145,11 @@ public class StockDO {
         return updatedAt;
     }
 
-    public boolean isAutoRun() {
+    public int getAutoRun() {
         return autoRun;
     }
 
-    public StockDO setAutoRun(boolean autoRun) {
+    public StockDO setAutoRun(int autoRun) {
         this.autoRun = autoRun;
         return this;
     }

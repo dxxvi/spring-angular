@@ -93,7 +93,7 @@ export class StockComponent implements OnInit {
       resell: this.resell,
       resellDelta: this.resellDelta,
       wait: this.wait,
-      startAutoRun: this.startAutoRun
+      startAutoRun: this.startAutoRun ? -1 : 0
     });
   }
 
@@ -113,7 +113,7 @@ export class StockComponent implements OnInit {
       resell: this.resell,
       resellDelta: this.resellDelta,
       wait: this.wait,
-      startAutoRun: false
+      startAutoRun: this.startAutoRun ? 1 : 0
     });
   }
 

@@ -29,11 +29,14 @@ public class Stock extends StockDO {
     private static final int M = 8999;
     private transient final Logger logger = LoggerFactory.getLogger(Stock.class);
 
-    private transient double[] profits = new double[N];
-    private transient int profitsLength = 0;
     private transient Order[] _orders = new Order[N];
     private transient int _ordersLength = 0;
     private transient Order autoRunSell;
+
+    private transient Order[] _ordersSell = new Order[N];
+    private transient int _ordersSellLength = 0;
+    private transient Order autoRunBuy;
+
     private transient double[] buyQuotes = new double[M];
     private transient int previousBuyIndex = -1;
     private transient int buyIndex = -1;
@@ -150,7 +153,7 @@ public class Stock extends StockDO {
         return new StockDO(symbol, instrument, latestQuote.getPrice(), dayMin, dayMax, day5Min, day5Max, orders,
                 getDayPercentage(), last5minsMin, last5minsMax,
                 ua.getYear(), ua.getMonthValue(), ua.getDayOfMonth(), ua.getHour(), ua.getMinute(), ua.getSecond())
-                .setAutoRun(isAutoRun());
+                .setAutoRun(getAutoRun());
     }
 
     private Tuple2<BigDecimal, BigDecimal> getMinMaxLast15Mins() {
@@ -247,11 +250,15 @@ public class Stock extends StockDO {
     }
 
     public void startAutorun(Order order) {
-        autoRun = true;
-        profitsLength = 1;
-        profits[profitsLength - 1] = 0;
+        autoRun = -1;
         _ordersLength = 1;
         _orders[_ordersLength - 1] = order;
+    }
+
+    public void startAutorunSell(Order order) {
+        autoRun = 1;
+        _ordersSellLength = 1;
+        _ordersSell[_ordersSellLength - 1] = order;
     }
 
     public Order getLastAutoRunOrder() {
@@ -272,9 +279,8 @@ public class Stock extends StockDO {
     }
 
     public void cancelAutoRun() {
-        autoRun = false;
+        autoRun = 0;
         autoRunSell = null;
-        profitsLength = 0;
         _ordersLength = 0;
     }
 

@@ -20,7 +20,7 @@ public class BuySellOrder {
     private boolean resell;
     private BigDecimal resellDelta;
     private boolean wait;
-    private boolean startAutoRun;
+    private int startAutoRun;
 
     public BuySellOrder() {
     }
@@ -136,11 +136,11 @@ public class BuySellOrder {
         this.wait = wait;
     }
 
-    public boolean isStartAutoRun() {
+    public int getStartAutoRun() {
         return startAutoRun;
     }
 
-    public void setStartAutoRun(boolean startAutoRun) {
+    public void setStartAutoRun(int startAutoRun) {
         this.startAutoRun = startAutoRun;
     }
 

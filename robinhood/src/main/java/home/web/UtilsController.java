@@ -86,8 +86,8 @@ public class UtilsController {
         if (stock == null) {
             return "Unable to find stock for symbol " + symbol;
         }
-        stock.setAutoRun(false);
-        return "Removed autoRun for " + symbol;
+        stock.setAutoRun(0);
+        return "{\"message\":\"Removed autoRun for " + symbol + "\"}";
     }
 
     @GetMapping(path = "/authentication-token")
