@@ -5,28 +5,22 @@ import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.EmptyStackException;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Optional;
 import java.util.SortedSet;
-import java.util.Stack;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.function.IntBinaryOperator;
-import java.util.stream.IntStream;
 
 import static java.util.stream.Collectors.joining;
 
 public class Stock extends StockDO {
     private static final int N = 20;
-    private static final int M = 8999;
+    private static final int M = 4000;
     private transient final Logger logger = LoggerFactory.getLogger(Stock.class);
 
     private transient Order[] _orders = new Order[N];
@@ -37,12 +31,16 @@ public class Stock extends StockDO {
     private transient int _ordersSellLength = 0;
     private transient Order autoRunBuy;
 
-    private transient double[] buyQuotes = new double[M];
+    private transient double[] buyQuotes = new double[M];        // only used to auto buy
     private transient int previousBuyIndex = -1;
     private transient int buyIndex = -1;
-    private transient double[] sellQuotes = new double[M];
+
+    private transient double[] sellQuotes = new double[M];       // only used to auto sell
     private transient int previousSellIndex = -1;
     private transient int sellIndex = -1;
+
+    private transient double[] goingUpDownQuotes = new double[M];  // used in manual buy
+    private transient int gudqi = -1;                              // goingUpDownQuotesIndex
 
     private ConcurrentLinkedQueue<Quote> quotes;
 
@@ -68,6 +66,8 @@ public class Stock extends StockDO {
 
             buyQuotes[++buyIndex] = calculateBuyQuote(q.getPrice());
             sellQuotes[++sellIndex] = calculateSellQuote(q.getPrice());
+            double d = (int)(q.getPrice().doubleValue()*100);
+            goingUpDownQuotes[++gudqi] = d / 100;
         }
         else {
             Quote lastQ = new LinkedList<>(quotes).getLast();
@@ -89,6 +89,14 @@ public class Stock extends StockDO {
                 double sellQuote = calculateSellQuote(price);
                 if (sellQuote != sellQuotes[sellIndex] && !isNoiseInSell(price.doubleValue())) {
                     sellQuotes[++sellIndex] = sellQuote;
+                }
+
+                if (!isNoiseInSell(price.doubleValue()) && !isNoiseInBuy(price.doubleValue())) {
+                    double p = (int)(price.doubleValue()*100);
+                    p = p / 100;
+                    if (p != goingUpDownQuotes[gudqi]) {
+                        goingUpDownQuotes[++gudqi] = p;
+                    }
                 }
             }
         }
@@ -249,6 +257,16 @@ public class Stock extends StockDO {
         return b;
     }
 
+    public boolean isGoingUp() {
+        return gudqi > 1 && goingUpDownQuotes[gudqi] > goingUpDownQuotes[gudqi -1] &&
+                goingUpDownQuotes[gudqi -1] > goingUpDownQuotes[gudqi -2];
+    }
+
+    public boolean isGoingDown() {
+        return gudqi > 1 && goingUpDownQuotes[gudqi] < goingUpDownQuotes[gudqi -1] &&
+                goingUpDownQuotes[gudqi -1] < goingUpDownQuotes[gudqi -2];
+    }
+
     public void startAutorun(Order order) {
         autoRun = -1;
         _ordersLength = 1;
@@ -370,6 +388,10 @@ public class Stock extends StockDO {
         return bso;
     }
 
+    public int getGoingUpDownQuotesIndex() {
+        return gudqi;
+    }
+
     private Optional<Order> getLastFilledOrder() {
         for (int i = _ordersLength - 1; i >= 0; i--) {
             if ("filled".equals(_orders[i].getState())) {
@@ -394,7 +416,7 @@ public class Stock extends StockDO {
         return (int)(d * 100) < (int)((d + 0.0007) * 100);
     }
 
-    // if d is xxx.xx01, xxx.xx02, ... xxx.xx07 and we are building the buyQuotes, ignore it
+    // if d is xxx.xx00, xxx.xx02, ... xxx.xx06 and we are building the buyQuotes, ignore it
     private boolean isNoiseInBuy(double d) {
         return (int)(d * 100) > (int)((d - 0.0007) * 100);
     }

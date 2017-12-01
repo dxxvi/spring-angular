@@ -21,6 +21,8 @@ public class BuySellOrderReadyThread extends Thread {
     }
 
     @Override public void run() {
+        boolean needToSleep = false;
+        int gudqi = -2;
         while (true) {
             try {
                 BuySellOrder bso = db.waitForBuySellOrder();
@@ -34,10 +36,36 @@ public class BuySellOrderReadyThread extends Thread {
                     continue;
                 }
 
+                if (bso.getSide().equals("buy") && stock.isGoingDown()) {
+                    if (gudqi != stock.getGoingUpDownQuotesIndex()) {
+                        gudqi = stock.getGoingUpDownQuotesIndex();
+                        wsh.send("INFO: YOU ASK TO BUY|... but the price is going down, so wait a bit.");
+                        needToSleep = true;
+                    }
+                    else if (needToSleep) {
+                        sleep();
+                    }
+                    db.addBuySellOrder(bso);
+                    continue;
+                }
+
+                if (bso.getSide().equals("sell") && stock.isGoingUp()) {
+                    if (gudqi != stock.getGoingUpDownQuotesIndex()) {
+                        gudqi = stock.getGoingUpDownQuotesIndex();
+                        wsh.send("INFO: YOU ASK TO SELL|... but the price is going up, so wait a bit.");
+                        needToSleep = true;
+                    }
+                    else if (needToSleep) {
+                        sleep();
+                    }
+                    db.addBuySellOrder(bso);
+                    continue;
+                }
+
+                needToSleep = false;
+
                 RobinhoodOrderResult ror = orderService.buySell(bso);
                 if (ror == null) {
-                    // for some reason, Robinhood didn't accept our request, then we retry it later.
-                    // db.addBuySellOrder(buySellOrder);
                     wsh.send("ERROR: Robinhood DIDN'T ACCEPT YOUR ORDER|" + bso.humanBeingString());
                 }
                 else if (bso.isResell()) {
@@ -59,5 +87,12 @@ public class BuySellOrderReadyThread extends Thread {
                 logger.error("Fix me because this kind of exception can stop the BuySellOrderReadyThread.", ex);
             }
         }
+    }
+
+    private void sleep() {
+        try {
+            Thread.sleep(419);
+        }
+        catch (InterruptedException iex) { /* who cares */ }
     }
 }

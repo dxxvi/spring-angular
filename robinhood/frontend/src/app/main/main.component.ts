@@ -167,6 +167,16 @@ export class MainComponent implements OnInit {
         else if (data.indexOf('PORTFOLIO: ') === 0) {
           this.equity = data.replace(/00$/, '').replace(/^PORTFOLIO: /, '$');
         }
+        else if (data.indexOf('INFO: ') === 0) {
+          const array = data.split('|');
+          const title = array.length > 1 ? array[0] : 'NO TITLE';
+          const msg   = array.length > 1 ? array[1] : 'No body!';
+          this.toastyService.info({
+            title: title,
+            msg: msg,
+            timeout: 3210
+          });
+        }
       },
       error => {
         console.log('Error channel:');
@@ -174,7 +184,7 @@ export class MainComponent implements OnInit {
         const toastOptions: ToastOptions = {
           title: 'You need to reload the page',
           msg: '',
-          timeout: 9999999
+          timeout: 99999
         };
         this.toastyService.error(toastOptions);
       },
