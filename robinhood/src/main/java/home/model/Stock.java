@@ -255,14 +255,8 @@ public class Stock extends StockDO {
         _orders[_ordersLength - 1] = order;
     }
 
-    public void startAutorunSell(Order order) {
-        autoRun = 1;
-        _ordersSellLength = 1;
-        _ordersSell[_ordersSellLength - 1] = order;
-    }
-
     public Order getLastAutoRunOrder() {
-        return _orders[_ordersLength - 1];
+        return _ordersLength > 0 ? _orders[_ordersLength - 1] : null;
     }
 
     public Order getAutoRunSellOrder() {
@@ -274,14 +268,41 @@ public class Stock extends StockDO {
     }
 
     public void addAutoRunBuyOrder(Order o) {
-        _ordersLength ++;
-        _orders[_ordersLength - 1] = o;
+        _orders[++_ordersLength - 1] = o;
     }
 
     public void cancelAutoRun() {
         autoRun = 0;
         autoRunSell = null;
         _ordersLength = 0;
+    }
+
+    public void startAutorunSell(Order order) {
+        autoRun = 1;
+        _ordersSellLength = 1;
+        _ordersSell[_ordersSellLength - 1] = order;
+    }
+
+    public Order getLastAutoRunSellOrder() {
+        return _ordersSellLength > 0 ? _ordersSell[_ordersSellLength - 1] : null;
+    }
+
+    public Order getAutoRunBuyOrder() {
+        return autoRunBuy;
+    }
+
+    public void setAutoRunBuyOrder(Order o) {
+        autoRunBuy = o;
+    }
+
+    public void addAutoRunSellOrder(Order o) {
+        _ordersSell[++_ordersSellLength - 1]  = o;
+    }
+
+    public void cancelAutoRunSell() {
+        autoRun = 0;
+        autoRunBuy = null;
+        _ordersSellLength = 0;
     }
 
     public Tuple2<Integer, Double> calculateQuantityAndPrice() {

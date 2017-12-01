@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.SortedSet;
 import java.util.concurrent.Callable;
@@ -20,6 +21,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinTask;
+import java.util.stream.Stream;
 
 public class CronService {
     private final Logger logger = LoggerFactory.getLogger(CronService.class);
@@ -74,6 +76,7 @@ public class CronService {
             latch.await();
 
             // do the auto run here
+            long t1 = System.currentTimeMillis();
             Map<String, SortedSet<Order>> symbolOrdersMap = Utils.buildSymbolOrdersMap(fjt.get(), db, httpService);
             symbolOrdersMap.forEach((symbol, orders) -> {
                 Stock stock = db.getStock(symbol);
@@ -82,31 +85,32 @@ public class CronService {
                 }
 
                 // TODO check if we should buy when it just goes up after going down
-                stock.justGoUp();
-                stock.justGoDown();
+                boolean justGoUp = stock.justGoUp();
+                boolean justGoDown = stock.justGoDown();
 
                 if (stock.getAutoRun() == 0) {
                     return;
                 }
 
-                Order lastOrder = stock.getLastAutoRunOrder();
-                Order autoRunSellOrder = stock.getAutoRunSellOrder();
-                orders.forEach(o -> {
-                    Order order = null;
-                    if (o.getId().equals(lastOrder.getId())) {
-                        order = lastOrder;
-                    }
-                    if (autoRunSellOrder != null && o.getId().equals(autoRunSellOrder.getId())) {
-                        order = autoRunSellOrder;
-                    }
-                    if (order != null) {
-                        order.setState(o.getState());
-                    }
+                orders.forEach(o1 -> {
+                    Stream.of(
+                            stock.getLastAutoRunOrder(),
+                            stock.getAutoRunSellOrder(),
+                            stock.getLastAutoRunSellOrder(),
+                            stock.getAutoRunBuyOrder()
+                    )
+                            .filter(Objects::nonNull)
+                            .filter(o2 -> o1.getId().equals(o2.getId()))
+                            .forEach(o2 -> o2.setState(o1.getState()));
                 });
                 doAutoRun(stock);
             });
+            long t2 = System.currentTimeMillis();
+            logger.debug("Do the autorun takes {}, check the thread name.", (t2-t1) / 1000);
 
             orderService.sendOrdersToBrowser(fjt.get());
+            t1 = System.currentTimeMillis();
+            logger.debug("Sending orders to browsers takes {}, check the thread name.", (t1-t2) / 1000);
         }
         catch (InterruptedException iex) { /* who cares */ }
         catch (ExecutionException eex) {

@@ -69,6 +69,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
         if (session != null && session.isOpen()) {
             try {
                 session.sendMessage(new TextMessage(message));
+                logger.debug("Just sent a message to the browser. Check the thread name ...");
             }
             catch (Exception ex) {
                 logger.warn("Unable to send message to client: {}: {}", ex.getClass().getName(), ex.getMessage());
