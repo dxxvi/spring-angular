@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -48,7 +49,7 @@ public class CronService {
 
     @Scheduled(cron = "0/5 0/1 * * * *")
     public void cron() {
-        CountDownLatch latch = new CountDownLatch(2);
+        CountDownLatch latch = new CountDownLatch(1);
         Runnable quoteTask = () -> {
             try {
                 quoteService.quotes();
@@ -58,26 +59,25 @@ public class CronService {
             }
             latch.countDown();
         };
-        Callable<RobinhoodOrdersResult> orderTask = () -> {
-            RobinhoodOrdersResult result = null;
+        ForkJoinPool.commonPool().execute(quoteTask);
+
+        try {
+            RobinhoodOrdersResult result = new RobinhoodOrdersResult();
+            result.setResults(Collections.emptyList());
             try {
                 result = orderService.orders();
             }
             catch (Exception ex) {
                 logger.error("Fix me", ex);
             }
-            latch.countDown();
-            return result;
-        };
-        ForkJoinPool.commonPool().submit(quoteTask);
-        ForkJoinTask<RobinhoodOrdersResult> fjt = ForkJoinPool.commonPool().submit(orderTask);
-
-        try {
             latch.await();
+
+            ForkJoinPool.commonPool().execute(positionService::positions);
+            ForkJoinPool.commonPool().execute(portfolioService::portfolio);
 
             // do the auto run here
             long t1 = System.currentTimeMillis();
-            Map<String, SortedSet<Order>> symbolOrdersMap = Utils.buildSymbolOrdersMap(fjt.get(), db, httpService);
+            Map<String, SortedSet<Order>> symbolOrdersMap = Utils.buildSymbolOrdersMap(result, db, httpService);
             symbolOrdersMap.forEach((symbol, orders) -> {
                 Stock stock = db.getStock(symbol);
                 if (stock == null) {
@@ -108,19 +108,11 @@ public class CronService {
             long t2 = System.currentTimeMillis();
             logger.debug("Do the autorun takes {}, check the thread name.", (t2-t1) / 1000);
 
-            orderService.sendOrdersToBrowser(fjt.get());
+            orderService.sendOrdersToBrowser(result);
             t1 = System.currentTimeMillis();
             logger.debug("Sending orders to browsers takes {}, check the thread name.", (t1-t2) / 1000);
         }
         catch (InterruptedException iex) { /* who cares */ }
-        catch (ExecutionException eex) {
-            logger.error("Got exception from fjt.get: {}: {}", eex.getClass().getName(), eex.getMessage());
-        }
-
-        Runnable positionTask  = positionService::positions;
-        Runnable portfolioTask = portfolioService::portfolio;
-        ForkJoinPool.commonPool().submit(positionTask);
-        ForkJoinPool.commonPool().submit(portfolioTask);
     }
 
     /*
